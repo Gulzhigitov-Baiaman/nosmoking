@@ -3,8 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
-import { createClient } from "@supabase/supabase-js";
+import { AuthProvider } from "./contexts/AuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -15,14 +14,9 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const supabaseUrl = "https://fkdsciqcyqjycmztwlcl.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZHNjaXFjeXFqeWNtenR3bGNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzMTc0NjgsImV4cCI6MjA2NDg5MzQ2OH0.bAXFJ5vVTnRaWK7PWtm6XXOS1_qLe_I5W8rvVXNbgGo";
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SessionContextProvider supabaseClient={supabase}>
+    <AuthProvider>
       <SubscriptionProvider>
         <TooltipProvider>
           <Toaster />
@@ -40,7 +34,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </SubscriptionProvider>
-    </SessionContextProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

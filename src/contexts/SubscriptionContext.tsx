@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { supabase } from "./AuthContext";
+import { useAuth } from "./AuthContext";
 
 interface SubscriptionContextType {
   isPremium: boolean;
@@ -25,8 +26,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [isPremium, setIsPremium] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = useSupabaseClient();
-  const user = useUser();
+  const { user } = useAuth();
 
   const checkSubscription = async () => {
     if (!user) {
