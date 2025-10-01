@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut } from "lucide-react";
+import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Profile {
@@ -144,7 +144,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Button
             onClick={() => navigate("/chat")}
             variant="outline"
@@ -168,6 +168,14 @@ export default function Dashboard() {
           >
             <Trophy className="h-6 w-6" />
             <span>Челленджи</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/support")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <HeadphonesIcon className="h-6 w-6" />
+            <span>Поддержка</span>
           </Button>
         </div>
 
