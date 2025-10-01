@@ -1,184 +1,186 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  TrendingUp, 
-  Wallet, 
-  Clock, 
-  Cigarette, 
-  Award, 
-  Heart,
-  Menu,
-  User,
-  Sparkles,
-  Crown
-} from "lucide-react";
+import { useAuth, supabase } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const Dashboard = () => {
-  const { isPremium } = useSubscription();
+interface Profile {
+  quit_date: string | null;
+  cigarettes_per_day: number;
+  pack_price: number;
+  minutes_per_cigarette: number;
+}
+
+export default function Dashboard() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
+  const [profile, setProfile] = useState<Profile | null>(null);
 
-  // Mock data - будет заменено на реальные данные из базы
-  const stats = {
-    daysWithout: 3,
-    moneySaved: 13500,
-    timeSaved: 75,
-    cigarettesAvoided: 60,
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  const loadProfile = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user?.id)
+      .single();
+
+    if (error) {
+      console.error("Error loading profile:", error);
+    } else {
+      setProfile(data);
+    }
   };
 
-  const achievements = [
-    { id: 1, name: "Первый день", unlocked: true, icon: "🎯" },
-    { id: 2, name: "3 дня", unlocked: true, icon: "🌟" },
-    { id: 3, name: "Неделя", unlocked: false, icon: "🏆" },
-    { id: 4, name: "Месяц", unlocked: false, icon: "👑" },
-  ];
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
-  const dailyTips = [
-    "Пей больше воды — это помогает выводить никотин",
-    "Занимайся спортом или гуляй, когда хочется курить",
-    "Награди себя за успех — купи что-то на сэкономленные деньги",
-  ];
+  const getDaysWithoutSmoking = () => {
+    if (!profile?.quit_date) return 0;
+    const diff = Date.now() - new Date(profile.quit_date).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const getMoneySaved = () => {
+    const days = getDaysWithoutSmoking();
+    return Math.round(days * (profile?.cigarettes_per_day || 0) * (profile?.pack_price || 0) / 20);
+  };
+
+  const getTimeSaved = () => {
+    const days = getDaysWithoutSmoking();
+    return Math.round(days * (profile?.cigarettes_per_day || 0) * (profile?.minutes_per_cigarette || 0));
+  };
+
+  const getCigarettesAvoided = () => {
+    const days = getDaysWithoutSmoking();
+    return days * (profile?.cigarettes_per_day || 0);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Загрузка...</p>
+      </div>
+    );
+  }
+
+  const daysWithoutSmoking = getDaysWithoutSmoking();
+  const moneySaved = getMoneySaved();
+  const timeSaved = getTimeSaved();
+  const cigarettesAvoided = getCigarettesAvoided();
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* Header */}
-      <header className="gradient-primary p-6 pb-32">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex items-center justify-between mb-8">
-            <Button variant="ghost" size="icon" className="text-white">
-              <Menu className="h-6 w-6" />
-            </Button>
-            <div className="flex items-center gap-2">
-              {!isPremium && (
-                <Button
-                  onClick={() => navigate("/subscription")}
-                  variant="ghost"
-                  size="sm"
-                  className="text-white border border-white/20"
-                >
-                  <Crown className="h-4 w-4 mr-2" />
-                  Premium
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" className="text-white">
-                <User className="h-6 w-6" />
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
+      <div className="container max-w-6xl mx-auto">
+        <header className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Дашборд</h1>
+          <Button variant="ghost" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Выйти
+          </Button>
+        </header>
 
-          <div className="text-center text-white">
-            <div className="mb-2 text-sm font-medium opacity-90">Дней без сигарет</div>
-            <div className="text-6xl font-bold mb-2">{stats.daysWithout}</div>
-            <p className="text-lg opacity-90">Ты молодец! Продолжай!</p>
-          </div>
+        {/* Main Stats - Days Without Smoking */}
+        <div className="text-center mb-12 p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20">
+          <h2 className="text-lg text-muted-foreground mb-2">Дней без сигарет</h2>
+          <p className="text-6xl font-bold text-primary mb-2">{daysWithoutSmoking}</p>
+          <p className="text-sm text-muted-foreground">Продолжайте в том же духе!</p>
         </div>
-      </header>
 
-      {/* Stats Cards */}
-      <div className="container mx-auto max-w-4xl px-4 -mt-20">
-        <div className="grid gap-4 md:grid-cols-3 mb-8">
-          <Card className="p-6 shadow-card border-2 animate-fade-in">
-            <div className="flex items-start justify-between mb-4">
-              <div className="gradient-motivation h-12 w-12 rounded-xl flex items-center justify-center">
-                <Wallet className="h-6 w-6 text-white" />
+        {/* Key Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Сэкономлено</p>
+                  <p className="text-2xl font-bold">{moneySaved}₽</p>
+                </div>
+                <DollarSign className="h-12 w-12 text-green-500 opacity-50" />
               </div>
-            </div>
-            <div className="text-2xl font-bold mb-1">
-              {stats.moneySaved.toLocaleString()} ₩
-            </div>
-            <div className="text-sm text-muted-foreground">Сэкономлено</div>
+            </CardContent>
           </Card>
 
-          <Card className="p-6 shadow-card border-2 animate-fade-in" style={{ animationDelay: "100ms" }}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="gradient-success h-12 w-12 rounded-xl flex items-center justify-center">
-                <Clock className="h-6 w-6 text-white" />
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Времени сэкономлено</p>
+                  <p className="text-2xl font-bold">{timeSaved} мин</p>
+                </div>
+                <Clock className="h-12 w-12 text-blue-500 opacity-50" />
               </div>
-            </div>
-            <div className="text-2xl font-bold mb-1">{stats.timeSaved} мин</div>
-            <div className="text-sm text-muted-foreground">Сэкономлено</div>
+            </CardContent>
           </Card>
 
-          <Card className="p-6 shadow-card border-2 animate-fade-in" style={{ animationDelay: "200ms" }}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="gradient-primary h-12 w-12 rounded-xl flex items-center justify-center">
-                <Cigarette className="h-6 w-6 text-white" />
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Не выкурено</p>
+                  <p className="text-2xl font-bold">{cigarettesAvoided}</p>
+                </div>
+                <Cigarette className="h-12 w-12 text-red-500 opacity-50" />
               </div>
-            </div>
-            <div className="text-2xl font-bold mb-1">{stats.cigarettesAvoided}</div>
-            <div className="text-sm text-muted-foreground">Не выкурено</div>
+            </CardContent>
           </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Button
+            onClick={() => navigate("/chat")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <MessageSquare className="h-6 w-6" />
+            <span>Общий чат</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/progress")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <TrendingDown className="h-6 w-6" />
+            <span>План сокращения</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/challenges")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <Trophy className="h-6 w-6" />
+            <span>Челленджи</span>
+          </Button>
         </div>
 
         {/* Health Progress */}
-        <Card className="p-6 shadow-card border-2 mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="gradient-success h-10 w-10 rounded-lg flex items-center justify-center">
-              <Heart className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-bold">Восстановление здоровья</h3>
-              <p className="text-sm text-muted-foreground">Твой организм благодарит тебя!</p>
-            </div>
-          </div>
-          <Progress value={30} className="mb-2" />
-          <p className="text-xs text-muted-foreground">
-            Через 7 дней улучшится работа лёгких
-          </p>
-        </Card>
-
-        {/* Achievements */}
-        <Card className="p-6 shadow-card border-2 mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Award className="h-5 w-5 text-primary" />
-            <h3 className="font-bold text-lg">Достижения</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            {achievements.map((achievement) => (
-              <div
-                key={achievement.id}
-                className={`text-center ${
-                  achievement.unlocked ? "opacity-100" : "opacity-40"
-                }`}
-              >
-                <div
-                  className={`text-4xl mb-2 ${
-                    achievement.unlocked ? "animate-bounce-in" : ""
-                  }`}
-                >
-                  {achievement.icon}
-                </div>
-                <div className="text-xs font-medium">{achievement.name}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Daily Tips */}
-        <Card className="p-6 shadow-card border-2 gradient-subtle">
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-5 w-5 text-accent" />
-            <h3 className="font-bold text-lg">Советы дня</h3>
-          </div>
-          <div className="space-y-3">
-            {dailyTips.map((tip, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 p-3 bg-card rounded-lg"
-              >
-                <div className="gradient-motivation h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <TrendingUp className="h-4 w-4 text-white" />
-                </div>
-                <p className="text-sm">{tip}</p>
-              </div>
-            ))}
-          </div>
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">Восстановление здоровья</h3>
+            <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="mb-2" />
+            <p className="text-sm text-muted-foreground">
+              Ваш организм восстанавливается! Продолжайте в том же духе!
+            </p>
+          </CardContent>
         </Card>
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

@@ -1,32 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth, supabase } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Cigarette, Wallet, Clock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
-const Onboarding = () => {
+export default function Onboarding() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     cigarettesPerDay: "",
     packPrice: "",
     minutesPerBreak: "",
-    quitDate: new Date(),
+    quitDate: undefined as Date | undefined,
+    reductionPerWeek: "",
   });
 
-  const handleNext = () => {
-    if (step < 4) {
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  const handleNext = async () => {
+    if (step < 5) {
       setStep(step + 1);
     } else {
-      // TODO: Save data
-      navigate("/dashboard");
+      // Save profile and create smoking plan
+      try {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            quit_date: formData.quitDate?.toISOString(),
+            cigarettes_per_day: parseInt(formData.cigarettesPerDay),
+            pack_price: parseFloat(formData.packPrice),
+            minutes_per_cigarette: parseInt(formData.minutesPerBreak),
+          })
+          .eq("id", user?.id);
+
+        if (profileError) throw profileError;
+
+        const { error: planError } = await supabase
+          .from("smoking_plans")
+          .insert({
+            user_id: user?.id,
+            start_cigarettes: parseInt(formData.cigarettesPerDay),
+            target_cigarettes: 0,
+            reduction_per_week: parseInt(formData.reductionPerWeek),
+            start_date: new Date().toISOString(),
+          });
+
+        if (planError) throw planError;
+
+        toast({
+          title: "Успех!",
+          description: "Ваш план создан. Удачи!",
+        });
+
+        navigate("/dashboard");
+      } catch (error) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось сохранить данные",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -39,145 +87,123 @@ const Onboarding = () => {
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return formData.cigarettesPerDay !== "";
+        return formData.cigarettesPerDay !== "" && parseInt(formData.cigarettesPerDay) > 0;
       case 2:
-        return formData.packPrice !== "";
+        return formData.packPrice !== "" && parseFloat(formData.packPrice) > 0;
       case 3:
-        return formData.minutesPerBreak !== "";
+        return formData.minutesPerBreak !== "" && parseInt(formData.minutesPerBreak) > 0;
       case 4:
-        return true;
+        return formData.quitDate !== undefined;
+      case 5:
+        return formData.reductionPerWeek !== "" && parseInt(formData.reductionPerWeek) > 0;
       default:
         return false;
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Загрузка...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <div className="mb-8">
-          <div className="flex gap-2 mb-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className={cn(
-                  "h-2 flex-1 rounded-full transition-all duration-300",
-                  i <= step ? "gradient-success" : "bg-muted"
-                )}
-              />
-            ))}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg">
+        <CardHeader>
+          <CardTitle>Давайте начнём</CardTitle>
+          <CardDescription>
+            Ответьте на несколько вопросов, чтобы мы могли создать ваш план
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center mb-8">
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-2 w-12 rounded-full transition-colors",
+                    i <= step ? "bg-primary" : "bg-muted"
+                  )}
+                />
+              ))}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground text-center">
-            Шаг {step} из 4
-          </p>
-        </div>
 
-        <Card className="p-8 shadow-card border-2">
-          {step === 1 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="gradient-primary h-16 w-16 rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-                  <Cigarette className="h-8 w-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Сколько сигарет в день?</h2>
-                <p className="text-muted-foreground">
-                  Это поможет нам рассчитать твой прогресс
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cigarettes">Количество сигарет</Label>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleNext();
+            }}
+            className="space-y-6"
+          >
+            {step === 1 && (
+              <div className="space-y-4">
+                <Label htmlFor="cigarettesPerDay">
+                  Сколько сигарет вы выкуриваете в день?
+                </Label>
                 <Input
-                  id="cigarettes"
+                  id="cigarettesPerDay"
                   type="number"
+                  min="1"
                   placeholder="Например: 20"
                   value={formData.cigarettesPerDay}
                   onChange={(e) =>
                     setFormData({ ...formData, cigarettesPerDay: e.target.value })
                   }
-                  className="h-14 text-lg"
-                  min="1"
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 2 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="gradient-motivation h-16 w-16 rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-                  <Wallet className="h-8 w-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Цена пачки</h2>
-                <p className="text-muted-foreground">
-                  Узнай, сколько денег ты сэкономишь
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="price">Цена в вонах (₩)</Label>
+            {step === 2 && (
+              <div className="space-y-4">
+                <Label htmlFor="packPrice">
+                  Сколько стоит пачка сигарет? (₽)
+                </Label>
                 <Input
-                  id="price"
+                  id="packPrice"
                   type="number"
-                  placeholder="Например: 4500"
+                  min="0"
+                  step="0.01"
+                  placeholder="Например: 200"
                   value={formData.packPrice}
                   onChange={(e) =>
                     setFormData({ ...formData, packPrice: e.target.value })
                   }
-                  className="h-14 text-lg"
-                  min="1"
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 3 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="gradient-success h-16 w-16 rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-                  <Clock className="h-8 w-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Время на перекур</h2>
-                <p className="text-muted-foreground">
-                  Сколько минут занимает один перекур?
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="time">Минут на перекур</Label>
+            {step === 3 && (
+              <div className="space-y-4">
+                <Label htmlFor="minutesPerBreak">
+                  Сколько минут занимает перекур?
+                </Label>
                 <Input
-                  id="time"
+                  id="minutesPerBreak"
                   type="number"
+                  min="1"
                   placeholder="Например: 5"
                   value={formData.minutesPerBreak}
                   onChange={(e) =>
                     setFormData({ ...formData, minutesPerBreak: e.target.value })
                   }
-                  className="h-14 text-lg"
-                  min="1"
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {step === 4 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="gradient-primary h-16 w-16 rounded-2xl flex items-center justify-center mb-4 shadow-glow">
-                  <CalendarIcon className="h-8 w-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Когда начнём?</h2>
-                <p className="text-muted-foreground">
-                  Выбери дату начала твоего пути
-                </p>
-              </div>
-
-              <div className="flex justify-center">
+            {step === 4 && (
+              <div className="space-y-4">
+                <Label>Когда вы планируете бросить курить?</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-14",
+                        "w-full justify-start text-left font-normal",
                         !formData.quitDate && "text-muted-foreground"
                       )}
                     >
@@ -185,45 +211,68 @@ const Onboarding = () => {
                       {formData.quitDate ? (
                         format(formData.quitDate, "PPP", { locale: ru })
                       ) : (
-                        <span>Выбери дату</span>
+                        <span>Выберите дату</span>
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
                       selected={formData.quitDate}
                       onSelect={(date) =>
-                        date && setFormData({ ...formData, quitDate: date })
+                        setFormData({ ...formData, quitDate: date })
                       }
-                      locale={ru}
                       initialFocus
+                      locale={ru}
                     />
                   </PopoverContent>
                 </Popover>
               </div>
-            </div>
-          )}
-
-          <div className="flex gap-4 mt-8">
-            {step > 1 && (
-              <Button variant="outline" onClick={handleBack} className="flex-1">
-                Назад
-              </Button>
             )}
-            <Button
-              variant={step === 4 ? "success" : "default"}
-              onClick={handleNext}
-              disabled={!isStepValid()}
-              className="flex-1"
-            >
-              {step === 4 ? "Начать!" : "Далее"}
-            </Button>
-          </div>
-        </Card>
-      </div>
+
+            {step === 5 && (
+              <div className="space-y-4">
+                <Label htmlFor="reductionPerWeek">
+                  Сокращение сигарет в неделю
+                </Label>
+                <Input
+                  id="reductionPerWeek"
+                  type="number"
+                  min="1"
+                  placeholder="Например: 2"
+                  value={formData.reductionPerWeek}
+                  onChange={(e) =>
+                    setFormData({ ...formData, reductionPerWeek: e.target.value })
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  На сколько сигарет в неделю вы хотите сокращать?
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              {step > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBack}
+                  className="flex-1"
+                >
+                  Назад
+                </Button>
+              )}
+              <Button
+                type="submit"
+                disabled={!isStepValid()}
+                className="flex-1"
+              >
+                {step === 5 ? "Начать!" : "Далее"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default Onboarding;
+}
