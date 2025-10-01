@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useNavigate } from "react-router-dom";
 import { 
   TrendingUp, 
   Wallet, 
@@ -10,10 +12,14 @@ import {
   Heart,
   Menu,
   User,
-  Sparkles
+  Sparkles,
+  Crown
 } from "lucide-react";
 
 const Dashboard = () => {
+  const { isPremium } = useSubscription();
+  const navigate = useNavigate();
+
   // Mock data - будет заменено на реальные данные из базы
   const stats = {
     daysWithout: 3,
@@ -44,9 +50,22 @@ const Dashboard = () => {
             <Button variant="ghost" size="icon" className="text-white">
               <Menu className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-white">
-              <User className="h-6 w-6" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {!isPremium && (
+                <Button
+                  onClick={() => navigate("/subscription")}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white border border-white/20"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Premium
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="text-white">
+                <User className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
 
           <div className="text-center text-white">
