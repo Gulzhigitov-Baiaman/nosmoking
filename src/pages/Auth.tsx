@@ -6,19 +6,142 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement authentication
-    setTimeout(() => {
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Успешный вход!",
+        description: "Добро пожаловать обратно!",
+      });
+
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Ошибка входа",
+        description: error.message || "Проверьте email и пароль",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Пароли не совпадают",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Ошибка",
+        description: "Пароль должен быть минимум 6 символов",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Регистрация успешна!",
+        description: "Вы можете войти в приложение",
+      });
+
       navigate("/onboarding");
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Ошибка регистрации",
+        description: error.message || "Попробуйте еще раз",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Ошибка входа через Google",
+        description: error.message || "Попробуйте еще раз",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Ошибка входа через Apple",
+        description: error.message || "Попробуйте еще раз",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -52,7 +175,7 @@ const Auth = () => {
             </TabsList>
 
             <TabsContent value="login">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
                   <div className="relative">
@@ -62,6 +185,8 @@ const Auth = () => {
                       type="email"
                       placeholder="your@email.com"
                       className="pl-10 h-12"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -76,6 +201,8 @@ const Auth = () => {
                       type="password"
                       placeholder="••••••••"
                       className="pl-10 h-12"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -94,7 +221,12 @@ const Auth = () => {
                   </div>
                 </div>
 
-                <Button type="button" variant="outline" className="w-full">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleGoogleLogin}
+                >
                   <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                     <path
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -115,11 +247,23 @@ const Auth = () => {
                   </svg>
                   Войти через Google
                 </Button>
+
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleAppleLogin}
+                >
+                  <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                  </svg>
+                  Войти через Apple
+                </Button>
               </form>
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <div className="relative">
@@ -129,6 +273,8 @@ const Auth = () => {
                       type="email"
                       placeholder="your@email.com"
                       className="pl-10 h-12"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -143,6 +289,8 @@ const Auth = () => {
                       type="password"
                       placeholder="••••••••"
                       className="pl-10 h-12"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -157,12 +305,14 @@ const Auth = () => {
                       type="password"
                       placeholder="••••••••"
                       className="pl-10 h-12"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
                   </div>
                 </div>
 
-                <Button type="submit" variant="success" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Регистрация..." : "Зарегистрироваться"}
                 </Button>
 
@@ -175,7 +325,12 @@ const Auth = () => {
                   </div>
                 </div>
 
-                <Button type="button" variant="outline" className="w-full">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleGoogleLogin}
+                >
                   <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                     <path
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -195,6 +350,18 @@ const Auth = () => {
                     />
                   </svg>
                   Зарегистрироваться через Google
+                </Button>
+
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleAppleLogin}
+                >
+                  <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                  </svg>
+                  Зарегистрироваться через Apple
                 </Button>
               </form>
             </TabsContent>
