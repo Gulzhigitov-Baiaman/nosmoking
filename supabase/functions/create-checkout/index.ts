@@ -35,7 +35,7 @@ serve(async (req) => {
     }
 
     // TODO: Replace with actual price_id from Stripe Dashboard
-    const PREMIUM_PRICE_ID = " price_1SDO172MU8qIKdQPJro7tKGG.";
+    const PREMIUM_PRICE_ID = "price_YOUR_PRICE_ID_HERE";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
