@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Send } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, Send, Smile } from "lucide-react";
+import { toast } from "sonner";
 
 interface ChatMessage {
   id: string;
@@ -16,15 +17,26 @@ interface ChatMessage {
   created_at: string;
   profiles: {
     username: string;
+    display_name: string | null;
     quit_date: string | null;
   };
+  reactions?: MessageReaction[];
 }
+
+interface MessageReaction {
+  id: string;
+  message_id: string;
+  user_id: string;
+  emoji: string;
+}
+
+const QUICK_EMOJIS = ["👍", "❤️", "🔥", "💪", "😂", "🎉", "👏", "✨"];
 
 export default function Chat() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [reactions, setReactions] = useState<Record<string, MessageReaction[]>>({});
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -37,50 +49,57 @@ export default function Chat() {
   useEffect(() => {
     if (!user) return;
 
-    // Load initial messages
     loadMessages();
+    loadReactions();
 
-    // Subscribe to new messages
-    const channel = supabase
+    const messagesChannel = supabase
       .channel("chat-messages")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-        },
-        (payload) => {
-          loadMessages();
-        }
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, () => {
+        loadMessages();
+      })
+      .subscribe();
+
+    const reactionsChannel = supabase
+      .channel("chat-reactions")
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_reactions" }, () => {
+        loadReactions();
+      })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(reactionsChannel);
     };
   }, [user]);
 
   const loadMessages = async () => {
     const { data, error } = await supabase
       .from("chat_messages")
-      .select(
-        `
-        *,
-        profiles:user_id (username, quit_date)
-      `
-      )
+      .select(`*, profiles:user_id (username, display_name, quit_date)`)
       .order("created_at", { ascending: true })
       .limit(100);
 
     if (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось загрузить сообщения",
-        variant: "destructive",
-      });
+      console.error("Error loading messages:", error);
     } else {
       setMessages(data || []);
+    }
+  };
+
+  const loadReactions = async () => {
+    const { data, error } = await supabase
+      .from("chat_reactions")
+      .select("*");
+
+    if (error) {
+      console.error("Error loading reactions:", error);
+    } else {
+      const grouped = (data || []).reduce((acc, reaction) => {
+        if (!acc[reaction.message_id]) acc[reaction.message_id] = [];
+        acc[reaction.message_id].push(reaction);
+        return acc;
+      }, {} as Record<string, MessageReaction[]>);
+      setReactions(grouped);
     }
   };
 
@@ -94,21 +113,60 @@ export default function Chat() {
     });
 
     if (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось отправить сообщение",
-        variant: "destructive",
-      });
+      toast.error("Не удалось отправить сообщение");
     } else {
       setNewMessage("");
     }
     setSending(false);
   };
 
+  const addReaction = async (messageId: string, emoji: string) => {
+    if (!user) return;
+
+    // Check if user already reacted with this emoji
+    const existingReaction = reactions[messageId]?.find(
+      (r) => r.user_id === user.id && r.emoji === emoji
+    );
+
+    if (existingReaction) {
+      // Remove reaction
+      await supabase.from("chat_reactions").delete().eq("id", existingReaction.id);
+      toast.success("Реакция удалена");
+    } else {
+      // Remove other reactions from this user on this message
+      const userReactions = reactions[messageId]?.filter((r) => r.user_id === user.id);
+      if (userReactions && userReactions.length > 0) {
+        await supabase
+          .from("chat_reactions")
+          .delete()
+          .in("id", userReactions.map((r) => r.id));
+      }
+
+      // Add new reaction
+      const { error } = await supabase.from("chat_reactions").insert({
+        message_id: messageId,
+        user_id: user.id,
+        emoji,
+      });
+
+      if (error) {
+        toast.error("Ошибка добавления реакции");
+      }
+    }
+  };
+
   const getDaysWithoutSmoking = (quitDate: string | null) => {
     if (!quitDate) return 0;
     const diff = Date.now() - new Date(quitDate).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const getReactionCounts = (messageId: string) => {
+    const msgReactions = reactions[messageId] || [];
+    return msgReactions.reduce((acc, r) => {
+      acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
   };
 
   if (loading) {
@@ -120,50 +178,96 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       <div className="container max-w-4xl mx-auto p-4">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-3xl font-bold">Общий чат</h1>
+          <h1 className="text-3xl font-bold">💬 Общий чат</h1>
         </div>
 
         <Card className="h-[calc(100vh-200px)] flex flex-col">
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${
-                    msg.user_id === user?.id ? "items-end" : "items-start"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium">
-                      {msg.profiles.username}
-                    </span>
-                    <span className="text-xs bg-primary/20 px-2 py-0.5 rounded-full">
-                      {getDaysWithoutSmoking(msg.profiles.quit_date)} дней
-                    </span>
-                  </div>
+              {messages.map((msg) => {
+                const reactionCounts = getReactionCounts(msg.id);
+                const userReaction = reactions[msg.id]?.find((r) => r.user_id === user?.id);
+
+                return (
                   <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      msg.user_id === user?.id
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                    key={msg.id}
+                    className={`flex flex-col ${
+                      msg.user_id === user?.id ? "items-end" : "items-start"
                     }`}
                   >
-                    <p className="text-sm">{msg.message}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium">
+                        {msg.profiles.display_name || msg.profiles.username}
+                      </span>
+                      <span className="text-xs bg-primary/20 px-2 py-0.5 rounded-full">
+                        {getDaysWithoutSmoking(msg.profiles.quit_date)} дней
+                      </span>
+                    </div>
+                    <div
+                      className={`max-w-[70%] rounded-lg p-3 ${
+                        msg.user_id === user?.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <p className="text-sm">{msg.message}</p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(msg.created_at).toLocaleTimeString("ru-RU", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 px-2">
+                            <Smile className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-2">
+                          <div className="flex gap-1">
+                            {QUICK_EMOJIS.map((emoji) => (
+                              <Button
+                                key={emoji}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-lg"
+                                onClick={() => addReaction(msg.id, emoji)}
+                              >
+                                {emoji}
+                              </Button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    {Object.keys(reactionCounts).length > 0 && (
+                      <div className="flex gap-1 mt-1">
+                        {Object.entries(reactionCounts).map(([emoji, count]) => (
+                          <Button
+                            key={emoji}
+                            variant="outline"
+                            size="sm"
+                            className={`h-6 px-2 text-xs ${
+                              userReaction?.emoji === emoji ? "bg-primary/20" : ""
+                            }`}
+                            onClick={() => addReaction(msg.id, emoji)}
+                          >
+                            {emoji} {count}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {new Date(msg.created_at).toLocaleTimeString("ru-RU", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </ScrollArea>
 

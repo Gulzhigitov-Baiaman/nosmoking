@@ -103,5 +103,57 @@
     "join": "Join",
     "participating": "Participating",
     "participants": "participants"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "bio": "Bio",
+    "uniqueId": "Unique ID",
+    "copyId": "Copy ID",
+    "uploadAvatar": "Upload Avatar",
+    "save": "Save"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "subtitle": "Collect achievements and track your progress",
+    "progress": "Progress",
+    "earned": "Earned",
+    "premiumOnly": "Available in Premium",
+    "common": "Common",
+    "rare": "Rare",
+    "epic": "Epic",
+    "legendary": "Legendary"
+  },
+  "lifehacks": {
+    "title": "Life Hacks",
+    "subtitle": "Practical tips to quit smoking",
+    "dailyTip": "Tip of the Day",
+    "submitYourOwn": "Submit Your Own",
+    "likes": "likes",
+    "categories": {
+      "all": "All",
+      "stress": "Stress",
+      "habit": "Habit",
+      "money": "Money",
+      "trigger": "Triggers"
+    }
+  },
+  "exercises": {
+    "title": "Exercises",
+    "subtitle": "Do exercises to distract yourself from cravings",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "duration": "Duration",
+    "breathing": "Breathing",
+    "physical": "Physical",
+    "meditation": "Meditation"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "new": "New"
   }
 }

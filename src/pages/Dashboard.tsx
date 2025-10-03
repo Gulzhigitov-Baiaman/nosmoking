@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon, User, Lightbulb, Dumbbell } from "lucide-react";
+import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon, User, Lightbulb, Dumbbell, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -191,30 +191,38 @@ export default function Dashboard() {
         </div>
 
         {/* New Premium Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Button
+            onClick={() => navigate("/achievements")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <Trophy className="h-6 w-6" />
+            <span>Достижения</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/lifehacks")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <Lightbulb className="h-6 w-6" />
+            <span>Лайфхаки</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/exercises")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <Dumbbell className="h-6 w-6" />
+            <span>Упражнения</span>
+          </Button>
           <Button
             onClick={() => navigate("/premium")}
             variant="outline"
             className="h-20 flex flex-col gap-2 border-2 border-primary/50"
           >
-            <span className="text-2xl">👑</span>
+            <Crown className="h-6 w-6 text-primary" />
             <span>{t('nav.premium')}</span>
-          </Button>
-          <Button
-            onClick={() => navigate("/tips")}
-            variant="outline"
-            className="h-20 flex flex-col gap-2"
-          >
-            <span className="text-2xl">📚</span>
-            <span>{t('nav.tips')}</span>
-          </Button>
-          <Button
-            onClick={() => navigate("/friends")}
-            variant="outline"
-            className="h-20 flex flex-col gap-2"
-          >
-            <span className="text-2xl">👥</span>
-            <span>{t('nav.friends')}</span>
           </Button>
         </div>
 

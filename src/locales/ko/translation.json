@@ -103,5 +103,57 @@
     "join": "참여",
     "participating": "참여 중",
     "participants": "참가자"
+  },
+  "profile": {
+    "title": "프로필",
+    "editProfile": "프로필 수정",
+    "displayName": "표시 이름",
+    "bio": "소개",
+    "uniqueId": "고유 ID",
+    "copyId": "ID 복사",
+    "uploadAvatar": "아바타 업로드",
+    "save": "저장"
+  },
+  "achievements": {
+    "title": "업적",
+    "subtitle": "업적을 수집하고 진행 상황을 추적하세요",
+    "progress": "진행 상황",
+    "earned": "획득",
+    "premiumOnly": "프리미엄에서 사용 가능",
+    "common": "일반",
+    "rare": "희귀",
+    "epic": "에픽",
+    "legendary": "전설"
+  },
+  "lifehacks": {
+    "title": "생활 팁",
+    "subtitle": "금연을 위한 실용적인 팁",
+    "dailyTip": "오늘의 팁",
+    "submitYourOwn": "나만의 팁 제출",
+    "likes": "좋아요",
+    "categories": {
+      "all": "전체",
+      "stress": "스트레스",
+      "habit": "습관",
+      "money": "돈",
+      "trigger": "트리거"
+    }
+  },
+  "exercises": {
+    "title": "운동",
+    "subtitle": "욕구로부터 주의를 돌리기 위해 운동을 하세요",
+    "start": "시작",
+    "pause": "일시 정지",
+    "resume": "계속",
+    "duration": "기간",
+    "breathing": "호흡",
+    "physical": "신체",
+    "meditation": "명상"
+  },
+  "notifications": {
+    "title": "알림",
+    "markAllRead": "모두 읽음으로 표시",
+    "noNotifications": "알림 없음",
+    "new": "새로운"
   }
 }

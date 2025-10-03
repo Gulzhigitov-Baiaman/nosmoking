@@ -103,5 +103,57 @@
     "join": "Присоединиться",
     "participating": "Участвую",
     "participants": "участников"
+  },
+  "profile": {
+    "title": "Профиль",
+    "editProfile": "Редактировать профиль",
+    "displayName": "Отображаемое имя",
+    "bio": "О себе",
+    "uniqueId": "Уникальный ID",
+    "copyId": "Копировать ID",
+    "uploadAvatar": "Загрузить аватар",
+    "save": "Сохранить"
+  },
+  "achievements": {
+    "title": "Достижения",
+    "subtitle": "Собирайте достижения и отслеживайте свой прогресс",
+    "progress": "Прогресс",
+    "earned": "Получено",
+    "premiumOnly": "Доступно в Premium",
+    "common": "Обычное",
+    "rare": "Редкое",
+    "epic": "Эпическое",
+    "legendary": "Легендарное"
+  },
+  "lifehacks": {
+    "title": "Лайфхаки",
+    "subtitle": "Практические советы для отказа от сигарет",
+    "dailyTip": "Лайфхак дня",
+    "submitYourOwn": "Предложить свой",
+    "likes": "лайков",
+    "categories": {
+      "all": "Все",
+      "stress": "Стресс",
+      "habit": "Привычка",
+      "money": "Деньги",
+      "trigger": "Триггеры"
+    }
+  },
+  "exercises": {
+    "title": "Упражнения",
+    "subtitle": "Выполняйте упражнения, чтобы отвлечься от желания закурить",
+    "start": "Начать",
+    "pause": "Пауза",
+    "resume": "Продолжить",
+    "duration": "Длительность",
+    "breathing": "Дыхательные",
+    "physical": "Физические",
+    "meditation": "Медитация"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "markAllRead": "Отметить все как прочитанные",
+    "noNotifications": "Нет уведомлений",
+    "new": "Новое"
   }
 }
