@@ -6,18 +6,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Crown, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Premium = () => {
   const { user, isPremium } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = async () => {
+  const handleKakaoPaySubscribe = async () => {
     if (!user) {
       toast({
-        title: "Требуется авторизация",
-        description: "Пожалуйста, войдите в систему",
+        title: t('premium.subscribe'),
+        description: t('support.subtitle'),
         variant: "destructive",
       });
       navigate("/auth");
@@ -26,35 +28,19 @@ const Premium = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: "price_premium_monthly" },
+      const { data, error } = await supabase.functions.invoke("process-kakaopay-payment", {
+        body: { priceId: "price_premium" },
       });
 
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.redirect_url) {
+        window.location.href = data.redirect_url;
+      }
     } catch (error) {
-      console.error("Error creating checkout:", error);
+      console.error("Error creating KakaoPay payment:", error);
       toast({
-        title: "Ошибка",
-        description: "Не удалось создать сессию оплаты",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-      if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
-    } catch (error) {
-      console.error("Error opening portal:", error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось открыть портал управления",
+        title: t('premium.subscribe'),
+        description: "Failed to create payment session",
         variant: "destructive",
       });
     } finally {
@@ -63,149 +49,106 @@ const Premium = () => {
   };
 
   const features = [
-    "Неограниченные челленджи",
-    "Просмотр прогресса друзей",
-    "Ежемесячные PDF отчёты",
-    "Персонализированный AI-план",
-    "Все советы и упражнения (50+)",
-    "Push-уведомления",
-    "Детальная аналитика",
-    "Приоритетная поддержка",
+    { icon: "🏆", text: t('premium.features.challenges') },
+    { icon: "👥", text: t('premium.features.friends') },
+    { icon: "📊", text: t('premium.features.reports') },
+    { icon: "🤖", text: t('premium.features.aiPlan') },
+    { icon: "📚", text: t('premium.features.tips') },
+    { icon: "🔔", text: t('premium.features.notifications') },
+    { icon: "📈", text: t('premium.features.analytics') },
+    { icon: "⭐", text: t('premium.features.support') },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <div className="max-w-4xl mx-auto pt-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/dashboard")}
-          className="mb-6"
-        >
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
+      <div className="max-w-5xl mx-auto pt-8">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Назад
+          {t('nav.back')}
         </Button>
 
-        <div className="text-center mb-12 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-primary rounded-full mb-6 shadow-glow">
-            <Crown className="w-10 h-10 text-primary-foreground" />
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Crown className="w-12 h-12 text-primary" />
+            <h1 className="text-4xl font-bold">{t('premium.title')}</h1>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            Premium подписка
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Получите полный доступ ко всем функциям и ускорьте свой путь к жизни без курения
-          </p>
+          <p className="text-xl text-muted-foreground">{t('premium.subtitle')}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card className="p-6 border-2 border-border">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold mb-2">Free</h3>
-              <div className="text-4xl font-bold mb-4">₩0</div>
-              <p className="text-muted-foreground">Базовые функции</p>
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <Card className="p-6">
+            <h3 className="text-2xl font-bold mb-4">{t('premium.free')}</h3>
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-green-500" />
+                <span>Basic statistics</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-green-500" />
+                <span>Community chat</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-5 h-5 text-green-500" />
+                <span>Limited tips</span>
+              </div>
             </div>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Базовая статистика</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                <span className="text-sm">План сокращения</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Общий чат</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Базовые советы</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                <span className="text-sm">1 челлендж одновременно</span>
-              </li>
-            </ul>
+            <Button variant="outline" disabled className="w-full">Current Plan</Button>
           </Card>
 
-          <Card className={`p-6 relative overflow-hidden ${isPremium ? 'border-4 border-primary shadow-glow' : 'border-2 border-primary'}`}>
-            {isPremium && (
-              <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold">
-                Активна
-              </div>
-            )}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-primary opacity-10 rounded-full blur-3xl"></div>
-            <div className="text-center mb-6 relative">
-              <div className="inline-flex items-center gap-2 mb-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-                <h3 className="text-2xl font-bold">Premium</h3>
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <div className="text-4xl font-bold mb-1">₩9,990</div>
-              <p className="text-sm text-muted-foreground mb-2">в месяц</p>
-              <div className="inline-block bg-accent/20 text-accent px-3 py-1 rounded-full text-sm font-semibold">
-                3 дня бесплатно
-              </div>
+          <Card className={`p-6 ${isPremium ? 'border-2 border-primary' : ''}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold flex items-center gap-2">
+                <Crown className="w-6 h-6 text-primary" />
+                Premium
+              </h3>
+              {isPremium && (
+                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm">
+                  {t('premium.active')}
+                </span>
+              )}
             </div>
-            <ul className="space-y-3 mb-6">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-sm font-medium">{feature}</span>
-                </li>
+            
+            <div className="mb-6">
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-4xl font-bold">{t('premium.price')}</span>
+                <span className="text-muted-foreground">/ {t('premium.perMonth')}</span>
+              </div>
+              <p className="text-sm text-primary">{t('premium.trial')}</p>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              {features.map((feature, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="text-lg">{feature.icon}</span>
+                  <span className="text-sm">{feature.text}</span>
+                </div>
               ))}
-            </ul>
-            {isPremium ? (
-              <Button
-                onClick={handleManageSubscription}
+            </div>
+
+            {!isPremium && (
+              <Button 
+                onClick={handleKakaoPaySubscribe}
                 disabled={loading}
-                className="w-full"
-                variant="outline"
+                className="w-full bg-[#FEE500] hover:bg-[#FDD835] text-black font-semibold"
               >
-                {loading ? "Загрузка..." : "Управление подпиской"}
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubscribe}
-                disabled={loading}
-                className="w-full gradient-primary text-primary-foreground hover:opacity-90"
-              >
-                {loading ? "Загрузка..." : "Попробовать бесплатно"}
+                <Sparkles className="w-4 h-4 mr-2" />
+                {loading ? "Loading..." : t('premium.payWithKakao')}
               </Button>
             )}
           </Card>
         </div>
 
-        <Card className="p-6 bg-muted/50">
-          <h3 className="text-xl font-bold mb-4 text-center">Почему Premium?</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                <Sparkles className="w-6 h-6 text-primary-foreground" />
+        <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5">
+          <h2 className="text-2xl font-bold mb-6 text-center">{t('premium.benefits.title')}</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {features.map((feature, idx) => (
+              <div key={idx} className="flex items-start gap-3">
+                <span className="text-2xl">{feature.icon}</span>
+                <div>
+                  <p className="font-semibold">{feature.text}</p>
+                </div>
               </div>
-              <h4 className="font-semibold mb-2">AI персонализация</h4>
-              <p className="text-sm text-muted-foreground">
-                Индивидуальный план на основе ваших данных
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-success rounded-full flex items-center justify-center mx-auto mb-3">
-                <Check className="w-6 h-6 text-success-foreground" />
-              </div>
-              <h4 className="font-semibold mb-2">Больше мотивации</h4>
-              <p className="text-sm text-muted-foreground">
-                Соревнуйтесь с друзьями и отслеживайте прогресс
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-motivation rounded-full flex items-center justify-center mx-auto mb-3">
-                <Crown className="w-6 h-6 text-accent-foreground" />
-              </div>
-              <h4 className="font-semibold mb-2">Полный доступ</h4>
-              <p className="text-sm text-muted-foreground">
-                Все функции без ограничений
-              </p>
-            </div>
+            ))}
           </div>
         </Card>
       </div>

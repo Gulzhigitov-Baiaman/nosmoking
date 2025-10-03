@@ -36,7 +36,7 @@ const Support = () => {
 
     try {
       const { error } = await supabase.functions.invoke("send-support-message", {
-        body: formData,
+        body: { ...formData, language: i18n.language },
       });
 
       if (error) throw error;

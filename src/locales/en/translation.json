@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tips": "Tips",
+    "chat": "Chat",
+    "challenges": "Challenges",
+    "friends": "Friends",
+    "premium": "Premium",
+    "support": "Support",
+    "back": "Back",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "daysWithoutSmoking": "Days without smoking",
+    "keepItUp": "Keep it up!",
+    "moneySaved": "Money Saved",
+    "timeSaved": "Time Saved",
+    "cigarettesAvoided": "Not smoked",
+    "minutes": "min",
+    "generalChat": "General Chat",
+    "reductionPlan": "Reduction Plan",
+    "healthRecovery": "Health Recovery",
+    "recoveryMessage": "Your body is recovering! Keep it up!",
+    "loading": "Loading..."
+  },
+  "premium": {
+    "title": "Premium Subscription",
+    "subtitle": "Get full access to all features",
+    "price": "₩9,990",
+    "perMonth": "per month",
+    "trial": "3 days free",
+    "free": "Free",
+    "subscribe": "Try for free",
+    "payWithKakao": "Pay with KakaoPay",
+    "manageSubscription": "Manage Subscription",
+    "active": "Active",
+    "features": {
+      "challenges": "Unlimited challenges",
+      "friends": "View friends' progress",
+      "reports": "Monthly PDF reports",
+      "aiPlan": "Personalized AI plan",
+      "tips": "All tips and exercises (50+)",
+      "notifications": "Push notifications",
+      "analytics": "Detailed analytics",
+      "support": "Priority support"
+    },
+    "benefits": {
+      "title": "What's included in Premium",
+      "subtitle": "Get access to premium features"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Have questions? Write to us!",
+    "name": "Your name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message",
+    "sending": "Sending...",
+    "success": "Message sent!",
+    "successDesc": "We'll contact you soon"
+  },
+  "tips": {
+    "title": "Tips and Support",
+    "getAccess": "Get access to all tips",
+    "premiumDesc": "Premium subscription unlocks 50+ articles and exercises",
+    "tryIt": "Try it",
+    "loading": "Loading...",
+    "notFound": "Tips not found",
+    "premium": "Premium",
+    "categories": {
+      "all": "All",
+      "urgent": "Urgent help",
+      "exercises": "Exercises",
+      "psychology": "Psychology",
+      "health": "Health",
+      "motivation": "Motivation"
+    }
+  },
+  "friends": {
+    "title": "Friends",
+    "search": "Search friends",
+    "searchPlaceholder": "Enter username",
+    "find": "Find",
+    "myFriends": "My Friends",
+    "noFriends": "You don't have friends yet",
+    "useSearch": "Use search above to find friends",
+    "viewProgress": "View Progress",
+    "friend": "Friend",
+    "viewFriendsProgress": "View friends' progress",
+    "premiumOnly": "Available only with Premium subscription",
+    "getPremium": "Get Premium"
+  },
+  "chat": {
+    "title": "General Chat",
+    "placeholder": "Write a message...",
+    "days": "days"
+  },
+  "challenges": {
+    "title": "Challenges",
+    "noChallenges": "No active challenges yet",
+    "join": "Join",
+    "participating": "Participating",
+    "participants": "participants"
+  }
+}

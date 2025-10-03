@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "dashboard": "대시보드",
+    "tips": "팁",
+    "chat": "채팅",
+    "challenges": "챌린지",
+    "friends": "친구",
+    "premium": "프리미엄",
+    "support": "지원",
+    "back": "뒤로",
+    "signOut": "로그아웃"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "daysWithoutSmoking": "금연일수",
+    "keepItUp": "계속 해주세요!",
+    "moneySaved": "절약한 돈",
+    "timeSaved": "절약한 시간",
+    "cigarettesAvoided": "피우지 않은 담배",
+    "minutes": "분",
+    "generalChat": "일반 채팅",
+    "reductionPlan": "감소 계획",
+    "healthRecovery": "건강 회복",
+    "recoveryMessage": "당신의 몸이 회복 중입니다! 계속 해주세요!",
+    "loading": "로딩 중..."
+  },
+  "premium": {
+    "title": "프리미엄 구독",
+    "subtitle": "모든 기능에 대한 전체 액세스 권한 얻기",
+    "price": "₩9,990",
+    "perMonth": "월",
+    "trial": "3일 무료",
+    "free": "무료",
+    "subscribe": "무료로 사용해보기",
+    "payWithKakao": "카카오페이로 결제",
+    "manageSubscription": "구독 관리",
+    "active": "활성",
+    "features": {
+      "challenges": "무제한 챌린지",
+      "friends": "친구 진행 상황 보기",
+      "reports": "월간 PDF 보고서",
+      "aiPlan": "개인 맞춤 AI 계획",
+      "tips": "모든 팁 및 운동 (50개 이상)",
+      "notifications": "푸시 알림",
+      "analytics": "상세 분석",
+      "support": "우선 지원"
+    },
+    "benefits": {
+      "title": "프리미엄에 포함된 내용",
+      "subtitle": "프리미엄 기능에 액세스"
+    }
+  },
+  "support": {
+    "title": "지원",
+    "subtitle": "질문이 있으신가요? 문의해주세요!",
+    "name": "이름",
+    "email": "이메일",
+    "message": "메시지",
+    "send": "메시지 보내기",
+    "sending": "전송 중...",
+    "success": "메시지 전송 완료!",
+    "successDesc": "곧 연락드리겠습니다"
+  },
+  "tips": {
+    "title": "팁 및 지원",
+    "getAccess": "모든 팁에 액세스",
+    "premiumDesc": "프리미엄 구독으로 50개 이상의 기사 및 운동 잠금 해제",
+    "tryIt": "사용해보기",
+    "loading": "로딩 중...",
+    "notFound": "팁을 찾을 수 없습니다",
+    "premium": "프리미엄",
+    "categories": {
+      "all": "전체",
+      "urgent": "긴급 도움",
+      "exercises": "운동",
+      "psychology": "심리학",
+      "health": "건강",
+      "motivation": "동기 부여"
+    }
+  },
+  "friends": {
+    "title": "친구",
+    "search": "친구 검색",
+    "searchPlaceholder": "사용자 이름 입력",
+    "find": "찾기",
+    "myFriends": "내 친구",
+    "noFriends": "아직 친구가 없습니다",
+    "useSearch": "위의 검색을 사용하여 친구를 찾으세요",
+    "viewProgress": "진행 상황 보기",
+    "friend": "친구",
+    "viewFriendsProgress": "친구 진행 상황 보기",
+    "premiumOnly": "프리미엄 구독으로만 사용 가능",
+    "getPremium": "프리미엄 얻기"
+  },
+  "chat": {
+    "title": "일반 채팅",
+    "placeholder": "메시지를 작성하세요...",
+    "days": "일"
+  },
+  "challenges": {
+    "title": "챌린지",
+    "noChallenges": "활성 챌린지가 아직 없습니다",
+    "join": "참여",
+    "participating": "참여 중",
+    "participants": "참가자"
+  }
+}

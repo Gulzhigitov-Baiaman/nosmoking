@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface Profile {
   quit_date: string | null;
@@ -19,6 +21,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -76,7 +79,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Загрузка...</p>
+        <p>{t('dashboard.loading')}</p>
       </div>
     );
   }
@@ -90,18 +93,21 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <div className="container max-w-6xl mx-auto">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Дашборд</h1>
-          <Button variant="ghost" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Выйти
-          </Button>
+          <h1 className="text-3xl font-bold">{t('nav.dashboard')}</h1>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <Button variant="ghost" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              {t('nav.signOut')}
+            </Button>
+          </div>
         </header>
 
         {/* Main Stats - Days Without Smoking */}
         <div className="text-center mb-12 p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20">
-          <h2 className="text-lg text-muted-foreground mb-2">Дней без сигарет</h2>
+          <h2 className="text-lg text-muted-foreground mb-2">{t('dashboard.daysWithoutSmoking')}</h2>
           <p className="text-6xl font-bold text-primary mb-2">{daysWithoutSmoking}</p>
-          <p className="text-sm text-muted-foreground">Продолжайте в том же духе!</p>
+          <p className="text-sm text-muted-foreground">{t('dashboard.keepItUp')}</p>
         </div>
 
         {/* Key Statistics */}
@@ -110,7 +116,7 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Сэкономлено</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.moneySaved')}</p>
                   <p className="text-2xl font-bold">{moneySaved}₽</p>
                 </div>
                 <DollarSign className="h-12 w-12 text-green-500 opacity-50" />
@@ -122,8 +128,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Времени сэкономлено</p>
-                  <p className="text-2xl font-bold">{timeSaved} мин</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.timeSaved')}</p>
+                  <p className="text-2xl font-bold">{timeSaved} {t('dashboard.minutes')}</p>
                 </div>
                 <Clock className="h-12 w-12 text-blue-500 opacity-50" />
               </div>
@@ -134,7 +140,7 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Не выкурено</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.cigarettesAvoided')}</p>
                   <p className="text-2xl font-bold">{cigarettesAvoided}</p>
                 </div>
                 <Cigarette className="h-12 w-12 text-red-500 opacity-50" />
@@ -151,7 +157,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <MessageSquare className="h-6 w-6" />
-            <span>Общий чат</span>
+            <span>{t('dashboard.generalChat')}</span>
           </Button>
           <Button
             onClick={() => navigate("/progress")}
@@ -159,7 +165,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <TrendingDown className="h-6 w-6" />
-            <span>План сокращения</span>
+            <span>{t('dashboard.reductionPlan')}</span>
           </Button>
           <Button
             onClick={() => navigate("/challenges")}
@@ -167,7 +173,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <Trophy className="h-6 w-6" />
-            <span>Челленджи</span>
+            <span>{t('nav.challenges')}</span>
           </Button>
           <Button
             onClick={() => navigate("/support")}
@@ -175,7 +181,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <HeadphonesIcon className="h-6 w-6" />
-            <span>Поддержка</span>
+            <span>{t('nav.support')}</span>
           </Button>
         </div>
 
@@ -187,7 +193,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2 border-2 border-primary/50"
           >
             <span className="text-2xl">👑</span>
-            <span>Premium</span>
+            <span>{t('nav.premium')}</span>
           </Button>
           <Button
             onClick={() => navigate("/tips")}
@@ -195,7 +201,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <span className="text-2xl">📚</span>
-            <span>Советы</span>
+            <span>{t('nav.tips')}</span>
           </Button>
           <Button
             onClick={() => navigate("/friends")}
@@ -203,17 +209,17 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <span className="text-2xl">👥</span>
-            <span>Друзья</span>
+            <span>{t('nav.friends')}</span>
           </Button>
         </div>
 
         {/* Health Progress */}
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Восстановление здоровья</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('dashboard.healthRecovery')}</h3>
             <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="mb-2" />
             <p className="text-sm text-muted-foreground">
-              Ваш организм восстанавливается! Продолжайте в том же духе!
+              {t('dashboard.recoveryMessage')}
             </p>
           </CardContent>
         </Card>

@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "dashboard": "Главная",
+    "tips": "Советы",
+    "chat": "Чат",
+    "challenges": "Челленджи",
+    "friends": "Друзья",
+    "premium": "Premium",
+    "support": "Поддержка",
+    "back": "Назад",
+    "signOut": "Выйти"
+  },
+  "dashboard": {
+    "title": "Дашборд",
+    "daysWithoutSmoking": "Дней без сигарет",
+    "keepItUp": "Продолжайте в том же духе!",
+    "moneySaved": "Сэкономлено",
+    "timeSaved": "Времени сэкономлено",
+    "cigarettesAvoided": "Не выкурено",
+    "minutes": "мин",
+    "generalChat": "Общий чат",
+    "reductionPlan": "План сокращения",
+    "healthRecovery": "Восстановление здоровья",
+    "recoveryMessage": "Ваш организм восстанавливается! Продолжайте в том же духе!",
+    "loading": "Загрузка..."
+  },
+  "premium": {
+    "title": "Premium подписка",
+    "subtitle": "Получите полный доступ ко всем функциям",
+    "price": "₩9,990",
+    "perMonth": "в месяц",
+    "trial": "3 дня бесплатно",
+    "free": "Бесплатно",
+    "subscribe": "Попробовать бесплатно",
+    "payWithKakao": "Оплатить через KakaoPay",
+    "manageSubscription": "Управление подпиской",
+    "active": "Активна",
+    "features": {
+      "challenges": "Неограниченные челленджи",
+      "friends": "Просмотр прогресса друзей",
+      "reports": "Ежемесячные PDF отчёты",
+      "aiPlan": "Персонализированный AI-план",
+      "tips": "Все советы и упражнения (50+)",
+      "notifications": "Push-уведомления",
+      "analytics": "Детальная аналитика",
+      "support": "Приоритетная поддержка"
+    },
+    "benefits": {
+      "title": "Что входит в Premium",
+      "subtitle": "Получите доступ к премиум функциям"
+    }
+  },
+  "support": {
+    "title": "Поддержка",
+    "subtitle": "Есть вопросы? Напишите нам!",
+    "name": "Ваше имя",
+    "email": "Email",
+    "message": "Сообщение",
+    "send": "Отправить сообщение",
+    "sending": "Отправка...",
+    "success": "Сообщение отправлено!",
+    "successDesc": "Мы свяжемся с вами в ближайшее время"
+  },
+  "tips": {
+    "title": "Советы и поддержка",
+    "getAccess": "Получите доступ ко всем советам",
+    "premiumDesc": "Premium подписка откроет 50+ статей и упражнений",
+    "tryIt": "Попробовать",
+    "loading": "Загрузка...",
+    "notFound": "Советы не найдены",
+    "premium": "Premium",
+    "categories": {
+      "all": "Все",
+      "urgent": "Срочная помощь",
+      "exercises": "Упражнения",
+      "psychology": "Психология",
+      "health": "Здоровье",
+      "motivation": "Мотивация"
+    }
+  },
+  "friends": {
+    "title": "Друзья",
+    "search": "Поиск друзей",
+    "searchPlaceholder": "Введите имя пользователя",
+    "find": "Найти",
+    "myFriends": "Мои друзья",
+    "noFriends": "У вас пока нет друзей",
+    "useSearch": "Используйте поиск выше, чтобы найти друзей",
+    "viewProgress": "Посмотреть прогресс",
+    "friend": "Друг",
+    "viewFriendsProgress": "Просмотр прогресса друзей",
+    "premiumOnly": "Доступно только с Premium подпиской",
+    "getPremium": "Получить Premium"
+  },
+  "chat": {
+    "title": "Общий чат",
+    "placeholder": "Напишите сообщение...",
+    "days": "дней"
+  },
+  "challenges": {
+    "title": "Челленджи",
+    "noChallenges": "Пока нет активных челленджей",
+    "join": "Присоединиться",
+    "participating": "Участвую",
+    "participants": "участников"
+  }
+}
