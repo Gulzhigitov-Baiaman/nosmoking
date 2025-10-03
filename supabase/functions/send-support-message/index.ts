@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "Support <onboarding@resend.dev>",
-        to: ["idjatov0@gmail.com"],
+        to: ["guljigitovbaiaman55@gmail.com"], // Replace with your actual Gmail
         subject: `Support Request from ${name}`,
         html: `
           <h2>New Support Message</h2>
