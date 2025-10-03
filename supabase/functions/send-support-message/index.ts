@@ -32,23 +32,39 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "Support <onboarding@resend.dev>",
-        to: ["guljigitovbaiaman55@gmail.com"], // Replace with your actual Gmail
-        subject: `Support Request from ${name}`,
+        to: ["guljigitovbaiaman55@gmail.com"],
+        subject: `🆘 Support Request from ${name}`,
         html: `
-          <h2>New Support Message</h2>
-          <p><strong>From:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2563eb;">New Support Message</h2>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>From:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Time:</strong> ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+              <p><strong>Message:</strong></p>
+              <p style="white-space: pre-wrap;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
         `,
         reply_to: email,
       }),
     });
 
     const emailData = await emailResponse.json();
+    
+    if (!emailResponse.ok) {
+      console.error("Resend API error:", emailData);
+      throw new Error(`Failed to send email: ${emailData.message || 'Unknown error'}`);
+    }
+
     console.log("Email sent successfully:", emailData);
 
-    return new Response(JSON.stringify(emailData), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "Support message sent successfully" 
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
