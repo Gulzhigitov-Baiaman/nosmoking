@@ -18,6 +18,7 @@ interface Exercise {
   duration: number;
   is_premium: boolean;
   category: string;
+  animation_url: string | null;
 }
 
 const Exercises = () => {
@@ -185,6 +186,16 @@ const Exercises = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   {exercise.description}
                 </p>
+
+                {exercise.animation_url && (
+                  <div className="mb-4 rounded-lg overflow-hidden bg-muted">
+                    <img 
+                      src={exercise.animation_url} 
+                      alt={exercise.name}
+                      className="w-full h-32 object-contain"
+                    />
+                  </div>
+                )}
 
                 <div className="text-sm text-muted-foreground mb-4">
                   Длительность: {formatTime(exercise.duration)}

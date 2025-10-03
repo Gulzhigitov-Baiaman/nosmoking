@@ -135,7 +135,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t('dashboard.moneySaved')}</p>
-                  <p className="text-2xl font-bold">{moneySaved}₽</p>
+                  <p className="text-2xl font-bold">₩{moneySaved.toLocaleString()}</p>
                 </div>
                 <DollarSign className="h-12 w-12 text-green-500 opacity-50" />
               </div>
@@ -168,7 +168,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <Button
             onClick={() => navigate("/chat")}
             variant="outline"
@@ -194,6 +194,14 @@ export default function Dashboard() {
             <span>{t('nav.challenges')}</span>
           </Button>
           <Button
+            onClick={() => navigate("/friends")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <User className="h-6 w-6" />
+            <span>Друзья</span>
+          </Button>
+          <Button
             onClick={() => navigate("/support")}
             variant="outline"
             className="h-20 flex flex-col gap-2"
@@ -204,7 +212,7 @@ export default function Dashboard() {
         </div>
 
         {/* New Premium Features */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <Button
             onClick={() => navigate("/achievements")}
             variant="outline"
@@ -214,12 +222,12 @@ export default function Dashboard() {
             <span>Достижения</span>
           </Button>
           <Button
-            onClick={() => navigate("/lifehacks")}
+            onClick={() => navigate("/tips")}
             variant="outline"
             className="h-20 flex flex-col gap-2"
           >
             <Lightbulb className="h-6 w-6" />
-            <span>Лайфхаки</span>
+            <span>Советы</span>
           </Button>
           <Button
             onClick={() => navigate("/exercises")}
@@ -230,12 +238,20 @@ export default function Dashboard() {
             <span>Упражнения</span>
           </Button>
           <Button
-            onClick={() => navigate("/premium")}
+            onClick={() => navigate("/ai-plan")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 border-2 border-primary/50"
+            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30"
           >
-            <Crown className="h-6 w-6 text-primary" />
-            <span>{t('nav.premium')}</span>
+            <span className="text-2xl">🤖</span>
+            <span className="text-sm">AI План</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/premium")}
+            variant="default"
+            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-500 hover:via-amber-600 hover:to-yellow-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <Crown className="h-7 w-7 text-white drop-shadow-md animate-pulse" />
+            <span className="text-white font-bold text-sm drop-shadow-sm">{t('nav.premium')}</span>
           </Button>
         </div>
 

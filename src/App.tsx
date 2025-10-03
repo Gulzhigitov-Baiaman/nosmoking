@@ -22,6 +22,7 @@ import Lifehacks from "./pages/Lifehacks";
 import Exercises from "./pages/Exercises";
 import Notifications from "./pages/Notifications";
 import PrivateChat from "./pages/PrivateChat";
+import AIPlan from "./pages/AIPlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/chat/:friendId" element={<PrivateChat />} />
+            <Route path="/ai-plan" element={<AIPlan />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
