@@ -24,9 +24,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPremium, setIsPremium] = useState(false);
+  // 🧪 TESTING MODE: Premium enabled for all users
+  const [isPremium, setIsPremium] = useState(true);
 
   const checkSubscription = async () => {
+    // 🧪 TESTING MODE: Always set premium to true
+    // TODO: Revert this after testing is complete
+    setIsPremium(true);
+    
+    /* Original code - uncomment after testing:
     if (!user) {
       setIsPremium(false);
       return;
@@ -40,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error checking subscription:", error);
       setIsPremium(false);
     }
+    */
   };
 
   useEffect(() => {
