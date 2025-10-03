@@ -5,7 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon, User, Lightbulb, Dumbbell, Crown } from "lucide-react";
+import { 
+  DollarSign, 
+  Clock, 
+  Cigarette, 
+  MessageSquare, 
+  TrendingDown, 
+  Trophy, 
+  LogOut, 
+  HeadphonesIcon, 
+  User, 
+  Lightbulb, 
+  Dumbbell, 
+  Crown 
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
