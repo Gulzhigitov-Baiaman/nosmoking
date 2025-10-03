@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon } from "lucide-react";
+import { DollarSign, Clock, Cigarette, MessageSquare, TrendingDown, Trophy, LogOut, HeadphonesIcon, User, Lightbulb, Dumbbell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface Profile {
   quit_date: string | null;
@@ -96,6 +97,10 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold">{t('nav.dashboard')}</h1>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
+            <NotificationBell />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
+              <User className="h-5 w-5" />
+            </Button>
             <Button variant="ghost" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               {t('nav.signOut')}

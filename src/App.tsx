@@ -16,6 +16,12 @@ import Premium from "./pages/Premium";
 import Tips from "./pages/Tips";
 import TipDetail from "./pages/TipDetail";
 import Friends from "./pages/Friends";
+import Profile from "./pages/Profile";
+import Achievements from "./pages/Achievements";
+import Lifehacks from "./pages/Lifehacks";
+import Exercises from "./pages/Exercises";
+import Notifications from "./pages/Notifications";
+import PrivateChat from "./pages/PrivateChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +46,13 @@ const App = () => (
             <Route path="/tips" element={<Tips />} />
             <Route path="/tips/:id" element={<TipDetail />} />
             <Route path="/friends" element={<Friends />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/achievements" element={<Achievements />} />
+            <Route path="/lifehacks" element={<Lifehacks />} />
+            <Route path="/exercises" element={<Exercises />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/chat/:friendId" element={<PrivateChat />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
