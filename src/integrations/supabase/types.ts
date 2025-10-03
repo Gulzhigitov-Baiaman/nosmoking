@@ -398,6 +398,36 @@ export type Database = {
           },
         ]
       }
+      tips: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          is_premium: boolean | null
+          order: number
+          title: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_premium?: boolean | null
+          order: number
+          title: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_premium?: boolean | null
+          order?: number
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

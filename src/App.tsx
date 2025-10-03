@@ -12,6 +12,10 @@ import Chat from "./pages/Chat";
 import Progress from "./pages/Progress";
 import Challenges from "./pages/Challenges";
 import Support from "./pages/Support";
+import Premium from "./pages/Premium";
+import Tips from "./pages/Tips";
+import TipDetail from "./pages/TipDetail";
+import Friends from "./pages/Friends";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +36,10 @@ const App = () => (
             <Route path="/progress" element={<Progress />} />
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/premium" element={<Premium />} />
+            <Route path="/tips" element={<Tips />} />
+            <Route path="/tips/:id" element={<TipDetail />} />
+            <Route path="/friends" element={<Friends />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

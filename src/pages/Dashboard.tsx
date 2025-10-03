@@ -179,6 +179,34 @@ export default function Dashboard() {
           </Button>
         </div>
 
+        {/* New Premium Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Button
+            onClick={() => navigate("/premium")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2 border-2 border-primary/50"
+          >
+            <span className="text-2xl">👑</span>
+            <span>Premium</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/tips")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <span className="text-2xl">📚</span>
+            <span>Советы</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/friends")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2"
+          >
+            <span className="text-2xl">👥</span>
+            <span>Друзья</span>
+          </Button>
+        </div>
+
         {/* Health Progress */}
         <Card>
           <CardContent className="pt-6">
