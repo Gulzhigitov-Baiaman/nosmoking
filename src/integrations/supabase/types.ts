@@ -243,6 +243,7 @@ export type Database = {
           id: string
           minutes_per_cigarette: number | null
           pack_price: number | null
+          preferred_language: string | null
           quit_date: string | null
           updated_at: string | null
           username: string
@@ -254,6 +255,7 @@ export type Database = {
           id: string
           minutes_per_cigarette?: number | null
           pack_price?: number | null
+          preferred_language?: string | null
           quit_date?: string | null
           updated_at?: string | null
           username: string
@@ -265,6 +267,7 @@ export type Database = {
           id?: string
           minutes_per_cigarette?: number | null
           pack_price?: number | null
+          preferred_language?: string | null
           quit_date?: string | null
           updated_at?: string | null
           username?: string
@@ -358,6 +361,9 @@ export type Database = {
           current_period_end: string
           current_period_start: string
           id: string
+          kakaopay_order_id: string | null
+          kakaopay_tid: string | null
+          payment_provider: string | null
           plan_id: string
           status: string
           trial_ends_at: string | null
@@ -370,6 +376,9 @@ export type Database = {
           current_period_end: string
           current_period_start?: string
           id?: string
+          kakaopay_order_id?: string | null
+          kakaopay_tid?: string | null
+          payment_provider?: string | null
           plan_id: string
           status?: string
           trial_ends_at?: string | null
@@ -382,6 +391,9 @@ export type Database = {
           current_period_end?: string
           current_period_start?: string
           id?: string
+          kakaopay_order_id?: string | null
+          kakaopay_tid?: string | null
+          payment_provider?: string | null
           plan_id?: string
           status?: string
           trial_ends_at?: string | null
