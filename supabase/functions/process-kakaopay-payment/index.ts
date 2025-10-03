@@ -45,10 +45,15 @@ serve(async (req) => {
     logStep("Preparing KakaoPay payment", { amount, partnerOrderId });
 
     // Call KakaoPay Ready API
+    const kakaoApiKey = Deno.env.get("KAKAOPAY_ADMIN_KEY");
+    if (!kakaoApiKey) {
+      throw new Error("KAKAOPAY_ADMIN_KEY not configured");
+    }
+    
     const kakaoResponse = await fetch("https://open-api.kakaopay.com/online/v1/payment/ready", {
       method: "POST",
       headers: {
-        "Authorization": `SECRET_KEY ${Deno.env.get("KAKAOPAY_REST_API_KEY")}`,
+        "Authorization": `SECRET_KEY ${kakaoApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

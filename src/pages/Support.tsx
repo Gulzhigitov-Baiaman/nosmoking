@@ -8,11 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Support = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,7 +38,7 @@ const Support = () => {
 
     try {
       const { error } = await supabase.functions.invoke("send-support-message", {
-        body: { ...formData, language: i18n.language },
+        body: { ...formData, language: i18n.language || 'ko' },
       });
 
       if (error) throw error;
