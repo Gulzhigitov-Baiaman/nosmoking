@@ -8,23 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trophy, TrendingDown, DollarSign } from "lucide-react";
-import { format, startOfMonth, endOfMonth } from "date-fns";
-
-interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  cigarettes_saved: number;
-  money_saved: number;
-  days_smoke_free: number;
-}
 
 export default function CalendarLeaderboard() {
   const navigate = useNavigate();
   const { user, isPremium } = useAuth();
-  const [friendsLeaderboard, setFriendsLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [globalLeaderboard, setGlobalLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [friendsLeaderboard, setFriendsLeaderboard] = useState<any[]>([]);
+  const [globalLeaderboard, setGlobalLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,10 +23,10 @@ export default function CalendarLeaderboard() {
   }, [user]);
 
   const loadLeaderboards = async () => {
-    const start = format(startOfMonth(new Date()), "yyyy-MM-dd");
-    const end = format(endOfMonth(new Date()), "yyyy-MM-dd");
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-    // Get friends list
     const { data: friendsData } = await supabase
       .from("friends")
       .select("friend_id")
@@ -45,13 +34,11 @@ export default function CalendarLeaderboard() {
       .eq("status", "accepted");
 
     const friendIds = friendsData?.map((f) => f.friend_id) || [];
-    friendIds.push(user!.id); // Include current user
+    friendIds.push(user!.id);
 
-    // Calculate stats for friends
     const friendsStats = await calculateStats(friendIds, start, end);
     setFriendsLeaderboard(friendsStats);
 
-    // Calculate stats for all users (Premium only)
     if (isPremium) {
       const globalStats = await calculateStats([], start, end, true);
       setGlobalLeaderboard(globalStats);
@@ -60,13 +47,7 @@ export default function CalendarLeaderboard() {
     setLoading(false);
   };
 
-  const calculateStats = async (
-    userIds: string[],
-    startDate: string,
-    endDate: string,
-    isGlobal = false
-  ): Promise<LeaderboardEntry[]> => {
-    // Get profiles
+  const calculateStats = async (userIds: any[], startDate: string, endDate: string, isGlobal = false) => {
     let profileQuery = supabase
       .from("profiles")
       .select("id, username, display_name, avatar_url, cigarettes_per_day, pack_price");
@@ -76,10 +57,8 @@ export default function CalendarLeaderboard() {
     }
 
     const { data: profiles } = await profileQuery;
-
     if (!profiles) return [];
 
-    // Get daily logs for all users
     let logsQuery = supabase
       .from("daily_logs")
       .select("user_id, cigarettes_smoked")
@@ -92,11 +71,10 @@ export default function CalendarLeaderboard() {
 
     const { data: logs } = await logsQuery;
 
-    // Calculate stats
-    const stats: LeaderboardEntry[] = profiles.map((profile) => {
-      const userLogs = logs?.filter((l) => l.user_id === profile.id) || [];
-      const totalSmoked = userLogs.reduce((sum, log) => sum + log.cigarettes_smoked, 0);
-      const daysSmokeFree = userLogs.filter((log) => log.cigarettes_smoked === 0).length;
+    const stats = profiles.map((profile: any) => {
+      const userLogs = logs?.filter((l: any) => l.user_id === profile.id) || [];
+      const totalSmoked = userLogs.reduce((sum: number, log: any) => sum + log.cigarettes_smoked, 0);
+      const daysSmokeFree = userLogs.filter((log: any) => log.cigarettes_smoked === 0).length;
       const expectedCigarettes = profile.cigarettes_per_day * userLogs.length;
       const savedCigarettes = Math.max(0, expectedCigarettes - totalSmoked);
       const moneySaved = (savedCigarettes / 20) * profile.pack_price;
@@ -112,8 +90,7 @@ export default function CalendarLeaderboard() {
       };
     });
 
-    // Sort by cigarettes saved
-    return stats.sort((a, b) => b.cigarettes_saved - a.cigarettes_saved).slice(0, 10);
+    return stats.sort((a: any, b: any) => b.cigarettes_saved - a.cigarettes_saved).slice(0, 10);
   };
 
   const getMedalEmoji = (index: number) => {
@@ -123,9 +100,9 @@ export default function CalendarLeaderboard() {
     return `${index + 1}`;
   };
 
-  const renderLeaderboard = (data: LeaderboardEntry[]) => (
+  const renderLeaderboard = (data: any[]) => (
     <div className="space-y-3">
-      {data.map((entry, index) => (
+      {data.map((entry: any, index: number) => (
         <Card key={entry.user_id} className={index < 3 ? "border-primary/30 shadow-md" : ""}>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">

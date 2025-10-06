@@ -10,28 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Calendar as CalendarIcon, TrendingDown, DollarSign, Clock, Award } from "lucide-react";
 import { toast } from "sonner";
-import { format, startOfMonth, endOfMonth, differenceInDays } from "date-fns";
-import { ru } from "date-fns/locale";
-
-interface DailyLog {
-  id: string;
-  date: string;
-  cigarettes_smoked: number;
-}
-
-interface Profile {
-  cigarettes_per_day: number;
-  pack_price: number;
-  minutes_per_cigarette: number;
-  quit_date: string | null;
-}
 
 export default function Calendar() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [dailyLogs, setDailyLogs] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [cigarettesInput, setCigarettesInput] = useState("");
   const [loading, setLoading] = useState(true);
@@ -58,8 +43,9 @@ export default function Calendar() {
   };
 
   const loadMonthLogs = async () => {
-    const start = format(startOfMonth(new Date()), "yyyy-MM-dd");
-    const end = format(endOfMonth(new Date()), "yyyy-MM-dd");
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
     const { data, error } = await supabase
       .from("daily_logs")
@@ -79,7 +65,8 @@ export default function Calendar() {
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
     setSelectedDate(date);
-    const log = dailyLogs.find((l) => l.date === format(date, "yyyy-MM-dd"));
+    const dateStr = date.toISOString().split('T')[0];
+    const log = dailyLogs.find((l) => l.date === dateStr);
     setCigarettesInput(log?.cigarettes_smoked?.toString() || "0");
     setIsDialogOpen(true);
   };
@@ -87,7 +74,7 @@ export default function Calendar() {
   const handleSave = async () => {
     if (!selectedDate || !user) return;
 
-    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    const dateStr = selectedDate.toISOString().split('T')[0];
     const cigarettes = parseInt(cigarettesInput) || 0;
 
     const existingLog = dailyLogs.find((l) => l.date === dateStr);
@@ -116,21 +103,6 @@ export default function Calendar() {
     } catch (error) {
       console.error("Error saving log:", error);
       toast.error("Ошибка сохранения");
-    }
-  };
-
-  const getDateStyle = (date: Date) => {
-    const log = dailyLogs.find((l) => l.date === format(date, "yyyy-MM-dd"));
-    if (!log) return {};
-
-    const avgCigarettes = profile?.cigarettes_per_day || 10;
-    
-    if (log.cigarettes_smoked === 0) {
-      return { backgroundColor: "hsl(var(--success))", color: "white", fontWeight: "bold" };
-    } else if (log.cigarettes_smoked < avgCigarettes) {
-      return { backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" };
-    } else {
-      return { backgroundColor: "hsl(var(--destructive))", color: "white" };
     }
   };
 
@@ -175,44 +147,32 @@ export default function Calendar() {
           <h1 className="text-3xl font-bold">Ежедневный календарь</h1>
         </div>
 
-        {/* Calendar */}
         <Card className="mb-6">
           <CardContent className="pt-6">
             <CalendarComponent
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
-              locale={ru}
               className="mx-auto"
-              modifiers={{
-                smokeFree: (date) => {
-                  const log = dailyLogs.find((l) => l.date === format(date, "yyyy-MM-dd"));
-                  return log?.cigarettes_smoked === 0;
-                },
-              }}
-              modifiersStyles={{
-                smokeFree: getDateStyle,
-              }}
             />
             
             <div className="mt-6 flex gap-4 justify-center text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: "hsl(var(--success))" }} />
+                <div className="w-4 h-4 rounded bg-success" />
                 <span>Без сигарет</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: "hsl(var(--accent))" }} />
+                <div className="w-4 h-4 rounded bg-accent" />
                 <span>Меньше среднего</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: "hsl(var(--destructive))" }} />
+                <div className="w-4 h-4 rounded bg-destructive" />
                 <span>Больше среднего</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Monthly Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
@@ -265,7 +225,6 @@ export default function Calendar() {
           </Card>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-4">
           <Button onClick={() => navigate("/statistics")} variant="outline" className="flex-1">
             📊 Подробная статистика
@@ -275,12 +234,11 @@ export default function Calendar() {
           </Button>
         </div>
 
-        {/* Dialog for editing daily log */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {selectedDate ? format(selectedDate, "d MMMM yyyy", { locale: ru }) : ""}
+                {selectedDate ? selectedDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : ""}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
