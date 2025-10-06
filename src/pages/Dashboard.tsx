@@ -17,7 +17,8 @@ import {
   User, 
   Lightbulb, 
   Dumbbell, 
-  Crown 
+  Crown,
+  Calendar
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -168,7 +169,15 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+          <Button
+            onClick={() => navigate("/calendar")}
+            variant="outline"
+            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30"
+          >
+            <Calendar className="h-6 w-6 text-primary" />
+            <span className="font-semibold">Календарь</span>
+          </Button>
           <Button
             onClick={() => navigate("/chat")}
             variant="outline"

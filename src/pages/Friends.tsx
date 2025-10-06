@@ -53,7 +53,8 @@ const Friends = () => {
 
   const fetchFriends = async () => {
     try {
-      const { data, error } = await supabase
+      // Get friends where current user is user_id
+      const { data: data1, error: error1 } = await supabase
         .from("friends")
         .select(`
           id,
@@ -68,14 +69,46 @@ const Friends = () => {
             display_name,
             unique_id,
             avatar_url,
-            bio
+            bio,
+            quit_date
           )
         `)
         .eq("user_id", user?.id)
         .eq("status", "accepted");
 
-      if (error) throw error;
-      setFriends(data || []);
+      // Get friends where current user is friend_id
+      const { data: data2, error: error2 } = await supabase
+        .from("friends")
+        .select(`
+          id,
+          user_id,
+          friend_id,
+          status,
+          request_message,
+          requested_at,
+          profiles!friends_user_id_fkey (
+            id,
+            username,
+            display_name,
+            unique_id,
+            avatar_url,
+            bio,
+            quit_date
+          )
+        `)
+        .eq("friend_id", user?.id)
+        .eq("status", "accepted");
+
+      if (error1) throw error1;
+      if (error2) throw error2;
+
+      // Combine both arrays and normalize data structure
+      const combined = [
+        ...(data1 || []).map(f => ({ ...f, friendProfile: f.profiles })),
+        ...(data2 || []).map(f => ({ ...f, friendProfile: f.profiles, friend_id: f.user_id }))
+      ];
+
+      setFriends(combined as any);
     } catch (error) {
       console.error("Error fetching friends:", error);
     } finally {
@@ -199,11 +232,28 @@ const Friends = () => {
 
       if (error) throw error;
       
-      toast.success("Запрос принят!");
+      toast.success("🎉 Вы теперь друзья!");
       fetchFriends();
       fetchRequests();
     } catch (error) {
       console.error("Error accepting request:", error);
+      toast.error("Ошибка");
+    }
+  };
+
+  const removeFriend = async (friendId: string) => {
+    try {
+      const { error } = await supabase
+        .from("friends")
+        .update({ status: "rejected" })
+        .eq("id", friendId);
+
+      if (error) throw error;
+      
+      toast.success("Друг удалён");
+      fetchFriends();
+    } catch (error) {
+      console.error("Error removing friend:", error);
       toast.error("Ошибка");
     }
   };
@@ -325,36 +375,48 @@ const Friends = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {friends.map((friend) => (
-                    <div key={friend.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={friend.profiles.avatar_url || undefined} />
-                          <AvatarFallback>{(friend.profiles.display_name || friend.profiles.username).charAt(0).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold">{friend.profiles.display_name || friend.profiles.username}</p>
-                          <p className="text-sm text-muted-foreground">ID: {friend.profiles.unique_id}</p>
+                  {friends.map((friend) => {
+                    const friendProfile = (friend as any).friendProfile || friend.profiles;
+                    const quitDate = friendProfile?.quit_date;
+                    const daysWithoutSmoking = quitDate ? Math.floor((Date.now() - new Date(quitDate).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+                    
+                    return (
+                      <div key={friend.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={friendProfile?.avatar_url || undefined} />
+                            <AvatarFallback>{(friendProfile?.display_name || friendProfile?.username || "U").charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-semibold">{friendProfile?.display_name || friendProfile?.username}</p>
+                            <p className="text-sm text-muted-foreground">ID: {friendProfile?.unique_id}</p>
+                            {quitDate && (
+                              <p className="text-xs text-success font-medium">🌟 {daysWithoutSmoking} дней без курения</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => navigate(`/chat/${friend.friend_id}`)}>
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Написать
+                          </Button>
+                          {isPremium ? (
+                            <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
+                              Профиль
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="sm" disabled>
+                              <Lock className="w-4 h-4 mr-2" />
+                              Premium
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => removeFriend(friend.id)}>
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => navigate(`/chat/${friend.friend_id}`)}>
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Написать
-                        </Button>
-                        {isPremium ? (
-                          <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
-                            Профиль
-                          </Button>
-                        ) : (
-                          <Button variant="ghost" size="sm" disabled>
-                            <Lock className="w-4 h-4 mr-2" />
-                            Premium
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </Card>

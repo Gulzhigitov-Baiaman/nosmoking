@@ -24,6 +24,10 @@ import Notifications from "./pages/Notifications";
 import PrivateChat from "./pages/PrivateChat";
 import AIPlan from "./pages/AIPlan";
 import NotFound from "./pages/NotFound";
+import Calendar from "./pages/Calendar";
+import Statistics from "./pages/Statistics";
+import CalendarLeaderboard from "./pages/CalendarLeaderboard";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +59,10 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/chat/:friendId" element={<PrivateChat />} />
             <Route path="/ai-plan" element={<AIPlan />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/statistics" element={<Statistics />} />
+            <Route path="/leaderboard" element={<CalendarLeaderboard />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
