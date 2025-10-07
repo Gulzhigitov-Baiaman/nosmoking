@@ -34,6 +34,7 @@ const Achievements = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [featuredIds, setFeaturedIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -61,13 +62,47 @@ const Achievements = () => {
 
       if (userError) throw userError;
 
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("featured_achievements")
+        .eq("id", user.id)
+        .single();
+
       setAchievements(achievementsData || []);
       setUserAchievements(userAchievementsData || []);
+      setFeaturedIds(profileData?.featured_achievements || []);
     } catch (error) {
       console.error("Error fetching achievements:", error);
       toast.error("Ошибка загрузки достижений");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleFeatured = async (achievementId: string) => {
+    const isCurrentlyFeatured = featuredIds.includes(achievementId);
+    let newFeatured: string[];
+
+    if (isCurrentlyFeatured) {
+      newFeatured = featuredIds.filter(id => id !== achievementId);
+    } else {
+      if (featuredIds.length >= 3) {
+        toast.error("Можно выбрать максимум 3 достижения");
+        return;
+      }
+      newFeatured = [...featuredIds, achievementId];
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ featured_achievements: newFeatured })
+      .eq("id", user?.id);
+
+    if (error) {
+      toast.error("Ошибка обновления");
+    } else {
+      setFeaturedIds(newFeatured);
+      toast.success(isCurrentlyFeatured ? "Убрано из топ-3" : "Добавлено в топ-3");
     }
   };
 
@@ -177,8 +212,16 @@ const Achievements = () => {
                   )}
 
                   {isEarned && (
-                    <div className="flex items-center justify-center py-2">
+                    <div className="flex flex-col items-center gap-2 py-2">
                       <Badge className="bg-green-500">✓ Получено</Badge>
+                      <Button
+                        size="sm"
+                        variant={featuredIds.includes(achievement.id) ? "default" : "outline"}
+                        onClick={() => toggleFeatured(achievement.id)}
+                        disabled={isLocked}
+                      >
+                        {featuredIds.includes(achievement.id) ? "★ В топ-3" : "Добавить в топ-3"}
+                      </Button>
                     </div>
                   )}
 

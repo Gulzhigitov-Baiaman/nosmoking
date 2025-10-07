@@ -23,15 +23,34 @@ export default function Onboarding() {
     packPrice: "",
     minutesPerBreak: "",
     quitDate: undefined as Date | undefined,
+    targetQuitDate: undefined as Date | undefined,
     reductionPerWeek: "",
   });
+
+  const calculateReduction = () => {
+    if (!formData.targetQuitDate || !formData.cigarettesPerDay) return;
+    
+    const today = new Date();
+    const target = new Date(formData.targetQuitDate);
+    const weeksUntilTarget = Math.max(1, Math.ceil((target.getTime() - today.getTime()) / (7 * 24 * 60 * 60 * 1000)));
+    const totalCigs = parseInt(formData.cigarettesPerDay);
+    const reductionPerWeek = Math.ceil(totalCigs / weeksUntilTarget);
+    
+    setFormData(prev => ({
+      ...prev,
+      reductionPerWeek: reductionPerWeek.toString()
+    }));
+  };
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
     }
   }, [user, loading, navigate]);
   const handleNext = async () => {
-    if (step < 5) {
+    if (step === 5) {
+      calculateReduction();
+      setStep(step + 1);
+    } else if (step < 6) {
       setStep(step + 1);
     } else {
       // Save profile and create smoking plan
@@ -52,6 +71,7 @@ export default function Onboarding() {
           target_cigarettes: 0,
           reduction_per_week: parseInt(formData.reductionPerWeek),
           start_date: new Date().toISOString(),
+          end_date: formData.targetQuitDate?.toISOString(),
         });
         if (planError) throw planError;
         toast({
@@ -84,6 +104,8 @@ export default function Onboarding() {
       case 4:
         return formData.quitDate !== undefined;
       case 5:
+        return formData.targetQuitDate !== undefined;
+      case 6:
         return formData.reductionPerWeek !== "" && parseInt(formData.reductionPerWeek) > 0;
       default:
         return false;
@@ -106,10 +128,10 @@ export default function Onboarding() {
         <CardContent>
           <div className="flex justify-center mb-8">
             <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
                   key={i}
-                  className={cn("h-2 w-12 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-muted")}
+                  className={cn("h-2 w-10 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-muted")}
                 />
               ))}
             </div>
@@ -222,12 +244,56 @@ export default function Onboarding() {
 
             {step === 5 && (
               <div className="space-y-4">
-                <Label htmlFor="reductionPerWeek">Сокращение сигарет в неделю</Label>
+                <Label>К какой дате хотите полностью бросить?</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.targetQuitDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.targetQuitDate ? (
+                        format(formData.targetQuitDate, "PPP", {
+                          locale: ru,
+                        })
+                      ) : (
+                        <span>Выберите целевую дату</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={formData.targetQuitDate}
+                      onSelect={(date) =>
+                        setFormData({
+                          ...formData,
+                          targetQuitDate: date,
+                        })
+                      }
+                      initialFocus
+                      locale={ru}
+                      disabled={(date) => date < new Date()}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-sm text-muted-foreground">
+                  Мы автоматически рассчитаем план сокращения
+                </p>
+              </div>
+            )}
+
+            {step === 6 && (
+              <div className="space-y-4">
+                <Label htmlFor="reductionPerWeek">Рекомендуемое сокращение</Label>
                 <Input
                   id="reductionPerWeek"
                   type="number"
                   min="1"
-                  placeholder="Например: 2"
+                  placeholder="Автоматически рассчитано"
                   value={formData.reductionPerWeek}
                   onChange={(e) =>
                     setFormData({
@@ -236,7 +302,9 @@ export default function Onboarding() {
                     })
                   }
                 />
-                <p className="text-sm text-muted-foreground">На сколько сигарет в неделю вы хотите сокращать?</p>
+                <p className="text-sm text-muted-foreground">
+                  Сокращайте на {formData.reductionPerWeek} сигарет в неделю, чтобы достичь цели
+                </p>
               </div>
             )}
 
@@ -247,7 +315,7 @@ export default function Onboarding() {
                 </Button>
               )}
               <Button type="submit" disabled={!isStepValid()} className="flex-1">
-                {step === 5 ? "Начать!" : "Далее"}
+                {step === 6 ? "Начать!" : "Далее"}
               </Button>
             </div>
           </form>

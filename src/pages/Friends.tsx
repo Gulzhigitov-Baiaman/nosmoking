@@ -396,20 +396,12 @@ const Friends = () => {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => navigate(`/chat/${friend.friend_id}`)}>
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            Написать
+                          <Button size="sm" variant="outline" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
+                            Профиль
                           </Button>
-                          {isPremium ? (
-                            <Button variant="outline" size="sm" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
-                              Профиль
-                            </Button>
-                          ) : (
-                            <Button variant="ghost" size="sm" disabled>
-                              <Lock className="w-4 h-4 mr-2" />
-                              Premium
-                            </Button>
-                          )}
+                          <Button size="sm" variant="outline" onClick={() => navigate(`/private-chat/${friend.friend_id}`)} disabled={!isPremium}>
+                            {isPremium ? "Чат" : <Lock className="h-4 w-4" />}
+                          </Button>
                           <Button variant="ghost" size="sm" onClick={() => removeFriend(friend.id)}>
                             <X className="w-4 h-4" />
                           </Button>

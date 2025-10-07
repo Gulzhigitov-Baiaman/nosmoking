@@ -38,6 +38,7 @@ export default function Dashboard() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [dailyLogs, setDailyLogs] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,8 +49,20 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       loadProfile();
+      loadDailyLogs();
     }
   }, [user]);
+
+  const loadDailyLogs = async () => {
+    const { data } = await supabase.from("daily_logs").select("*").eq("user_id", user?.id).order("date", { ascending: false });
+    if (data) {
+      setDailyLogs(data);
+      const today = new Date().toISOString().split("T")[0];
+      if (!data.find(l => l.date === today)) {
+        toast({ title: "Напоминание", description: "Не забудьте записать сегодняшний прогресс!" });
+      }
+    }
+  };
 
   const loadProfile = async () => {
     const { data, error } = await supabase

@@ -588,6 +588,7 @@ export type Database = {
           cigarettes_per_day: number | null
           created_at: string | null
           display_name: string | null
+          featured_achievements: string[] | null
           id: string
           minutes_per_cigarette: number | null
           pack_price: number | null
@@ -603,6 +604,7 @@ export type Database = {
           cigarettes_per_day?: number | null
           created_at?: string | null
           display_name?: string | null
+          featured_achievements?: string[] | null
           id: string
           minutes_per_cigarette?: number | null
           pack_price?: number | null
@@ -618,6 +620,7 @@ export type Database = {
           cigarettes_per_day?: number | null
           created_at?: string | null
           display_name?: string | null
+          featured_achievements?: string[] | null
           id?: string
           minutes_per_cigarette?: number | null
           pack_price?: number | null
