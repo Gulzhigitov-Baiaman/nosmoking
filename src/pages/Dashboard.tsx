@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   DollarSign, 
   Clock, 
@@ -39,6 +41,8 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [dailyLogs, setDailyLogs] = useState<any[]>([]);
+  const [todayCigarettes, setTodayCigarettes] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -57,6 +61,16 @@ export default function Dashboard() {
       loadDailyLogs();
     }
   }, [user, profile]);
+
+  useEffect(() => {
+    if (dailyLogs.length > 0) {
+      const today = new Date().toISOString().split("T")[0];
+      const todayLog = dailyLogs.find((l) => l.date === today);
+      if (todayLog) {
+        setTodayCigarettes(todayLog.cigarettes_smoked.toString());
+      }
+    }
+  }, [dailyLogs]);
 
   const loadDailyLogs = async () => {
     if (!user?.id || !profile?.quit_date) return;
@@ -137,6 +151,60 @@ export default function Dashboard() {
     return Math.round(cigarettesAvoided * (profile?.minutes_per_cigarette || 5));
   };
 
+  const getMoneySpent = () => {
+    if (!profile?.pack_price || !dailyLogs.length) return 0;
+    const actualSmoked = dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
+    return Math.round(actualSmoked * (profile.pack_price / 20));
+  };
+
+  const getTimeSpent = () => {
+    if (!dailyLogs.length) return 0;
+    const actualSmoked = dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
+    return Math.round(actualSmoked * (profile?.minutes_per_cigarette || 5));
+  };
+
+  const handleQuickSave = async () => {
+    if (!user || todayCigarettes === "") return;
+    
+    setIsSaving(true);
+    const today = new Date().toISOString().split("T")[0];
+    const cigarettes = parseInt(todayCigarettes) || 0;
+    
+    const existingLog = dailyLogs.find((l) => l.date === today);
+    
+    try {
+      if (existingLog) {
+        await supabase
+          .from("daily_logs")
+          .update({ cigarettes_smoked: cigarettes })
+          .eq("id", existingLog.id);
+      } else {
+        await supabase.from("daily_logs").insert({
+          user_id: user.id,
+          date: today,
+          cigarettes_smoked: cigarettes,
+        });
+      }
+      
+      toast({
+        title: cigarettes === 0 ? t("dashboard.smokeFreeDay") : t("dashboard.logSaved"),
+        description: cigarettes === 0 ? t('dashboard.keepItUp') : "",
+      });
+      
+      // Reload data
+      await loadDailyLogs();
+    } catch (error) {
+      console.error("Error saving log:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить данные",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -169,11 +237,74 @@ export default function Dashboard() {
         </header>
 
         {/* Main Stats - Days Without Smoking */}
-        <div className="text-center mb-12 p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20">
+        <div className="text-center mb-8 p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20">
           <h2 className="text-lg text-muted-foreground mb-2">{t('dashboard.daysWithoutSmoking')}</h2>
           <p className="text-6xl font-bold text-primary mb-2">{daysWithoutSmoking}</p>
           <p className="text-sm text-muted-foreground">{t('dashboard.keepItUp')}</p>
         </div>
+
+        {/* Quick Log Input */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4">
+              <Label htmlFor="todayCigarettes" className="text-lg font-semibold">
+                {t('dashboard.todaySmoked')}
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="todayCigarettes"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={todayCigarettes}
+                  onChange={(e) => setTodayCigarettes(e.target.value)}
+                  className="flex-1 text-lg"
+                />
+                <Button 
+                  onClick={handleQuickSave} 
+                  disabled={isSaving || todayCigarettes === ""}
+                  className="px-8"
+                >
+                  {isSaving ? "..." : t('dashboard.saveTodayLog')}
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setTodayCigarettes("0")} 
+                  variant="outline"
+                  size="sm"
+                >
+                  0️⃣ {t('dashboard.noSmoking')}
+                </Button>
+                <Button 
+                  onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 1).toString())} 
+                  variant="outline"
+                  size="sm"
+                >
+                  +1
+                </Button>
+                <Button 
+                  onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 5).toString())} 
+                  variant="outline"
+                  size="sm"
+                >
+                  +5
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* No Data Indicator */}
+        {dailyLogs.length === 0 && (
+          <Card className="mb-8 border-amber-500/50 bg-amber-500/5">
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">
+                📝 {t('dashboard.noDataYet')}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Key Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -182,7 +313,10 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t('dashboard.moneySaved')}</p>
-                  <p className="text-2xl font-bold">₩{moneySaved.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">₩{moneySaved.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("dashboard.spent")}: ₩{getMoneySpent().toLocaleString()}
+                  </p>
                 </div>
                 <DollarSign className="h-12 w-12 text-green-500 opacity-50" />
               </div>
@@ -194,7 +328,10 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t('dashboard.timeSaved')}</p>
-                  <p className="text-2xl font-bold">{timeSaved} {t('dashboard.minutes')}</p>
+                  <p className="text-2xl font-bold text-blue-600">{timeSaved} {t('dashboard.minutes')}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("dashboard.spent")}: {getTimeSpent()} {t('dashboard.minutes')}
+                  </p>
                 </div>
                 <Clock className="h-12 w-12 text-blue-500 opacity-50" />
               </div>
