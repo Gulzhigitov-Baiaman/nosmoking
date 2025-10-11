@@ -49,17 +49,38 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       loadProfile();
-      loadDailyLogs();
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user && profile) {
+      loadDailyLogs();
+    }
+  }, [user, profile]);
+
   const loadDailyLogs = async () => {
-    const { data } = await supabase.from("daily_logs").select("*").eq("user_id", user?.id).order("date", { ascending: false });
+    if (!user?.id || !profile?.quit_date) return;
+
+    const quitDate = profile.quit_date.split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
+    
+    const { data } = await supabase
+      .from("daily_logs")
+      .select("*")
+      .eq("user_id", user.id)
+      .gte("date", quitDate) // Загружаем только с quit_date
+      .order("date", { ascending: false });
+
     if (data) {
       setDailyLogs(data);
-      const today = new Date().toISOString().split("T")[0];
-      if (!data.find(l => l.date === today)) {
-        toast({ title: "Напоминание", description: "Не забудьте записать сегодняшний прогресс!" });
+      
+      const todayLog = data.find((log) => log.date === today);
+      if (!todayLog) {
+        toast({
+          title: t("dashboard.reminderTitle"),
+          description: t("dashboard.reminderMessage"),
+          duration: 5000,
+        });
       }
     }
   };
@@ -84,24 +105,36 @@ export default function Dashboard() {
   };
 
   const getDaysWithoutSmoking = () => {
-    if (!profile?.quit_date) return 0;
-    const diff = Date.now() - new Date(profile.quit_date).getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
-  };
-
-  const getMoneySaved = () => {
-    const days = getDaysWithoutSmoking();
-    return Math.round(days * (profile?.cigarettes_per_day || 0) * (profile?.pack_price || 0) / 20);
-  };
-
-  const getTimeSaved = () => {
-    const days = getDaysWithoutSmoking();
-    return Math.round(days * (profile?.cigarettes_per_day || 0) * (profile?.minutes_per_cigarette || 0));
+    if (!dailyLogs || dailyLogs.length === 0) return 0;
+    // Считаем только дни с cigarettes_smoked = 0
+    return dailyLogs.filter(log => log.cigarettes_smoked === 0).length;
   };
 
   const getCigarettesAvoided = () => {
-    const days = getDaysWithoutSmoking();
-    return days * (profile?.cigarettes_per_day || 0);
+    if (!profile?.quit_date || !dailyLogs || dailyLogs.length === 0) return 0;
+    
+    const quitDate = new Date(profile.quit_date);
+    const today = new Date();
+    const daysSinceQuit = Math.floor((today.getTime() - quitDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Целевое количество = среднее до начала плана × дни
+    const targetCigarettes = (profile.cigarettes_per_day || 0) * daysSinceQuit;
+    
+    // Фактически выкурено = сумма из daily_logs
+    const actualSmoked = dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
+    
+    return Math.max(0, targetCigarettes - actualSmoked);
+  };
+
+  const getMoneySaved = () => {
+    if (!profile?.pack_price) return 0;
+    const cigarettesAvoided = getCigarettesAvoided();
+    return Math.round(cigarettesAvoided * (profile.pack_price / 20));
+  };
+
+  const getTimeSaved = () => {
+    const cigarettesAvoided = getCigarettesAvoided();
+    return Math.round(cigarettesAvoided * (profile?.minutes_per_cigarette || 5));
   };
 
   if (loading) {

@@ -50,8 +50,33 @@ serve(async (req) => {
       .from("achievements")
       .select("*");
 
-    if (!achievements || !logs) {
-      return new Response(JSON.stringify({ message: "No data" }), {
+    if (!achievements) {
+      return new Response(JSON.stringify({ message: "No achievements found" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if user has any achievement records, if not - initialize them
+    const { data: existingUserAchievements } = await supabaseClient
+      .from("user_achievements")
+      .select("achievement_id")
+      .eq("user_id", user_id);
+
+    if (!existingUserAchievements || existingUserAchievements.length === 0) {
+      console.log("Initializing achievements for new user");
+      for (const achievement of achievements) {
+        await supabaseClient.from("user_achievements").insert({
+          user_id,
+          achievement_id: achievement.id,
+          progress: 0,
+          earned_at: null,
+        });
+      }
+    }
+
+    if (!logs || logs.length === 0) {
+      console.log("No logs found for user");
+      return new Response(JSON.stringify({ message: "No logs yet" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -61,13 +86,19 @@ serve(async (req) => {
     const today = new Date();
     const daysSinceQuit = Math.floor((today.getTime() - quitDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    const smokeFreeStreak = logs.reduce((streak, log) => {
-      if (log.cigarettes_smoked === 0) return streak + 1;
-      return 0;
-    }, 0);
+    // Count consecutive days with 0 cigarettes (starting from most recent)
+    let smokeFreeStreak = 0;
+    for (let i = 0; i < logs.length; i++) {
+      if (logs[i].cigarettes_smoked === 0) {
+        smokeFreeStreak++;
+      } else {
+        break; // Stop at first day with smoking
+      }
+    }
 
     const totalLogs = logs.length;
     const totalSmoked = logs.reduce((sum, log) => sum + log.cigarettes_smoked, 0);
+    const totalSmokeFreedays = logs.filter(log => log.cigarettes_smoked === 0).length;
 
     // Update or create user achievements
     for (const achievement of achievements) {
@@ -76,7 +107,13 @@ serve(async (req) => {
 
       switch (achievement.type) {
         case "days_smoke_free":
+          // Consecutive days with 0 cigarettes
           progress = smokeFreeStreak;
+          earned = progress >= achievement.requirement;
+          break;
+        case "days":
+          // Total days with 0 cigarettes (not necessarily consecutive)
+          progress = totalSmokeFreedays;
           earned = progress >= achievement.requirement;
           break;
         case "days_since_quit":
@@ -90,6 +127,13 @@ serve(async (req) => {
         case "reduction":
           const avgSmoked = totalLogs > 0 ? totalSmoked / totalLogs : profile.cigarettes_per_day;
           progress = Math.max(0, profile.cigarettes_per_day - avgSmoked);
+          earned = progress >= achievement.requirement;
+          break;
+        case "money":
+          // Calculate money saved based on cigarettes avoided
+          const targetCigs = daysSinceQuit * profile.cigarettes_per_day;
+          const savedCigs = Math.max(0, targetCigs - totalSmoked);
+          progress = Math.round(savedCigs * 4500 / 20); // Approximate pack price in KRW
           earned = progress >= achievement.requirement;
           break;
       }

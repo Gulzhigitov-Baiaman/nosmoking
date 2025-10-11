@@ -42,7 +42,20 @@ const Achievements = () => {
       return;
     }
     fetchAchievements();
+    initializeAchievements();
   }, [user, navigate]);
+
+  const initializeAchievements = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase.functions.invoke('update-achievements', {
+        body: { user_id: user.id }
+      });
+    } catch (error) {
+      console.error("Error initializing achievements:", error);
+    }
+  };
 
   const fetchAchievements = async () => {
     if (!user) return;
@@ -165,9 +178,9 @@ const Achievements = () => {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {achievements.map((achievement) => {
-            const userAch = getUserAchievement(achievement.id);
-            const isEarned = userAch?.earned_at !== null;
-            const progress = userAch?.progress || 0;
+          const userAch = getUserAchievement(achievement.id);
+          const isEarned = userAch && userAch.earned_at !== null && userAch.earned_at !== undefined;
+          const progress = userAch?.progress || 0;
             const progressPercent = (progress / achievement.requirement) * 100;
             const isLocked = achievement.is_premium && !isPremium;
 
