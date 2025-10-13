@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,6 +118,11 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const getTotalSmoked = () => {
+    if (!dailyLogs.length) return 0;
+    return dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
+  };
+
   const getDaysWithoutSmoking = () => {
     if (!dailyLogs || dailyLogs.length === 0) return 0;
     // Считаем только дни с cigarettes_smoked = 0
@@ -174,31 +179,39 @@ export default function Dashboard() {
     
     try {
       if (existingLog) {
-        await supabase
+        const { error } = await supabase
           .from("daily_logs")
           .update({ cigarettes_smoked: cigarettes })
           .eq("id", existingLog.id);
+        
+        if (error) throw error;
       } else {
-        await supabase.from("daily_logs").insert({
+        const { error } = await supabase.from("daily_logs").insert({
           user_id: user.id,
           date: today,
           cigarettes_smoked: cigarettes,
         });
+        
+        if (error) throw error;
       }
       
       toast({
-        title: cigarettes === 0 ? t("dashboard.smokeFreeDay") : t("dashboard.logSaved"),
-        description: cigarettes === 0 ? t('dashboard.keepItUp') : "",
+        title: cigarettes === 0 ? "🎉 День без курения!" : "✅ Данные сохранены",
+        description: cigarettes === 0 
+          ? t('dashboard.keepItUp')
+          : `Записано: ${cigarettes} ${cigarettes === 1 ? 'сигарета' : cigarettes < 5 ? 'сигареты' : 'сигарет'}`,
+        duration: 3000,
       });
       
-      // Reload data
       await loadDailyLogs();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving log:", error);
+      
       toast({
-        title: "Ошибка",
-        description: "Не удалось сохранить данные",
+        title: "❌ Ошибка сохранения",
+        description: error.message || "Не удалось сохранить данные. Попробуйте ещё раз.",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsSaving(false);
@@ -236,18 +249,11 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Main Stats - Days Without Smoking */}
-        <div className="text-center mb-8 p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20">
-          <h2 className="text-lg text-muted-foreground mb-2">{t('dashboard.daysWithoutSmoking')}</h2>
-          <p className="text-6xl font-bold text-primary mb-2">{daysWithoutSmoking}</p>
-          <p className="text-sm text-muted-foreground">{t('dashboard.keepItUp')}</p>
-        </div>
-
         {/* Quick Log Input */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="flex flex-col gap-4">
-              <Label htmlFor="todayCigarettes" className="text-lg font-semibold">
+        <Card className="mb-6">
+          <CardContent className="pt-4">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="todayCigarettes" className="text-base font-medium">
                 {t('dashboard.todaySmoked')}
               </Label>
               <div className="flex gap-2">
@@ -258,12 +264,12 @@ export default function Dashboard() {
                   placeholder="0"
                   value={todayCigarettes}
                   onChange={(e) => setTodayCigarettes(e.target.value)}
-                  className="flex-1 text-lg"
+                  className="flex-1"
                 />
                 <Button 
                   onClick={handleQuickSave} 
                   disabled={isSaving || todayCigarettes === ""}
-                  className="px-8"
+                  size="default"
                 >
                   {isSaving ? "..." : t('dashboard.saveTodayLog')}
                 </Button>
@@ -297,7 +303,7 @@ export default function Dashboard() {
 
         {/* No Data Indicator */}
         {dailyLogs.length === 0 && (
-          <Card className="mb-8 border-amber-500/50 bg-amber-500/5">
+          <Card className="mb-6 border-amber-500/50 bg-amber-500/5">
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground">
                 📝 {t('dashboard.noDataYet')}
@@ -306,46 +312,74 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Key Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
+        {/* Statistics Grid - 4 Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {/* Total Smoked */}
+          <Card className="min-h-[120px]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Всего выкурено
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.moneySaved')}</p>
-                  <p className="text-2xl font-bold text-green-600">₩{moneySaved.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t("dashboard.spent")}: ₩{getMoneySpent().toLocaleString()}
-                  </p>
-                </div>
-                <DollarSign className="h-12 w-12 text-green-500 opacity-50" />
+                <p className="text-2xl font-bold">{getTotalSmoked()}</p>
+                <TrendingDown className="h-8 w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="pt-6">
+          {/* Days Without Smoking */}
+          <Card className="min-h-[120px]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Дней без курения
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.timeSaved')}</p>
-                  <p className="text-2xl font-bold text-blue-600">{timeSaved} {t('dashboard.minutes')}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t("dashboard.spent")}: {getTimeSpent()} {t('dashboard.minutes')}
-                  </p>
-                </div>
-                <Clock className="h-12 w-12 text-blue-500 opacity-50" />
+                <p className="text-2xl font-bold text-success">{daysWithoutSmoking}</p>
+                <Trophy className="h-8 w-8 text-success opacity-50" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="pt-6">
+          {/* Money Spent */}
+          <Card className="min-h-[120px]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Потрачено денег
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">{t('dashboard.cigarettesAvoided')}</p>
-                  <p className="text-2xl font-bold">{cigarettesAvoided}</p>
+                <div className="flex-1">
+                  <p className="text-2xl font-bold">₩{getMoneySpent().toLocaleString()}</p>
+                  <p className="text-xs text-success mt-1">
+                    {t("dashboard.saved")}: ₩{moneySaved.toLocaleString()}
+                  </p>
                 </div>
-                <Cigarette className="h-12 w-12 text-red-500 opacity-50" />
+                <DollarSign className="h-8 w-8 text-destructive opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Time Spent */}
+          <Card className="min-h-[120px]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Потрачено времени
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-2xl font-bold">{getTimeSpent()} мин</p>
+                  <p className="text-xs text-success mt-1">
+                    {t("dashboard.saved")}: {timeSaved} мин
+                  </p>
+                </div>
+                <Clock className="h-8 w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>

@@ -77,6 +77,13 @@ export default function Calendar() {
     const dateStr = selectedDate.toISOString().split('T')[0];
     const cigarettes = parseInt(cigarettesInput) || 0;
 
+    // Check: date cannot be in future
+    const today = new Date().toISOString().split('T')[0];
+    if (dateStr > today) {
+      toast.error("❌ Нельзя сохранять данные для будущих дат");
+      return;
+    }
+
     const existingLog = dailyLogs.find((l) => l.date === dateStr);
 
     try {
@@ -97,12 +104,17 @@ export default function Calendar() {
         if (error) throw error;
       }
 
-      toast.success(cigarettes === 0 ? "🎉 День без курения!" : "Данные сохранены");
-      loadMonthLogs();
+      toast.success(
+        cigarettes === 0 
+          ? "🎉 День без курения!" 
+          : `✅ Данные сохранены: ${selectedDate.toLocaleDateString('ru-RU')} — ${cigarettes} ${cigarettes === 1 ? 'сигарета' : cigarettes < 5 ? 'сигареты' : 'сигарет'}`
+      );
+
+      await loadMonthLogs();
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving log:", error);
-      toast.error("Ошибка сохранения");
+      toast.error(`❌ Ошибка сохранения: ${error.message || "Проверьте подключение к интернету"}`);
     }
   };
 
