@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress as ProgressBar } from "@/components/ui/progress";
-import { ArrowLeft, TrendingDown, Calendar } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import { QuitDateSelector } from "@/components/quit-plan/QuitDateSelector";
+import { BaselineSetup } from "@/components/quit-plan/BaselineSetup";
+import { LimitTracker } from "@/components/quit-plan/LimitTracker";
+import { CountdownTimer } from "@/components/quit-plan/CountdownTimer";
+import { ProgressChart } from "@/components/quit-plan/ProgressChart";
 
 interface SmokingPlan {
   id: string;
@@ -14,207 +18,227 @@ interface SmokingPlan {
   target_cigarettes: number;
   reduction_per_week: number;
   start_date: string;
+  end_date: string | null;
+  quit_date: string;
+  daily_limit: number;
+  plan_type: string;
   is_active: boolean;
 }
 
 interface DailyLog {
+  id: string;
   date: string;
   cigarettes_smoked: number;
 }
 
+interface Profile {
+  cigarettes_per_day: number;
+}
+
 export default function Progress() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [plan, setPlan] = useState<SmokingPlan | null>(null);
-  const [logs, setLogs] = useState<DailyLog[]>([]);
-  const [todayLog, setTodayLog] = useState(0);
+  const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [setupStep, setSetupStep] = useState<'date' | 'baseline' | 'plan'>('date');
+  const [quitDate, setQuitDate] = useState<Date | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       navigate("/auth");
+      return;
     }
-  }, [user, loading, navigate]);
+    loadData();
+  }, [user, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      loadPlan();
-      loadLogs();
-    }
-  }, [user]);
+  const loadData = async () => {
+    try {
+      setLoading(true);
 
-  const loadPlan = async () => {
-    const { data, error } = await supabase
-      .from("smoking_plans")
-      .select("*")
-      .eq("user_id", user?.id)
-      .eq("is_active", true)
-      .single();
+      // Load profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("cigarettes_per_day")
+        .eq("id", user!.id)
+        .single();
 
-    if (!error && data) {
-      setPlan(data);
-    }
-  };
+      if (profileData) {
+        setProfile(profileData);
+      }
 
-  const loadLogs = async () => {
-    const { data, error } = await supabase
-      .from("daily_logs")
-      .select("*")
-      .eq("user_id", user?.id)
-      .order("date", { ascending: false })
-      .limit(30);
+      // Load plan
+      const { data: planData, error: planError } = await supabase
+        .from("smoking_plans")
+        .select("*")
+        .eq("user_id", user!.id)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (!error && data) {
-      setLogs(data);
-      const today = new Date().toISOString().split("T")[0];
-      const todayData = data.find((log) => log.date === today);
-      setTodayLog(todayData?.cigarettes_smoked || 0);
-    }
-  };
+      if (planError) throw planError;
 
-  const getCurrentTarget = () => {
-    if (!plan) return 0;
-    const weeksPassed = Math.floor(
-      (Date.now() - new Date(plan.start_date).getTime()) / (7 * 24 * 60 * 60 * 1000)
-    );
-    const target = Math.max(
-      plan.target_cigarettes,
-      plan.start_cigarettes - weeksPassed * plan.reduction_per_week
-    );
-    return target;
-  };
+      if (planData) {
+        setPlan(planData);
+        setSetupStep('plan');
 
-  const addCigarette = async () => {
-    const today = new Date().toISOString().split("T")[0];
-    const { error } = await supabase
-      .from("daily_logs")
-      .upsert(
-        {
-          user_id: user?.id,
-          date: today,
-          cigarettes_smoked: todayLog + 1,
-        },
-        { onConflict: "user_id,date" }
-      );
+        // Load daily logs
+        const startDate = new Date(planData.start_date);
+        const quitDate = new Date(planData.quit_date);
+        
+        const { data: logsData, error: logsError } = await supabase
+          .from("daily_logs")
+          .select("*")
+          .eq("user_id", user!.id)
+          .gte("date", startDate.toISOString().split('T')[0])
+          .lte("date", quitDate.toISOString().split('T')[0])
+          .order("date", { ascending: true });
 
-    if (error) {
+        if (logsError) throw logsError;
+        setDailyLogs(logsData || []);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить данные",
+        description: "Не удалось загрузить данные",
         variant: "destructive",
       });
-    } else {
-      setTodayLog(todayLog + 1);
-      loadLogs();
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const createPlan = async (baselinePuffs: number) => {
+    if (!quitDate || !user) return;
+
+    try {
+      const startDate = new Date();
+      const totalDays = Math.ceil((quitDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const dailyReduction = baselinePuffs / totalDays;
+
+      const { error } = await supabase
+        .from("smoking_plans")
+        .insert({
+          user_id: user.id,
+          start_cigarettes: baselinePuffs,
+          target_cigarettes: 0,
+          reduction_per_week: Math.round(dailyReduction * 7),
+          start_date: startDate.toISOString(),
+          end_date: quitDate.toISOString(),
+          quit_date: quitDate.toISOString(),
+          daily_limit: baselinePuffs,
+          plan_type: 'gradual',
+          is_active: true,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "✅ План создан!",
+        description: `Дата отказа: ${quitDate.toLocaleDateString('ru-RU')}`,
+      });
+
+      await loadData();
+      setSetupStep('plan');
+    } catch (error) {
+      console.error("Error creating plan:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать план",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getTodayPuffs = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayLog = dailyLogs.find((log) => log.date === today);
+    return todayLog?.cigarettes_smoked || 0;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Загрузка...</p>
+      <div className="min-h-screen bg-background p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/dashboard")}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+          </div>
+          <p className="text-center text-muted-foreground">
+            {t('common.loading')}
+          </p>
+        </div>
       </div>
     );
   }
 
-  const currentTarget = getCurrentTarget();
+  // Onboarding flow
+  if (!plan) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/dashboard")}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+          </div>
 
+          {setupStep === 'date' && (
+            <QuitDateSelector
+              onContinue={(date) => {
+                setQuitDate(date);
+                setSetupStep('baseline');
+              }}
+            />
+          )}
+
+          {setupStep === 'baseline' && (
+            <BaselineSetup
+              initialValue={profile?.cigarettes_per_day}
+              onCreatePlan={createPlan}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Main Quit Plan screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container max-w-4xl mx-auto p-4">
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/dashboard")}
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-3xl font-bold">План сокращения</h1>
+          <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
         </div>
 
-        {plan ? (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingDown className="h-5 w-5" />
-                  Ваш план
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span>Начало: {plan.start_cigarettes} сиг/день</span>
-                  <span>Цель: {plan.target_cigarettes} сиг/день</span>
-                </div>
-                <ProgressBar
-                  value={
-                    ((plan.start_cigarettes - currentTarget) /
-                      (plan.start_cigarettes - plan.target_cigarettes)) *
-                    100
-                  }
-                />
-                <p className="text-center text-lg font-bold">
-                  Текущая цель: {currentTarget} сигарет в день
-                </p>
-                <p className="text-sm text-muted-foreground text-center">
-                  Сокращение: -{plan.reduction_per_week} сиг/неделю
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Сегодня
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <p className="text-5xl font-bold">{todayLog}</p>
-                  <p className="text-sm text-muted-foreground">сигарет выкурено</p>
-                </div>
-                <Button onClick={addCigarette} className="w-full">
-                  Записать сигарету
-                </Button>
-                {todayLog > currentTarget && (
-                  <p className="text-sm text-destructive text-center">
-                    ⚠️ Вы превысили дневную норму на {todayLog - currentTarget}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>История за последние 7 дней</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {logs.slice(0, 7).map((log) => (
-                    <div
-                      key={log.date}
-                      className="flex justify-between items-center p-2 rounded hover:bg-muted"
-                    >
-                      <span className="text-sm">
-                        {new Date(log.date).toLocaleDateString("ru-RU")}
-                      </span>
-                      <span className="font-medium">{log.cigarettes_smoked} сиг.</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">
-                У вас пока нет активного плана сокращения
-              </p>
-              <Button onClick={() => navigate("/onboarding")}>
-                Создать план
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        <div className="space-y-6">
+          <LimitTracker plan={plan} todayPuffs={getTodayPuffs()} />
+          <CountdownTimer quitDate={plan.quit_date} />
+          <ProgressChart plan={plan} logs={dailyLogs} />
+        </div>
       </div>
     </div>
   );

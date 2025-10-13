@@ -673,9 +673,12 @@ export type Database = {
       smoking_plans: {
         Row: {
           created_at: string | null
+          daily_limit: number | null
           end_date: string | null
           id: string
           is_active: boolean | null
+          plan_type: string | null
+          quit_date: string | null
           reduction_per_week: number
           start_cigarettes: number
           start_date: string | null
@@ -684,9 +687,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          daily_limit?: number | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null
+          plan_type?: string | null
+          quit_date?: string | null
           reduction_per_week: number
           start_cigarettes: number
           start_date?: string | null
@@ -695,9 +701,12 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          daily_limit?: number | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null
+          plan_type?: string | null
+          quit_date?: string | null
           reduction_per_week?: number
           start_cigarettes?: number
           start_date?: string | null
