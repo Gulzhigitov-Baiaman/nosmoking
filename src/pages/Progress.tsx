@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import { IntroScreen } from "@/components/quit-plan/IntroScreen";
 import { QuitDateSelector } from "@/components/quit-plan/QuitDateSelector";
 import { BaselineSetup } from "@/components/quit-plan/BaselineSetup";
 import { LimitTracker } from "@/components/quit-plan/LimitTracker";
@@ -44,7 +45,7 @@ export default function Progress() {
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [setupStep, setSetupStep] = useState<'date' | 'baseline' | 'plan'>('date');
+  const [setupStep, setSetupStep] = useState<'intro' | 'date' | 'baseline' | 'plan'>('intro');
   const [quitDate, setQuitDate] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -196,10 +197,16 @@ export default function Progress() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
-          </div>
+          <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+        </div>
 
-          {setupStep === 'date' && (
+        {setupStep === 'intro' && (
+          <IntroScreen
+            onStart={() => setSetupStep('date')}
+          />
+        )}
+
+        {setupStep === 'date' && (
             <QuitDateSelector
               onContinue={(date) => {
                 setQuitDate(date);
