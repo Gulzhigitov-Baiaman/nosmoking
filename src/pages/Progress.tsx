@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { IntroScreen } from "@/components/quit-plan/IntroScreen";
 import { QuitDateSelector } from "@/components/quit-plan/QuitDateSelector";
 import { BaselineSetup } from "@/components/quit-plan/BaselineSetup";
+import { PreviewLimitTracker } from "@/components/quit-plan/PreviewLimitTracker";
+import { PreviewCountdown } from "@/components/quit-plan/PreviewCountdown";
+import { PreviewChart } from "@/components/quit-plan/PreviewChart";
 import { LimitTracker } from "@/components/quit-plan/LimitTracker";
 import { CountdownTimer } from "@/components/quit-plan/CountdownTimer";
 import { ProgressChart } from "@/components/quit-plan/ProgressChart";
@@ -45,8 +48,9 @@ export default function Progress() {
   const [dailyLogs, setDailyLogs] = useState<DailyLog[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [setupStep, setSetupStep] = useState<'intro' | 'date' | 'baseline' | 'plan'>('intro');
+  const [setupStep, setSetupStep] = useState<'intro' | 'date' | 'baseline' | 'preview-limit' | 'preview-countdown' | 'preview-chart' | 'plan'>('intro');
   const [quitDate, setQuitDate] = useState<Date | null>(null);
+  const [baselinePuffs, setBaselinePuffs] = useState<number>(0);
 
   useEffect(() => {
     if (!user) {
@@ -218,7 +222,35 @@ export default function Progress() {
           {setupStep === 'baseline' && (
             <BaselineSetup
               initialValue={profile?.cigarettes_per_day}
-              onCreatePlan={createPlan}
+              onCreatePlan={(puffs) => {
+                setBaselinePuffs(puffs);
+                setSetupStep('preview-limit');
+              }}
+            />
+          )}
+
+          {setupStep === 'preview-limit' && (
+            <PreviewLimitTracker
+              baselinePuffs={baselinePuffs}
+              quitDate={quitDate!}
+              onContinue={() => setSetupStep('preview-countdown')}
+            />
+          )}
+
+          {setupStep === 'preview-countdown' && (
+            <PreviewCountdown
+              quitDate={quitDate!}
+              onContinue={() => setSetupStep('preview-chart')}
+            />
+          )}
+
+          {setupStep === 'preview-chart' && (
+            <PreviewChart
+              baselinePuffs={baselinePuffs}
+              quitDate={quitDate!}
+              onSavePlan={async () => {
+                await createPlan(baselinePuffs);
+              }}
             />
           )}
         </div>
