@@ -87,7 +87,7 @@ export default function Progress() {
 
       if (planError) throw planError;
 
-      if (planData) {
+      if (planData && planData.quit_date) {
         setPlan(planData);
         setSetupStep('plan');
 
@@ -119,7 +119,17 @@ export default function Progress() {
   };
 
   const createPlan = async (baselinePuffs: number) => {
-    if (!quitDate || !user) return;
+    if (!quitDate) {
+      toast({
+        title: "❌ Ошибка",
+        description: "Дата отказа не выбрана. Вернитесь к выбору даты.",
+        variant: "destructive",
+      });
+      setSetupStep('date');
+      return;
+    }
+
+    if (!user) return;
 
     try {
       const startDate = new Date();

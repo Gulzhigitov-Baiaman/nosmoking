@@ -18,6 +18,9 @@ export const BaselineSetup = ({ initialValue, onCreatePlan }: BaselineSetupProps
     const puffs = parseInt(baselinePuffs) || 0;
     if (puffs > 0) {
       onCreatePlan(puffs);
+    } else {
+      // Дополнительная проверка на всякий случай
+      console.error("Invalid baseline puffs value:", baselinePuffs);
     }
   };
 
