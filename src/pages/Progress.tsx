@@ -15,6 +15,7 @@ import { PreviewChart } from "@/components/quit-plan/PreviewChart";
 import { LimitTracker } from "@/components/quit-plan/LimitTracker";
 import { CountdownTimer } from "@/components/quit-plan/CountdownTimer";
 import { ProgressChart } from "@/components/quit-plan/ProgressChart";
+import { PremiumGuard } from "@/components/PremiumGuard";
 
 interface SmokingPlan {
   id: string;
@@ -40,6 +41,14 @@ interface Profile {
 }
 
 export default function Progress() {
+  return (
+    <PremiumGuard>
+      <ProgressContent />
+    </PremiumGuard>
+  );
+}
+
+function ProgressContent() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();

@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Users, Search, Crown, Lock, UserPlus, Check, X, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { PremiumGuard } from "@/components/PremiumGuard";
 
 interface Profile {
   id: string;
@@ -32,7 +33,15 @@ interface Friend {
   profiles: Profile;
 }
 
-const Friends = () => {
+export default function Friends() {
+  return (
+    <PremiumGuard>
+      <FriendsContent />
+    </PremiumGuard>
+  );
+}
+
+function FriendsContent() {
   const { user, isPremium } = useAuth();
   const navigate = useNavigate();
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -485,4 +494,4 @@ const Friends = () => {
   );
 };
 
-export default Friends;
+// Removed duplicate export - already exported at the top

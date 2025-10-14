@@ -3,16 +3,13 @@ project_id = "xzcrzqyhubrsndopnzxj"
 [functions.send-support-message]
 verify_jwt = false
 
-[functions.process-kakaopay-payment]
+[functions.check-subscription]
 verify_jwt = true
 
-[functions.kakaopay-callback]
-verify_jwt = false
+[functions.create-checkout]
+verify_jwt = true
 
-[functions.send-subscription-confirmation]
-verify_jwt = false
-
-[functions.check-subscription]
+[functions.customer-portal]
 verify_jwt = true
 
 [functions.generate-ai-plan]

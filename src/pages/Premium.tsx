@@ -5,17 +5,21 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, Crown, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Crown, Sparkles, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { usePremium } from "@/hooks/usePremium";
+
+const STRIPE_PRICE_ID = "price_1SICx3LJqhOyuCVBmCwLGK8y";
 
 const Premium = () => {
-  const { user, isPremium } = useAuth();
+  const { user } = useAuth();
+  const { isPremium } = usePremium();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
-  const handleKakaoPaySubscribe = async () => {
+  const handleStripeCheckout = async () => {
     if (!user) {
       toast({
         title: t('premium.subscribe'),
@@ -28,19 +32,42 @@ const Premium = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("process-kakaopay-payment", {
-        body: { priceId: "price_premium" },
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { priceId: STRIPE_PRICE_ID },
       });
 
       if (error) throw error;
-      if (data?.redirect_url) {
-        window.location.href = data.redirect_url;
+      
+      if (data?.url) {
+        window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Error creating KakaoPay payment:", error);
+      console.error("Error creating Stripe checkout:", error);
       toast({
         title: t('premium.subscribe'),
-        description: "Failed to create payment session",
+        description: "Ошибка создания платёжной сессии",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Error opening customer portal:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось открыть портал управления",
         variant: "destructive",
       });
     } finally {
@@ -49,13 +76,13 @@ const Premium = () => {
   };
 
   const features = [
-    { icon: "🏆", text: t('premium.features.challenges') },
+    { icon: "📅", text: t('premium.features.calendar') },
+    { icon: "💬", text: t('premium.features.chat') },
     { icon: "👥", text: t('premium.features.friends') },
-    { icon: "📊", text: t('premium.features.reports') },
+    { icon: "📊", text: t('premium.features.reductionPlan') },
     { icon: "🤖", text: t('premium.features.aiPlan') },
-    { icon: "📚", text: t('premium.features.tips') },
-    { icon: "🔔", text: t('premium.features.notifications') },
-    { icon: "📈", text: t('premium.features.analytics') },
+    { icon: "📄", text: t('premium.features.pdfReports') },
+    { icon: "🏆", text: t('premium.features.challenges') },
     { icon: "⭐", text: t('premium.features.support') },
   ];
 
@@ -85,11 +112,11 @@ const Premium = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-green-500" />
-                <span>Community chat</span>
+                <span>Limited exercises</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5 text-green-500" />
-                <span>Limited tips</span>
+                <span>Basic tips</span>
               </div>
             </div>
             <Button variant="outline" disabled className="w-full">Current Plan</Button>
@@ -110,10 +137,9 @@ const Premium = () => {
             
             <div className="mb-6">
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold">{t('premium.price')}</span>
+                <span className="text-4xl font-bold">₩9,990</span>
                 <span className="text-muted-foreground">/ {t('premium.perMonth')}</span>
               </div>
-              <p className="text-sm text-primary">{t('premium.trial')}</p>
             </div>
 
             <div className="space-y-2 mb-6">
@@ -125,14 +151,24 @@ const Premium = () => {
               ))}
             </div>
 
-            {!isPremium && (
+            {!isPremium ? (
               <Button 
-                onClick={handleKakaoPaySubscribe}
+                onClick={handleStripeCheckout}
                 disabled={loading}
-                className="w-full bg-[#FEE500] hover:bg-[#FDD835] text-black font-semibold"
+                className="w-full"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                {loading ? "Loading..." : t('premium.payWithKakao')}
+                {loading ? "Loading..." : t('premium.subscribe')}
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleManageSubscription}
+                variant="outline"
+                className="w-full"
+                disabled={loading}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                {loading ? "Loading..." : t('premium.manageSubscription')}
               </Button>
             )}
           </Card>

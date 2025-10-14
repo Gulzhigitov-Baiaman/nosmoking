@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ArrowLeft, Send, Smile } from "lucide-react";
 import { toast } from "sonner";
+import { PremiumGuard } from "@/components/PremiumGuard";
 
 interface ChatMessage {
   id: string;
@@ -33,6 +34,14 @@ interface MessageReaction {
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "💪", "😂", "🎉", "👏", "✨"];
 
 export default function Chat() {
+  return (
+    <PremiumGuard>
+      <ChatContent />
+    </PremiumGuard>
+  );
+}
+
+function ChatContent() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([]);

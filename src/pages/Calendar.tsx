@@ -10,8 +10,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Calendar as CalendarIcon, TrendingDown, DollarSign, Clock, Award } from "lucide-react";
 import { toast } from "sonner";
+import { PremiumGuard } from "@/components/PremiumGuard";
 
 export default function Calendar() {
+  return (
+    <PremiumGuard>
+      <CalendarContent />
+    </PremiumGuard>
+  );
+}
+
+function CalendarContent() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());

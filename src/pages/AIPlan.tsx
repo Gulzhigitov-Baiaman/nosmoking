@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PremiumGuard } from "@/components/PremiumGuard";
 
 interface Profile {
   cigarettes_per_day: number;
@@ -13,7 +14,15 @@ interface Profile {
   pack_price: number;
 }
 
-const AIPlan = () => {
+export default function AIPlan() {
+  return (
+    <PremiumGuard>
+      <AIPlanContent />
+    </PremiumGuard>
+  );
+}
+
+function AIPlanContent() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -167,6 +176,4 @@ const AIPlan = () => {
       </div>
     </div>
   );
-};
-
-export default AIPlan;
+}
