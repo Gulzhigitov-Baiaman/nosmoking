@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Lock, Play, Pause, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { ExerciseCharacter } from "@/components/ExerciseCharacter";
 
 interface Exercise {
   id: string;
@@ -143,6 +144,16 @@ const Exercises = () => {
             Выполняйте упражнения, чтобы отвлечься от желания закурить
           </p>
         </div>
+
+        {activeExercise && (
+          <Card className="mb-6 bg-gradient-to-br from-primary/10 to-primary/5">
+            <ExerciseCharacter 
+              isActive={!!activeExercise}
+              isRunning={isRunning}
+              timeLeft={timeLeft}
+            />
+          </Card>
+        )}
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
           <TabsList className="grid grid-cols-4">

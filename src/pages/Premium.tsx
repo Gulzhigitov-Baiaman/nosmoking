@@ -39,7 +39,11 @@ const Premium = () => {
       if (error) throw error;
       
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
+        toast({
+          title: t('premium.subscribe'),
+          description: "Откроется новая вкладка для оплаты",
+        });
       }
     } catch (error) {
       console.error("Error creating Stripe checkout:", error);
@@ -61,7 +65,7 @@ const Premium = () => {
       if (error) throw error;
       
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error("Error opening customer portal:", error);
