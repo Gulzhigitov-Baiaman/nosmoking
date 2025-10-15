@@ -81,10 +81,19 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in generate-ai-plan function:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    console.error("Error generating AI plan:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
     });
+    
+    return new Response(
+      JSON.stringify({ 
+        error: "Unable to generate AI plan. Please try again." 
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });

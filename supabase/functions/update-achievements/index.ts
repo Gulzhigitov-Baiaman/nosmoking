@@ -173,8 +173,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error updating achievements:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    console.error("Error updating achievements:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
+    return new Response(JSON.stringify({ error: "Unable to update achievements. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

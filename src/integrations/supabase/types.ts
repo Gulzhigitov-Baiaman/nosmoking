@@ -893,6 +893,23 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      set_featured_achievements: {
+        Args: { _achievement_ids: string[] }
+        Returns: undefined
+      }
+      update_safe_profile_fields: {
+        Args: {
+          _avatar_url?: string
+          _bio?: string
+          _cigarettes_per_day?: number
+          _display_name?: string
+          _minutes_per_cigarette?: number
+          _pack_price?: number
+          _preferred_language?: string
+          _quit_date?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -151,9 +151,15 @@ const Profile = () => {
     if (!user) return;
     setSaving(true);
     try {
-      await supabase.from("profiles").update({ display_name: displayName, bio }).eq("id", user.id);
+      const { error } = await supabase.rpc("update_safe_profile_fields", {
+        _display_name: displayName,
+        _bio: bio,
+      });
+      
+      if (error) throw error;
       toast.success("Профиль обновлён!");
     } catch (error) {
+      console.error("Error updating profile:", error);
       toast.error("Ошибка обновления");
     } finally {
       setSaving(false);
