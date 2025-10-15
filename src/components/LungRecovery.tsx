@@ -50,9 +50,5 @@ export const LungRecovery = ({
     };
   };
   const lungState = getLungState();
-  return <Card className="overflow-hidden shadow-glow border-2 border-green-500/20 animate-in mb-6">
-      
-      
-      
-    </Card>;
+  return;
 };
