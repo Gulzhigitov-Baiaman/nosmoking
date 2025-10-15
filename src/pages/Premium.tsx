@@ -9,7 +9,7 @@ import { ArrowLeft, Check, Crown, Sparkles, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/usePremium";
 
-const STRIPE_PRICE_ID = "price_1SICx3LJqhOyuCVBmCwLGK8y";
+const STRIPE_PRICE_ID = "price_1SIT3YLJqhOyuCVBc6bCV5Vo"; // Recurring monthly subscription
 
 const Premium = () => {
   const { user } = useAuth();
