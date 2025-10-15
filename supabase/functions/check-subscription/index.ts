@@ -57,48 +57,47 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    // Check ALL subscriptions (not just active) for debugging
-    const allSubscriptions = await stripe.subscriptions.list({
+    // Fetch ALL subscriptions and filter for active OR trialing
+    const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       limit: 10,
     });
     
     logStep("All subscriptions found", { 
-      count: allSubscriptions.data.length,
-      subscriptions: allSubscriptions.data.map((sub: any) => ({
+      count: subscriptions.data.length,
+      subscriptions: subscriptions.data.map((sub: any) => ({
         id: sub.id,
         status: sub.status,
         priceId: sub.items.data[0]?.price.id,
         created: new Date(sub.created * 1000).toISOString(),
       }))
     });
-
-    // Now check for active subscriptions
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
     
-    const hasActiveSub = subscriptions.data.length > 0;
+    // Filter for subscriptions that are either active or trialing
+    const activeSubscriptions = subscriptions.data.filter(
+      (sub: any) => sub.status === 'active' || sub.status === 'trialing'
+    );
+    
+    const hasActiveSub = activeSubscriptions.length > 0;
     let planName = null;
     let subscriptionEnd = null;
 
     if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+      const subscription = activeSubscriptions[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { 
+      logStep("Active or trialing subscription found", { 
         subscriptionId: subscription.id, 
         status: subscription.status,
         priceId: subscription.items.data[0].price.id,
-        endDate: subscriptionEnd 
+        endDate: subscriptionEnd,
+        isTrialing: subscription.status === 'trialing'
       });
       
       const priceId = subscription.items.data[0].price.id;
       planName = "Premium"; // Always Premium for now
-      logStep("Determined subscription tier", { planName, priceId });
+      logStep("Determined subscription tier", { planName, priceId, status: subscription.status });
     } else {
-      logStep("No active subscription found - checking recent payments");
+      logStep("No active or trialing subscription found - checking recent payments");
       
       // Also check for recent successful payments
       const paymentIntents = await stripe.paymentIntents.list({

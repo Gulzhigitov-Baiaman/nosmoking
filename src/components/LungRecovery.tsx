@@ -50,5 +50,27 @@ export const LungRecovery = ({
     };
   };
   const lungState = getLungState();
-  return;
+  
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5" />
+          Восстановление лёгких
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">{lungState.text}</p>
+          </div>
+          <Progress value={animationProgress} className="h-3" />
+          <div className="text-center">
+            <p className="text-2xl font-bold">{Math.round(recoveryPercent)}%</p>
+            <p className="text-xs text-muted-foreground">восстановления</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
