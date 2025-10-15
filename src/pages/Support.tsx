@@ -9,6 +9,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+// Validation schema matching backend
+const supportFormSchema = z.object({
+  name: z.string().trim().min(1, "Имя обязательно").max(100, "Имя должно быть меньше 100 символов"),
+  email: z.string().email("Неверный email адрес").max(255, "Email должен быть меньше 255 символов"),
+  message: z.string().trim().min(10, "Сообщение должно содержать минимум 10 символов").max(2000, "Сообщение должно быть меньше 2000 символов"),
+});
 
 const Support = () => {
   const { user } = useAuth();
@@ -25,10 +33,13 @@ const Support = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.message) {
+    // Validate form data
+    const validationResult = supportFormSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
-        title: "Ошибка",
-        description: "Пожалуйста, заполните все поля",
+        title: "Ошибка валидации",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -97,6 +108,7 @@ const Support = () => {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 placeholder="Иван Иванов"
+                maxLength={100}
                 required
               />
             </div>
@@ -111,6 +123,7 @@ const Support = () => {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 placeholder="ivan@example.com"
+                maxLength={255}
                 required
               />
             </div>
@@ -125,6 +138,7 @@ const Support = () => {
                 }
                 placeholder="Опишите вашу проблему или вопрос..."
                 rows={6}
+                maxLength={2000}
                 required
               />
             </div>
