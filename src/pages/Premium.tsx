@@ -23,7 +23,7 @@ const Premium = () => {
     if (!user) {
       toast({
         title: t('premium.subscribe'),
-        description: t('support.subtitle'),
+        description: "Пожалуйста, войдите в аккаунт",
         variant: "destructive",
       });
       navigate("/auth");
@@ -36,20 +36,31 @@ const Premium = () => {
         body: { priceId: STRIPE_PRICE_ID },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Checkout error:", error);
+        toast({
+          title: "Ошибка",
+          description: error.message || "Не удалось создать платёжную сессию",
+          variant: "destructive",
+        });
+        return;
+      }
       
       if (data?.url) {
         window.open(data.url, '_blank');
         toast({
-          title: t('premium.subscribe'),
-          description: "Откроется новая вкладка для оплаты",
+          title: "Откройте новую вкладку",
+          description: "Завершите оплату в открывшейся вкладке. После успешной оплаты ваш Premium статус активируется автоматически.",
+          duration: 7000,
         });
+      } else {
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
       console.error("Error creating Stripe checkout:", error);
       toast({
-        title: t('premium.subscribe'),
-        description: "Ошибка создания платёжной сессии",
+        title: "Ошибка подписки",
+        description: "Если деньги были списаны, мы проверим и свяжемся с вами в течение 24 часов.",
         variant: "destructive",
       });
     } finally {

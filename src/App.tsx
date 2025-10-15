@@ -28,6 +28,7 @@ import Calendar from "./pages/Calendar";
 import Statistics from "./pages/Statistics";
 import CalendarLeaderboard from "./pages/CalendarLeaderboard";
 import ResetPassword from "./pages/ResetPassword";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/support" element={<Support />} />
             <Route path="/premium" element={<Premium />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/tips" element={<Tips />} />
             <Route path="/tips/:id" element={<TipDetail />} />
             <Route path="/friends" element={<Friends />} />

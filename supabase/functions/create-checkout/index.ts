@@ -46,6 +46,17 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    // Validate that the price is recurring
+    const price = await stripe.prices.retrieve(priceId);
+    if (price.type !== 'recurring') {
+      throw new Error(`Price ${priceId} is not recurring. Cannot create subscription.`);
+    }
+    logStep("Price validated as recurring", { 
+      priceId, 
+      interval: price.recurring?.interval,
+      intervalCount: price.recurring?.interval_count 
+    });
+
     // Find or create customer
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string;
@@ -53,8 +64,50 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Existing customer found", { customerId });
+
+      // Check for existing subscription to prevent duplicates
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: 'active',
+        limit: 1,
+      });
+
+      if (subscriptions.data.length > 0) {
+        logStep("Active subscription already exists", { subscriptionId: subscriptions.data[0].id });
+        return new Response(JSON.stringify({ 
+          error: "You already have an active subscription. Please manage it from your account." 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+
+      // Check for recent unpaid checkout sessions
+      const recentSessions = await stripe.checkout.sessions.list({
+        customer: customerId,
+        limit: 3,
+      });
+
+      const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+      const recentUnpaid = recentSessions.data.find((s: Stripe.Checkout.Session) => {
+        const createdAt = s.created * 1000;
+        return createdAt > tenMinutesAgo && s.payment_status === 'unpaid';
+      });
+
+      if (recentUnpaid) {
+        logStep("Returning existing unpaid session", { sessionId: recentUnpaid.id });
+        return new Response(JSON.stringify({ url: recentUnpaid.url }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
     } else {
-      const customer = await stripe.customers.create({ email: user.email });
+      const customer = await stripe.customers.create({ 
+        email: user.email,
+        metadata: {
+          supabase_user_id: user.id,
+        }
+      });
       customerId = customer.id;
       logStep("New customer created", { customerId });
     }
@@ -63,14 +116,20 @@ serve(async (req) => {
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      client_reference_id: user.id, // For webhook processing
       line_items: [{
         price: priceId,
         quantity: 1,
       }],
       mode: "subscription",
-      success_url: `${origin}/dashboard?checkout=success`,
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/premium?checkout=canceled`,
       allow_promotion_codes: true,
+      subscription_data: {
+        metadata: {
+          supabase_user_id: user.id,
+        }
+      }
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
@@ -83,7 +142,7 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in create-checkout", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
     
-    return new Response(JSON.stringify({ error: "Unable to create checkout session. Please try again." }), {
+    return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
