@@ -57,6 +57,23 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check ALL subscriptions (not just active) for debugging
+    const allSubscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      limit: 10,
+    });
+    
+    logStep("All subscriptions found", { 
+      count: allSubscriptions.data.length,
+      subscriptions: allSubscriptions.data.map((sub: any) => ({
+        id: sub.id,
+        status: sub.status,
+        priceId: sub.items.data[0]?.price.id,
+        created: new Date(sub.created * 1000).toISOString(),
+      }))
+    });
+
+    // Now check for active subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -70,13 +87,34 @@ serve(async (req) => {
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        status: subscription.status,
+        priceId: subscription.items.data[0].price.id,
+        endDate: subscriptionEnd 
+      });
       
       const priceId = subscription.items.data[0].price.id;
-      planName = priceId.includes("premium") ? "Premium" : "Basic";
-      logStep("Determined subscription tier", { planName });
+      planName = "Premium"; // Always Premium for now
+      logStep("Determined subscription tier", { planName, priceId });
     } else {
-      logStep("No active subscription found");
+      logStep("No active subscription found - checking recent payments");
+      
+      // Also check for recent successful payments
+      const paymentIntents = await stripe.paymentIntents.list({
+        customer: customerId,
+        limit: 5,
+      });
+      
+      logStep("Recent payments", {
+        count: paymentIntents.data.length,
+        payments: paymentIntents.data.map((pi: any) => ({
+          id: pi.id,
+          status: pi.status,
+          amount: pi.amount,
+          created: new Date(pi.created * 1000).toISOString(),
+        }))
+      });
     }
 
     return new Response(JSON.stringify({
