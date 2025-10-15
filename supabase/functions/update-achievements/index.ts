@@ -22,8 +22,27 @@ serve(async (req) => {
       }
     );
 
-    const { user_id } = await req.json();
-    console.log("Updating achievements for user:", user_id);
+    // Extract user_id from authenticated JWT instead of request body
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Authorization header required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Invalid authentication" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const user_id = user.id;
+    console.log("Updating achievements for authenticated user:", user_id);
 
     // Get user profile
     const { data: profile } = await supabaseClient
