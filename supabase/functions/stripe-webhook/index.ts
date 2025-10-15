@@ -35,7 +35,8 @@ serve(async (req) => {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      // Use async verification in Deno/Web Crypto environments
+      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
       logStep("Event verified", { type: event.type, id: event.id });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
