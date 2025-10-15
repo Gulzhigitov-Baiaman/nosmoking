@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Crown, Sparkles, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/usePremium";
+import { SecretCodeDialog } from "@/components/SecretCodeDialog";
 
 const STRIPE_PRICE_ID = "price_1SIT3YLJqhOyuCVBc6bCV5Vo"; // Recurring monthly subscription
 
@@ -104,10 +105,13 @@ const Premium = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
       <div className="max-w-5xl mx-auto pt-8">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          {t('nav.back')}
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('nav.back')}
+          </Button>
+          <SecretCodeDialog />
+        </div>
 
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
