@@ -26,6 +26,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LungRecovery } from "@/components/LungRecovery";
+import { MotivationalBanner } from "@/components/MotivationalBanner";
 
 interface Profile {
   quit_date: string | null;
@@ -248,6 +250,10 @@ export default function Dashboard() {
             </Button>
           </div>
         </header>
+
+        <MotivationalBanner />
+
+        <LungRecovery daysSmokeFree={daysWithoutSmoking} />
 
         {/* Quick Log Input */}
         <Card className="mb-6">

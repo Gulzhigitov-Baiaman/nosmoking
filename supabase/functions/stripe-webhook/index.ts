@@ -111,6 +111,20 @@ serve(async (req) => {
           if (paymentError) {
             logStep("Payment record error", { error: paymentError.message });
           }
+
+          // Send welcome email
+          try {
+            await supabaseClient.functions.invoke('send-premium-email', {
+              body: {
+                email: session.customer_details?.email || subscription.customer.email,
+                subscriptionId: subscription.id,
+                trialEnd: subscription.current_period_end * 1000,
+              }
+            });
+            logStep("Welcome email sent", { email: session.customer_details?.email });
+          } catch (emailError) {
+            logStep("Email send error", { error: emailError instanceof Error ? emailError.message : String(emailError) });
+          }
         }
         break;
       }
@@ -149,9 +163,65 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.supabase_user_id;
 
-        logStep("Subscription deleted", { subscriptionId: subscription.id, userId });
+        logStep("Subscription deleted", { subscriptionId: subscription.id, userId, status: subscription.status });
 
         if (userId) {
+          // Check if subscription was canceled during trial or within 72 hours
+          const wasTrialing = subscription.status === 'trialing';
+          
+          if (!wasTrialing) {
+            // Check for recent payment to refund
+            try {
+              const paymentIntents = await stripe.paymentIntents.list({
+                customer: subscription.customer as string,
+                limit: 1,
+              });
+              
+              if (paymentIntents.data.length > 0) {
+                const lastPayment = paymentIntents.data[0];
+                const paymentDate = new Date(lastPayment.created * 1000);
+                const now = new Date();
+                const hoursSincePayment = (now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60);
+                
+                if (hoursSincePayment <= 72 && lastPayment.status === 'succeeded') {
+                  // Create refund
+                  const refund = await stripe.refunds.create({
+                    payment_intent: lastPayment.id,
+                    reason: 'requested_by_customer',
+                  });
+                  
+                  logStep("Automatic refund created", { 
+                    userId, 
+                    paymentIntentId: lastPayment.id,
+                    amount: lastPayment.amount,
+                    refundId: refund.id
+                  });
+                  
+                  // Get customer email
+                  const customer = await stripe.customers.retrieve(subscription.customer as string);
+                  const customerEmail = (customer as Stripe.Customer).email;
+                  
+                  // Send refund email
+                  if (customerEmail) {
+                    await supabaseClient.functions.invoke('send-refund-email', {
+                      body: {
+                        email: customerEmail,
+                        amount: lastPayment.amount / 100,
+                        currency: lastPayment.currency,
+                      }
+                    });
+                    logStep("Refund email sent", { email: customerEmail });
+                  }
+                }
+              }
+            } catch (refundError) {
+              logStep("Refund error", { error: refundError instanceof Error ? refundError.message : String(refundError) });
+            }
+          } else {
+            logStep("Trial canceled - no charge was made", { userId });
+          }
+
+          // Update subscription status in database
           const { error } = await supabaseClient
             .from('subscriptions')
             .update({

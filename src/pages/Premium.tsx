@@ -155,6 +155,14 @@ const Premium = () => {
                 <span className="text-4xl font-bold">₩9,990</span>
                 <span className="text-muted-foreground">/ {t('premium.perMonth')}</span>
               </div>
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
+                <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                  🎁 3 дня бесплатного использования
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Отменить можно в любой момент. Деньги вернутся автоматически.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2 mb-6">
