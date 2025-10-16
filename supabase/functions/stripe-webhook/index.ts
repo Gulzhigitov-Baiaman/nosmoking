@@ -12,6 +12,16 @@ const logStep = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
+const toISODate = (timestamp: number | null | undefined): string | null => {
+  if (!timestamp || isNaN(timestamp)) return null;
+  try {
+    return new Date(timestamp * 1000).toISOString();
+  } catch (error) {
+    console.error('Error converting timestamp:', timestamp, error);
+    return null;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -95,9 +105,9 @@ serve(async (req) => {
               user_id: userId,
               plan_id: subscription.items.data[0].price.product as string,
               status: subscription.status,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+              current_period_start: toISODate(subscription.current_period_start),
+              current_period_end: toISODate(subscription.current_period_end),
+              trial_ends_at: toISODate(subscription.trial_end),
               payment_provider: 'stripe',
             }, {
               onConflict: 'user_id',
@@ -136,7 +146,7 @@ serve(async (req) => {
                 body: {
                   email: session.customer_details.email,
                   subscriptionId: subscription.id,
-                  trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : new Date(subscription.current_period_end * 1000).toISOString(),
+                  trialEnd: toISODate(subscription.trial_end) || toISODate(subscription.current_period_end),
                 }
               });
               logStep("Welcome email sent", { email: session.customer_details.email });
@@ -163,9 +173,10 @@ serve(async (req) => {
             .from('subscriptions')
             .update({
               status: subscription.status,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
+              current_period_start: toISODate(subscription.current_period_start),
+              current_period_end: toISODate(subscription.current_period_end),
+              trial_ends_at: toISODate(subscription.trial_end),
+              updated_at: toISODate(Math.floor(Date.now() / 1000)),
             })
             .eq('user_id', userId);
 
@@ -245,8 +256,8 @@ serve(async (req) => {
             .from('subscriptions')
             .update({
               status: 'canceled',
-              canceled_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
+              canceled_at: toISODate(Math.floor(Date.now() / 1000)),
+              updated_at: toISODate(Math.floor(Date.now() / 1000)),
             })
             .eq('user_id', userId);
 
