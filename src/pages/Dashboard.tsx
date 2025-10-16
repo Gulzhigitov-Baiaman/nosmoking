@@ -486,22 +486,31 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Health Recovery Section - Compact */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* Health Recovery Section - All in one row */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
           <LungRecovery daysSmokeFree={daysWithoutSmoking} />
           <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
+          <Card className="min-h-[120px]">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {t('dashboard.healthRecovery')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-2xl font-bold text-success mb-1">
+                    {Math.min(100, daysWithoutSmoking * 2)}%
+                  </p>
+                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-1.5 mb-1" />
+                  <p className="text-[10px] text-muted-foreground leading-tight">
+                    {t('dashboard.recoveryMessage')}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Health Progress */}
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">{t('dashboard.healthRecovery')}</h3>
-            <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {t('dashboard.recoveryMessage')}
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

@@ -76,17 +76,34 @@ const Premium = () => {
     try {
       const { data, error } = await supabase.functions.invoke("customer-portal");
       
-      if (error) throw error;
+      if (error) {
+        console.error("Portal error:", error);
+        toast({
+          title: "Настройка портала",
+          description: "Для управления подпиской необходимо настроить Stripe Customer Portal. Обратитесь в поддержку для получения инструкций.",
+          variant: "destructive",
+          duration: 8000,
+        });
+        return;
+      }
       
       if (data?.url) {
         window.open(data.url, '_blank');
+        toast({
+          title: "Портал открыт",
+          description: "Управляйте подпиской в открывшейся вкладке",
+          duration: 5000,
+        });
+      } else {
+        throw new Error("No portal URL received");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error opening customer portal:", error);
       toast({
-        title: "Ошибка",
-        description: "Не удалось открыть портал управления",
+        title: "Требуется настройка",
+        description: "Портал управления подпиской требует предварительной настройки. Свяжитесь с поддержкой для активации этой функции.",
         variant: "destructive",
+        duration: 8000,
       });
     } finally {
       setLoading(false);
