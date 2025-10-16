@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.send-refund-email]
 verify_jwt = false
+
+[functions.handle-subscription-cancel]
+verify_jwt = true

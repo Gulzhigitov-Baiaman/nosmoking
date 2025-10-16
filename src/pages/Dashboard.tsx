@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LungRecovery } from "@/components/LungRecovery";
+import { BodyRecovery } from "@/components/BodyRecovery";
 import { MotivationalBanner } from "@/components/MotivationalBanner";
 
 interface Profile {
@@ -253,7 +254,11 @@ export default function Dashboard() {
 
         <MotivationalBanner />
 
-        <LungRecovery daysSmokeFree={daysWithoutSmoking} />
+        {/* Health Recovery Section */}
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <LungRecovery daysSmokeFree={daysWithoutSmoking} />
+          <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
+        </div>
 
         {/* Quick Log Input */}
         <Card className="mb-6">
