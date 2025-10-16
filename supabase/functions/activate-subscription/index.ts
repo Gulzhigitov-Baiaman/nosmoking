@@ -72,7 +72,18 @@ serve(async (req) => {
     }
 
     // Retrieve full subscription details
-    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    // Safely extract subscription ID (can be string or object)
+    const subscriptionId = typeof session.subscription === 'string' 
+      ? session.subscription 
+      : session.subscription?.id;
+    
+    if (!subscriptionId) {
+      throw new Error("No subscription ID found in session");
+    }
+    
+    logStep("Extracting subscription ID", { subscriptionId, type: typeof session.subscription });
+    
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     logStep("Subscription retrieved", { 
       subscriptionId: subscription.id,
       status: subscription.status,
