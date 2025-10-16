@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle, Crown, Mail, Sparkles, Settings, Loader2 } from "lucide-react";
+import { CheckCircle, Crown, Mail, Sparkles, Settings, Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,105 @@ const PaymentSuccess = () => {
   const { checkSubscription } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activationStatus, setActivationStatus] = useState<string>("Активация подписки...");
+  const [activationError, setActivationError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
+
+  const activateSubscription = async () => {
+    if (!sessionId) {
+      setActivationStatus("Ошибка: нет ID сессии");
+      setActivationError("Session ID not found in URL");
+      setLoading(false);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось получить данные о платеже",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    try {
+      setActivationStatus("Проверка платежа в Stripe...");
+      console.log("[PaymentSuccess] Calling activate-subscription with sessionId:", sessionId);
+      
+      // Call activate-subscription to immediately activate premium
+      const { data, error } = await supabase.functions.invoke('activate-subscription', {
+        body: { sessionId }
+      });
+
+      console.log("[PaymentSuccess] activate-subscription response:", { data, error });
+
+      if (error) {
+        console.error("[PaymentSuccess] Activation error:", error);
+        setActivationStatus(`Ошибка активации: ${error.message}`);
+        setActivationError(error.message || "Unknown error");
+        toast({
+          title: "Ошибка активации",
+          description: error.message || "Подписка будет активирована автоматически в течение нескольких минут",
+          variant: "destructive",
+        });
+        return false;
+      } else if (data?.success) {
+        console.log("[PaymentSuccess] Activation successful!");
+        setActivationStatus("✅ Подписка успешно активирована!");
+        setActivationError(null);
+        
+        // Also refresh the subscription status in AuthContext
+        if (checkSubscription) {
+          console.log("[PaymentSuccess] Refreshing subscription status...");
+          await checkSubscription();
+        }
+
+        toast({
+          title: "🎉 Поздравляем!",
+          description: "Вы стали Premium-пользователем! Проверьте вашу почту.",
+          duration: 7000,
+        });
+        return true;
+      } else {
+        // No success flag but no error either
+        console.warn("[PaymentSuccess] Unexpected response:", data);
+        setActivationError("Unexpected response from server");
+        return false;
+      }
+    } catch (err) {
+      console.error("[PaymentSuccess] Exception during activation:", err);
+      setActivationStatus("Ошибка: не удалось активировать подписку");
+      setActivationError(err instanceof Error ? err.message : String(err));
+      toast({
+        title: "Ошибка",
+        description: "Подписка будет активирована автоматически в течение нескольких минут",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const handleRetryActivation = async () => {
+    setRetrying(true);
+    setLoading(true);
+    setActivationError(null);
+    
+    const success = await activateSubscription();
+    
+    if (!success) {
+      // If activation still fails, try check-subscription as fallback
+      console.log("[PaymentSuccess] Activation failed, trying check-subscription fallback...");
+      try {
+        if (checkSubscription) {
+          await checkSubscription();
+          toast({
+            title: "Проверка завершена",
+            description: "Если оплата прошла успешно, статус обновится автоматически",
+          });
+        }
+      } catch (err) {
+        console.error("[PaymentSuccess] Fallback check-subscription also failed:", err);
+      }
+    }
+    
+    setLoading(false);
+    setRetrying(false);
+  };
 
   useEffect(() => {
     // Confetti animation 🎉
@@ -27,58 +126,8 @@ const PaymentSuccess = () => {
 
     // Activate subscription immediately
     const activateAndVerify = async () => {
-      if (!sessionId) {
-        setActivationStatus("Ошибка: нет ID сессии");
-        setLoading(false);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось получить данные о платеже",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      try {
-        setActivationStatus("Проверка платежа в Stripe...");
-        
-        // Call activate-subscription to immediately activate premium
-        const { data, error } = await supabase.functions.invoke('activate-subscription', {
-          body: { sessionId }
-        });
-
-        if (error) {
-          console.error("Activation error:", error);
-          setActivationStatus(`Ошибка активации: ${error.message}`);
-          toast({
-            title: "Ошибка активации",
-            description: "Подписка будет активирована автоматически в течение нескольких минут",
-            variant: "destructive",
-          });
-        } else if (data?.success) {
-          setActivationStatus("✅ Подписка успешно активирована!");
-          
-          // Also refresh the subscription status in AuthContext
-          if (checkSubscription) {
-            await checkSubscription();
-          }
-
-          toast({
-            title: "🎉 Поздравляем!",
-            description: "Вы стали Premium-пользователем! Проверьте вашу почту.",
-            duration: 7000,
-          });
-        }
-      } catch (err) {
-        console.error("Activation error:", err);
-        setActivationStatus("Ошибка: не удалось активировать подписку");
-        toast({
-          title: "Ошибка",
-          description: "Подписка будет активирована автоматически в течение нескольких минут",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
+      await activateSubscription();
+      setLoading(false);
     };
     
     activateAndVerify();
@@ -142,6 +191,17 @@ const PaymentSuccess = () => {
         </div>
 
         <div className="space-y-3">
+          {activationError && (
+            <Button 
+              onClick={handleRetryActivation}
+              disabled={retrying}
+              variant="outline"
+              className="w-full border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
+              {retrying ? "Повторная попытка..." : "Попробовать снова"}
+            </Button>
+          )}
           <Button 
             onClick={() => navigate('/dashboard')} 
             className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700"

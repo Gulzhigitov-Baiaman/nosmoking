@@ -23,6 +23,9 @@ const toISODate = (timestamp: number | null | undefined): string | null => {
 };
 
 serve(async (req) => {
+  // VERY FIRST LOG - to confirm function is invoked
+  console.log("[ACTIVATE-SUBSCRIPTION] === FUNCTION INVOKED ===");
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -165,20 +168,31 @@ serve(async (req) => {
       logStep("Subscription created in database");
     }
 
-    // Record payment if not a trial
-    if (session.payment_status === 'paid' && session.amount_total) {
+    // Record payment if paid (not during trial)
+    if (session.payment_status === 'paid' && session.payment_intent) {
+      // Get actual subscription price from Stripe
+      const subscriptionPrice = subscription.items.data[0]?.price.unit_amount || 0;
+      const currency = subscription.items.data[0]?.price.currency || 'krw';
+      
+      logStep("Recording payment", { 
+        amount: subscriptionPrice / 100,
+        currency: currency.toUpperCase(),
+        payment_intent: session.payment_intent
+      });
+
       const { error: paymentError } = await supabaseClient
         .from('payments')
         .insert({
           user_id: user.id,
-          amount: session.amount_total / 100,
-          currency: session.currency?.toUpperCase() || 'KRW',
+          amount: subscriptionPrice / 100, // Actual subscription price
+          currency: currency.toUpperCase(),
           status: 'completed',
           payment_method: 'stripe',
-          transaction_id: session.payment_intent as string || session.id,
+          transaction_id: session.payment_intent as string, // Use payment_intent, not session.id
           metadata: {
             subscription_id: subscription.id,
             session_id: session.id,
+            price_id: subscription.items.data[0]?.price.id,
           }
         });
 
@@ -189,7 +203,10 @@ serve(async (req) => {
         logStep("Payment recorded successfully");
       }
     } else {
-      logStep("No payment to record - trial period or unpaid");
+      logStep("No payment to record - trial period or unpaid", {
+        payment_status: session.payment_status,
+        has_payment_intent: !!session.payment_intent
+      });
     }
 
     return new Response(JSON.stringify({ 
@@ -205,14 +222,24 @@ serve(async (req) => {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Detailed error logging
+    console.error("[ACTIVATE-SUBSCRIPTION] === CRITICAL ERROR ===");
+    console.error("Error message:", errorMessage);
+    console.error("Error stack:", errorStack);
+    console.error("Full error object:", JSON.stringify(error, null, 2));
+    
     logStep("ERROR in activate-subscription", { 
       message: errorMessage, 
-      stack: error instanceof Error ? error.stack : undefined 
+      stack: errorStack,
+      errorType: error instanceof Error ? error.constructor.name : typeof error
     });
     
     return new Response(JSON.stringify({ 
       success: false,
-      error: errorMessage 
+      error: errorMessage,
+      details: errorStack
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

@@ -95,16 +95,20 @@ const Premium = () => {
 
   const handleSyncSubscription = async () => {
     setSyncing(true);
+    console.log("[Premium] Syncing subscription status...");
     try {
       await refreshSubscription();
+      console.log("[Premium] Subscription synced successfully");
       toast({
-        title: "Синхронизация завершена",
-        description: "Статус подписки обновлен",
+        title: "✅ Синхронизация завершена",
+        description: "Статус подписки обновлен. Если вы недавно оплатили Premium, он должен быть активен.",
+        duration: 5000,
       });
     } catch (error) {
+      console.error("[Premium] Sync error:", error);
       toast({
         title: "Ошибка синхронизации",
-        description: "Не удалось обновить статус подписки",
+        description: "Не удалось обновить статус подписки. Попробуйте еще раз через несколько секунд.",
         variant: "destructive",
       });
     } finally {
