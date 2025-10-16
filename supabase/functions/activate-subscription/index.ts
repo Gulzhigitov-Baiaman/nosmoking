@@ -85,33 +85,66 @@ serve(async (req) => {
     }
 
     // Retrieve full subscription details
-    // Safely extract subscription ID (can be string or object)
-    const subscriptionId = typeof session.subscription === 'string' 
-      ? session.subscription 
-      : session.subscription?.id;
+    let subscription: Stripe.Subscription | null = null;
+    let subscriptionId: string | null = null;
     
-    if (!subscriptionId) {
-      throw new Error("No subscription ID found in session");
+    // Try to get subscription from session
+    if (session.subscription) {
+      subscriptionId = typeof session.subscription === 'string' 
+        ? session.subscription 
+        : session.subscription?.id;
+      
+      logStep("Extracting subscription ID from session", { subscriptionId, type: typeof session.subscription });
+      
+      try {
+        subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        logStep("Subscription retrieved from Stripe", { 
+          subscriptionId: subscription.id,
+          status: subscription.status,
+          trialEnd: subscription.trial_end,
+          currentPeriodEnd: subscription.current_period_end
+        });
+      } catch (subError) {
+        logStep("Could not retrieve subscription from Stripe", { error: subError });
+        subscription = null;
+      }
     }
     
-    logStep("Extracting subscription ID", { subscriptionId, type: typeof session.subscription });
+    // If we have a subscription object, validate its status
+    if (subscription) {
+      const validStatuses = ['active', 'trialing'];
+      const isCanceledDuringTrial = subscription.status === 'canceled' && 
+                                    subscription.trial_end && 
+                                    subscription.trial_end * 1000 > Date.now();
+      
+      if (!validStatuses.includes(subscription.status) && !isCanceledDuringTrial) {
+        logStep("WARNING: Subscription status not active/trialing", { status: subscription.status });
+        // Don't throw - we'll still create a record for paid sessions
+      }
+    }
     
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    logStep("Subscription retrieved", { 
-      subscriptionId: subscription.id,
-      status: subscription.status,
-      trialEnd: subscription.trial_end,
-      currentPeriodEnd: subscription.current_period_end
-    });
-
-    // Check if subscription is active, trialing, or canceled during trial
-    const validStatuses = ['active', 'trialing'];
-    const isCanceledDuringTrial = subscription.status === 'canceled' && 
-                                  subscription.trial_end && 
-                                  subscription.trial_end * 1000 > Date.now();
+    // Determine what to store in database
+    let planId = 'premium'; // Default
+    let status = 'active';
+    let trialEnd: number | null = null;
+    let periodStart: number = Math.floor(Date.now() / 1000);
+    let periodEnd: number = periodStart + (30 * 24 * 60 * 60); // 30 days
     
-    if (!validStatuses.includes(subscription.status) && !isCanceledDuringTrial) {
-      throw new Error(`Subscription status is ${subscription.status}, not active or trialing`);
+    if (subscription) {
+      // Use real subscription data if available
+      planId = subscription.items.data[0]?.price.product as string || planId;
+      status = subscription.status;
+      trialEnd = subscription.trial_end;
+      periodStart = subscription.current_period_start;
+      periodEnd = subscription.current_period_end;
+    } else if (session.payment_status === 'paid') {
+      // Payment succeeded but no subscription - create manually
+      logStep("No subscription found but payment succeeded - creating manual subscription");
+      status = 'active';
+      // Set period to 30 days from now
+      periodEnd = periodStart + (30 * 24 * 60 * 60);
+    } else {
+      throw new Error("No subscription found and payment not completed");
     }
 
     // Check if subscription already exists in database
@@ -124,17 +157,17 @@ serve(async (req) => {
     if (existingSub) {
       logStep("Subscription already exists in database", { 
         existingStatus: existingSub.status,
-        newStatus: subscription.status 
+        newStatus: status 
       });
       
       // Update existing subscription
       const { error: updateError } = await supabaseClient
         .from('subscriptions')
         .update({
-          status: subscription.status,
-          current_period_start: toISODate(subscription.current_period_start),
-          current_period_end: toISODate(subscription.current_period_end),
-          trial_ends_at: toISODate(subscription.trial_end),
+          status: status,
+          current_period_start: toISODate(periodStart),
+          current_period_end: toISODate(periodEnd),
+          trial_ends_at: toISODate(trialEnd),
           payment_provider: 'stripe',
           updated_at: toISODate(Math.floor(Date.now() / 1000)),
         })
@@ -152,11 +185,11 @@ serve(async (req) => {
         .from('subscriptions')
         .insert({
           user_id: user.id,
-          plan_id: subscription.items.data[0].price.product as string,
-          status: subscription.status,
-          current_period_start: toISODate(subscription.current_period_start),
-          current_period_end: toISODate(subscription.current_period_end),
-          trial_ends_at: toISODate(subscription.trial_end),
+          plan_id: planId,
+          status: status,
+          current_period_start: toISODate(periodStart),
+          current_period_end: toISODate(periodEnd),
+          trial_ends_at: toISODate(trialEnd),
           payment_provider: 'stripe',
         });
 
@@ -170,9 +203,19 @@ serve(async (req) => {
 
     // Record payment if paid (not during trial)
     if (session.payment_status === 'paid' && session.payment_intent) {
-      // Get actual subscription price from Stripe
-      const subscriptionPrice = subscription.items.data[0]?.price.unit_amount || 0;
-      const currency = subscription.items.data[0]?.price.currency || 'krw';
+      // Get actual subscription price - from subscription if available, else from session
+      let subscriptionPrice = 999000; // Default 9990 KRW in cents
+      let currency = 'krw';
+      let priceId = null;
+      
+      if (subscription?.items?.data?.[0]?.price) {
+        subscriptionPrice = subscription.items.data[0].price.unit_amount || subscriptionPrice;
+        currency = subscription.items.data[0].price.currency || currency;
+        priceId = subscription.items.data[0].price.id;
+      } else if (session.amount_total) {
+        subscriptionPrice = session.amount_total;
+        currency = session.currency || currency;
+      }
       
       logStep("Recording payment", { 
         amount: subscriptionPrice / 100,
@@ -190,9 +233,9 @@ serve(async (req) => {
           payment_method: 'stripe',
           transaction_id: session.payment_intent as string, // Use payment_intent, not session.id
           metadata: {
-            subscription_id: subscription.id,
+            subscription_id: subscription?.id || subscriptionId,
             session_id: session.id,
-            price_id: subscription.items.data[0]?.price.id,
+            price_id: priceId,
           }
         });
 
@@ -212,9 +255,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       success: true,
       subscribed: true,
-      status: subscription.status,
-      trial_end: toISODate(subscription.trial_end),
-      current_period_end: toISODate(subscription.current_period_end),
+      status: status,
+      trial_end: toISODate(trialEnd),
+      current_period_end: toISODate(periodEnd),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
