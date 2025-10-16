@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle, Crown, Mail, Sparkles, Settings } from "lucide-react";
+import { CheckCircle, Crown, Mail, Sparkles, Settings, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import confetti from "canvas-confetti";
 
 const PaymentSuccess = () => {
@@ -14,6 +15,7 @@ const PaymentSuccess = () => {
   const { toast } = useToast();
   const { checkSubscription } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [activationStatus, setActivationStatus] = useState<string>("Активация подписки...");
 
   useEffect(() => {
     // Confetti animation 🎉
@@ -23,27 +25,74 @@ const PaymentSuccess = () => {
       origin: { y: 0.6 }
     });
 
-    // Check subscription status
-    const verify = async () => {
-      if (checkSubscription) {
-        await checkSubscription();
+    // Activate subscription immediately
+    const activateAndVerify = async () => {
+      if (!sessionId) {
+        setActivationStatus("Ошибка: нет ID сессии");
+        setLoading(false);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить данные о платеже",
+          variant: "destructive",
+        });
+        return;
       }
-      setLoading(false);
+
+      try {
+        setActivationStatus("Проверка платежа в Stripe...");
+        
+        // Call activate-subscription to immediately activate premium
+        const { data, error } = await supabase.functions.invoke('activate-subscription', {
+          body: { sessionId }
+        });
+
+        if (error) {
+          console.error("Activation error:", error);
+          setActivationStatus(`Ошибка активации: ${error.message}`);
+          toast({
+            title: "Ошибка активации",
+            description: "Подписка будет активирована автоматически в течение нескольких минут",
+            variant: "destructive",
+          });
+        } else if (data?.success) {
+          setActivationStatus("✅ Подписка успешно активирована!");
+          
+          // Also refresh the subscription status in AuthContext
+          if (checkSubscription) {
+            await checkSubscription();
+          }
+
+          toast({
+            title: "🎉 Поздравляем!",
+            description: "Вы стали Premium-пользователем! Проверьте вашу почту.",
+            duration: 7000,
+          });
+        }
+      } catch (err) {
+        console.error("Activation error:", err);
+        setActivationStatus("Ошибка: не удалось активировать подписку");
+        toast({
+          title: "Ошибка",
+          description: "Подписка будет активирована автоматически в течение нескольких минут",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
     
-    verify();
-
-    // Toast notification
-    toast({
-      title: "🎉 Поздравляем!",
-      description: "Вы стали Premium-пользователем! Проверьте вашу почту.",
-      duration: 7000,
-    });
+    activateAndVerify();
   }, [sessionId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
       <Card className="p-8 max-w-lg text-center shadow-2xl border-2 border-green-500/20 animate-in">
+        {loading && (
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <Loader2 className="w-12 h-12 text-green-500 animate-spin" />
+            <p className="text-sm text-muted-foreground">{activationStatus}</p>
+          </div>
+        )}
         <div className="mb-6 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 opacity-20 blur-3xl rounded-full"></div>
           <CheckCircle className="w-24 h-24 text-green-500 mx-auto mb-4 relative z-10" />

@@ -96,6 +96,56 @@ serve(async (req) => {
       const priceId = subscription.items.data[0].price.id;
       planName = "Premium"; // Always Premium for now
       logStep("Determined subscription tier", { planName, priceId, status: subscription.status });
+
+      // AUTO-SYNC: Check if subscription exists in database, create if not
+      const { data: dbSub } = await supabaseClient
+        .from('subscriptions')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!dbSub) {
+        logStep("Subscription found in Stripe but not in DB - auto-syncing");
+        
+        const { error: syncError } = await supabaseClient
+          .from('subscriptions')
+          .insert({
+            user_id: user.id,
+            plan_id: subscription.items.data[0].price.product as string,
+            status: subscription.status,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+            payment_provider: 'stripe',
+          });
+
+        if (syncError) {
+          logStep("Auto-sync failed", { error: syncError.message });
+        } else {
+          logStep("Auto-sync successful - subscription created in DB");
+        }
+      } else if (dbSub.status !== subscription.status) {
+        logStep("Subscription status mismatch - updating", { 
+          dbStatus: dbSub.status, 
+          stripeStatus: subscription.status 
+        });
+        
+        const { error: updateError } = await supabaseClient
+          .from('subscriptions')
+          .update({
+            status: subscription.status,
+            current_period_end: subscriptionEnd,
+            trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
+
+        if (updateError) {
+          logStep("Status update failed", { error: updateError.message });
+        } else {
+          logStep("Status updated successfully");
+        }
+      }
     } else {
       logStep("No active or trialing subscription found - checking recent payments");
       

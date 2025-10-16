@@ -5,19 +5,22 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, Crown, Sparkles, Settings } from "lucide-react";
+import { ArrowLeft, Check, Crown, Sparkles, Settings, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/usePremium";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const STRIPE_PRICE_ID = "price_1SIT3YLJqhOyuCVBc6bCV5Vo"; // Recurring monthly subscription
 
 const Premium = () => {
   const { user } = useAuth();
   const { isPremium } = usePremium();
+  const { refresh: refreshSubscription } = useSubscription();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const handleStripeCheckout = async () => {
     if (!user) {
@@ -87,6 +90,25 @@ const Premium = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSyncSubscription = async () => {
+    setSyncing(true);
+    try {
+      await refreshSubscription();
+      toast({
+        title: "Синхронизация завершена",
+        description: "Статус подписки обновлен",
+      });
+    } catch (error) {
+      toast({
+        title: "Ошибка синхронизации",
+        description: "Не удалось обновить статус подписки",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -184,15 +206,26 @@ const Premium = () => {
                 {loading ? "Loading..." : t('premium.subscribe')}
               </Button>
             ) : (
-              <Button 
-                onClick={handleManageSubscription}
-                variant="outline"
-                className="w-full"
-                disabled={loading}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                {loading ? "Loading..." : t('premium.manageSubscription')}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleManageSubscription}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={loading}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  {loading ? "Loading..." : t('premium.manageSubscription')}
+                </Button>
+                <Button 
+                  onClick={handleSyncSubscription}
+                  variant="outline"
+                  disabled={syncing}
+                  className="flex-1"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                  Проверить статус
+                </Button>
+              </div>
             )}
           </Card>
         </div>
