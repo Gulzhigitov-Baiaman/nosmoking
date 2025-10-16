@@ -48,110 +48,110 @@ export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
   const bodyState = getBodyState();
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Heart className="w-5 h-5 text-red-500" />
-          Восстановление организма
+    <Card className="min-h-[120px]">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+          <Heart className="w-4 h-4 text-destructive" />
+          Организм
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative w-full max-w-md mx-auto mb-6">
-          {/* Human silhouette */}
-          <svg 
-            viewBox="0 0 200 400" 
-            className="w-full h-auto mx-auto"
-            style={{
-              filter: `drop-shadow(0 0 10px ${bodyState.healthColor})`,
-              transition: 'all 1s ease-in-out'
-            }}
-          >
-            {/* Head */}
-            <circle 
-              cx="100" 
-              cy="50" 
-              r="30" 
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            {/* Body */}
-            <rect 
-              x="75" 
-              y="80" 
-              width="50" 
-              height="120" 
-              rx="10"
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            {/* Arms */}
-            <rect 
-              x="40" 
-              y="90" 
-              width="35" 
-              height="15" 
-              rx="7"
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            <rect 
-              x="125" 
-              y="90" 
-              width="35" 
-              height="15" 
-              rx="7"
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            {/* Legs */}
-            <rect 
-              x="80" 
-              y="200" 
-              width="18" 
-              height="120" 
-              rx="9"
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            <rect 
-              x="102" 
-              y="200" 
-              width="18" 
-              height="120" 
-              rx="9"
-              fill={bodyState.healthColor}
-              style={{ transition: 'fill 1s ease-in-out' }}
-            />
-            
-            {/* Heart icon in chest */}
-            <g transform="translate(85, 120)">
-              <path
-                d="M15,30 C15,30 5,20 5,13 C5,8 8,5 12,5 C15,5 17,7 17,7 C17,7 19,5 22,5 C26,5 29,8 29,13 C29,20 19,30 15,30 Z"
-                fill="white"
-                opacity="0.9"
-              />
-            </g>
-          </svg>
-        </div>
-
-        <div className="text-center space-y-4">
-          <div>
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
             <p 
-              className="text-3xl font-bold mb-1"
-              style={{ color: bodyState.healthColor, transition: 'color 1s ease-in-out' }}
+              className="text-2xl font-bold mb-1"
+              style={{ color: bodyState.healthColor, transition: 'color 0.8s ease-in-out' }}
             >
               {Math.round(animationProgress)}%
             </p>
-            <p className="text-sm text-muted-foreground">
+            <Progress value={animationProgress} className="h-1.5 mb-1" />
+            <p className="text-[10px] text-muted-foreground leading-tight">
               {bodyState.text}
             </p>
           </div>
-          
-          <Progress value={animationProgress} className="h-3" />
-          
-          <p className="text-xs text-muted-foreground">
-            Организм восстанавливается с каждым днём без сигарет
-          </p>
+          <div className="ml-3 relative w-12 h-16 flex-shrink-0">
+            {/* Compact Human silhouette */}
+            <svg 
+              viewBox="0 0 200 400" 
+              className="w-full h-full"
+              style={{
+                filter: `drop-shadow(0 0 4px ${bodyState.healthColor})`,
+                transition: 'filter 0.8s ease-in-out'
+              }}
+            >
+              {/* Head */}
+              <circle 
+                cx="100" 
+                cy="50" 
+                r="30" 
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              {/* Body */}
+              <rect 
+                x="75" 
+                y="80" 
+                width="50" 
+                height="120" 
+                rx="10"
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              {/* Arms */}
+              <rect 
+                x="40" 
+                y="90" 
+                width="35" 
+                height="15" 
+                rx="7"
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              <rect 
+                x="125" 
+                y="90" 
+                width="35" 
+                height="15" 
+                rx="7"
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              {/* Legs */}
+              <rect 
+                x="80" 
+                y="200" 
+                width="18" 
+                height="120" 
+                rx="9"
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              <rect 
+                x="102" 
+                y="200" 
+                width="18" 
+                height="120" 
+                rx="9"
+                fill={bodyState.healthColor}
+                style={{ transition: 'fill 0.8s ease-in-out' }}
+                opacity="0.9"
+              />
+              
+              {/* Heart icon in chest - smaller */}
+              <g transform="translate(85, 120)">
+                <path
+                  d="M15,24 C15,24 8,18 8,13 C8,10 10,8 12,8 C14,8 15,9 15,9 C15,9 16,8 18,8 C20,8 22,10 22,13 C22,18 15,24 15,24 Z"
+                  fill="white"
+                  opacity="0.8"
+                />
+              </g>
+            </svg>
+          </div>
         </div>
       </CardContent>
     </Card>

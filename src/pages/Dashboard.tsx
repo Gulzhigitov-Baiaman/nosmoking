@@ -254,12 +254,6 @@ export default function Dashboard() {
 
         <MotivationalBanner />
 
-        {/* Health Recovery Section */}
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <LungRecovery daysSmokeFree={daysWithoutSmoking} />
-          <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
-        </div>
-
         {/* Quick Log Input */}
         <Card className="mb-6">
           <CardContent className="pt-4">
@@ -490,6 +484,12 @@ export default function Dashboard() {
             <Crown className="h-7 w-7 text-white drop-shadow-md animate-pulse" />
             <span className="text-white font-bold text-sm drop-shadow-sm">{t('nav.premium')}</span>
           </Button>
+        </div>
+
+        {/* Health Recovery Section - Compact */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <LungRecovery daysSmokeFree={daysWithoutSmoking} />
+          <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
         </div>
 
         {/* Health Progress */}
