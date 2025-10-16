@@ -149,15 +149,52 @@ serve(async (req) => {
     } else {
       logStep("No active or trialing subscription found - checking recent payments");
       
-      // Also check for recent successful payments
+      // Check for recent successful payments (within last 48 hours)
+      const twoDaysAgo = Math.floor(Date.now() / 1000) - (48 * 60 * 60);
       const paymentIntents = await stripe.paymentIntents.list({
+        customer: customerId,
+        limit: 10,
+      });
+      
+      const recentSuccessfulPayments = paymentIntents.data.filter((pi: any) => 
+        pi.status === 'succeeded' && pi.created >= twoDaysAgo
+      );
+      
+      logStep("Recent payments", { 
+        count: recentSuccessfulPayments.length,
+        payments: recentSuccessfulPayments.map((p: any) => ({
+          id: p.id,
+          status: p.status,
+          amount: p.amount,
+          created: new Date(p.created * 1000).toISOString()
+        }))
+      });
+      
+      // If there's a recent successful payment, grant premium temporarily
+      if (recentSuccessfulPayments.length > 0) {
+        logStep("Granting premium based on recent successful payment");
+        planName = "Premium";
+        subscriptionEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan_name: planName,
+          subscription_end: subscriptionEnd
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      
+      // Also check for recent successful payments
+      const allPaymentIntents = await stripe.paymentIntents.list({
         customer: customerId,
         limit: 5,
       });
       
-      logStep("Recent payments", {
-        count: paymentIntents.data.length,
-        payments: paymentIntents.data.map((pi: any) => ({
+      logStep("All recent payments", {
+        count: allPaymentIntents.data.length,
+        payments: allPaymentIntents.data.map((pi: any) => ({
           id: pi.id,
           status: pi.status,
           amount: pi.amount,

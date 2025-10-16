@@ -124,7 +124,8 @@ serve(async (req) => {
     }
     
     // Determine what to store in database
-    let planId = 'premium'; // Default
+    // Use the Premium plan UUID from subscription_plans table
+    const planId = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079';
     let status = 'active';
     let trialEnd: number | null = null;
     let periodStart: number = Math.floor(Date.now() / 1000);
@@ -132,7 +133,6 @@ serve(async (req) => {
     
     if (subscription) {
       // Use real subscription data if available
-      planId = subscription.items.data[0]?.price.product as string || planId;
       status = subscription.status;
       trialEnd = subscription.trial_end;
       periodStart = subscription.current_period_start;
@@ -252,7 +252,27 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ 
+    // Send confirmation email
+    try {
+      logStep("Sending premium confirmation email");
+      const emailResult = await supabaseClient.functions.invoke('send-premium-email', {
+        body: {
+          email: user.email,
+          subscriptionId: subscription?.id || subscriptionId,
+          trialEnd: toISODate(trialEnd)
+        }
+      });
+      
+      if (emailResult.error) {
+        logStep("Email sending failed (non-critical)", { error: emailResult.error });
+      } else {
+        logStep("Confirmation email sent successfully");
+      }
+    } catch (emailError) {
+      logStep("Email sending error (non-critical)", { error: emailError });
+    }
+
+    return new Response(JSON.stringify({
       success: true,
       subscribed: true,
       status: status,
