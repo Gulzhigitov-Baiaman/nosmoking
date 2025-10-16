@@ -66,10 +66,25 @@ serve(async (req) => {
 
         if (session.mode === 'subscription' && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-          const userId = session.client_reference_id;
+          
+          // Get userId from subscription metadata or find by customer email
+          let userId = subscription.metadata?.supabase_user_id;
+          
+          if (!userId && session.customer_details?.email) {
+            // Find user by email in profiles
+            const { data: profile } = await supabaseClient
+              .from('profiles')
+              .select('id')
+              .eq('id', (await supabaseClient.auth.admin.listUsers()).data.users.find(u => u.email === session.customer_details?.email)?.id || '')
+              .single();
+            
+            if (profile) {
+              userId = profile.id;
+            }
+          }
 
           if (!userId) {
-            logStep("No client_reference_id found in session");
+            logStep("No user ID found for subscription");
             break;
           }
 
@@ -82,6 +97,7 @@ serve(async (req) => {
               status: subscription.status,
               current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
               current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
               payment_provider: 'stripe',
             }, {
               onConflict: 'user_id',
@@ -114,17 +130,19 @@ serve(async (req) => {
           }
 
           // Send welcome email
-          try {
-            await supabaseClient.functions.invoke('send-premium-email', {
-              body: {
-                email: session.customer_details?.email || subscription.customer.email,
-                subscriptionId: subscription.id,
-                trialEnd: subscription.current_period_end * 1000,
-              }
-            });
-            logStep("Welcome email sent", { email: session.customer_details?.email });
-          } catch (emailError) {
-            logStep("Email send error", { error: emailError instanceof Error ? emailError.message : String(emailError) });
+          if (session.customer_details?.email) {
+            try {
+              await supabaseClient.functions.invoke('send-premium-email', {
+                body: {
+                  email: session.customer_details.email,
+                  subscriptionId: subscription.id,
+                  trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : new Date(subscription.current_period_end * 1000).toISOString(),
+                }
+              });
+              logStep("Welcome email sent", { email: session.customer_details.email });
+            } catch (emailError) {
+              logStep("Email send error", { error: emailError instanceof Error ? emailError.message : String(emailError) });
+            }
           }
         }
         break;

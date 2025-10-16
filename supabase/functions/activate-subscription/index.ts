@@ -91,8 +91,13 @@ serve(async (req) => {
       currentPeriodEnd: subscription.current_period_end
     });
 
-    // Check if subscription is active or trialing
-    if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+    // Check if subscription is active, trialing, or canceled during trial
+    const validStatuses = ['active', 'trialing'];
+    const isCanceledDuringTrial = subscription.status === 'canceled' && 
+                                  subscription.trial_end && 
+                                  subscription.trial_end * 1000 > Date.now();
+    
+    if (!validStatuses.includes(subscription.status) && !isCanceledDuringTrial) {
       throw new Error(`Subscription status is ${subscription.status}, not active or trialing`);
     }
 
