@@ -37,6 +37,12 @@ interface Profile {
   minutes_per_cigarette: number;
 }
 
+interface SmokingPlan {
+  start_cigarettes: number;
+  start_date: string;
+  quit_date: string;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
@@ -46,6 +52,7 @@ export default function Dashboard() {
   const [dailyLogs, setDailyLogs] = useState<any[]>([]);
   const [todayCigarettes, setTodayCigarettes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [smokingPlan, setSmokingPlan] = useState<SmokingPlan | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -56,6 +63,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (user) {
       loadProfile();
+      loadSmokingPlan();
     }
   }, [user]);
 
@@ -116,6 +124,19 @@ export default function Dashboard() {
     }
   };
 
+  const loadSmokingPlan = async () => {
+    const { data } = await supabase
+      .from("smoking_plans")
+      .select("*")
+      .eq("user_id", user?.id)
+      .eq("is_active", true)
+      .single();
+    
+    if (data) {
+      setSmokingPlan(data);
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
@@ -169,6 +190,40 @@ export default function Dashboard() {
     if (!dailyLogs.length) return 0;
     const actualSmoked = dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
     return Math.round(actualSmoked * (profile?.minutes_per_cigarette || 5));
+  };
+
+  const getLifeExtension = () => {
+    if (!smokingPlan) return { cigarettesAvoided: 0, minutesGained: 0, hoursGained: 0 };
+    
+    const today = new Date().toISOString().split("T")[0];
+    const todayLog = dailyLogs.find((l) => l.date === today);
+    const todaySmoked = todayLog?.cigarettes_smoked || 0;
+    
+    // Вычисляем дневной лимит из плана
+    const startDate = new Date(smokingPlan.start_date);
+    const quitDate = new Date(smokingPlan.quit_date);
+    const todayDate = new Date();
+    
+    const totalDays = Math.ceil((quitDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysPassed = Math.ceil((todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    const dailyReduction = smokingPlan.start_cigarettes / totalDays;
+    const plannedToday = Math.max(0, Math.round(smokingPlan.start_cigarettes - (daysPassed * dailyReduction)));
+    
+    // Невыкуренные сигареты = план - факт
+    const cigarettesAvoided = Math.max(0, plannedToday - todaySmoked);
+    
+    // 1 сигарета = 11 минут жизни (общепринятая статистика)
+    const minutesGained = cigarettesAvoided * 11;
+    const hoursGained = Math.floor(minutesGained / 60);
+    const remainingMinutes = minutesGained % 60;
+    
+    return { 
+      cigarettesAvoided, 
+      minutesGained, 
+      hoursGained,
+      remainingMinutes 
+    };
   };
 
   const handleQuickSave = async () => {
@@ -233,6 +288,7 @@ export default function Dashboard() {
   const moneySaved = getMoneySaved();
   const timeSaved = getTimeSaved();
   const cigarettesAvoided = getCigarettesAvoided();
+  const lifeExtension = getLifeExtension();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
@@ -317,6 +373,31 @@ export default function Dashboard() {
           </Card>
         )}
 
+        {/* Дней без курения - Large Card with Green Background */}
+        <Card className="mb-6 bg-gradient-to-br from-success/20 to-success/10 border-success/40">
+          <CardContent className="pt-8 pb-8">
+            <div className="text-center">
+              <h2 className="text-lg font-medium text-muted-foreground mb-3">
+                Дней без курения
+              </h2>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <p className="text-6xl font-bold text-success">{daysWithoutSmoking}</p>
+                <Trophy className="h-16 w-16 text-success animate-pulse" />
+              </div>
+              {lifeExtension.cigarettesAvoided > 0 && (
+                <div className="bg-background/60 rounded-lg p-4 max-w-md mx-auto">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    🎉 Сегодня вы не выкурили <span className="font-bold text-success">{lifeExtension.cigarettesAvoided}</span> {lifeExtension.cigarettesAvoided === 1 ? 'сигарету' : lifeExtension.cigarettesAvoided < 5 ? 'сигареты' : 'сигарет'}
+                  </p>
+                  <p className="text-lg font-semibold text-success">
+                    ⏳ Вы продлили жизнь на {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ч ` : ''}{lifeExtension.remainingMinutes} мин
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Statistics Grid - 4 Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {/* Total Smoked */}
@@ -334,17 +415,17 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Days Without Smoking */}
+          {/* Cigarettes Avoided */}
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Дней без курения
+                Не выкурено
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-success">{daysWithoutSmoking}</p>
-                <Trophy className="h-8 w-8 text-success opacity-50" />
+                <p className="text-2xl font-bold text-success">{cigarettesAvoided}</p>
+                <Cigarette className="h-8 w-8 text-success opacity-50" />
               </div>
             </CardContent>
           </Card>
