@@ -64,10 +64,17 @@ const PaymentSuccess = () => {
           await checkSubscription();
         }
 
+        // Show success notification with confetti
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.5 }
+        });
+
         toast({
-          title: "🎉 Поздравляем!",
-          description: "Вы стали Premium-пользователем! Проверьте вашу почту.",
-          duration: 7000,
+          title: "🎉 Поздравляем с активацией Premium!",
+          description: "Все премиум-функции теперь доступны. Проверьте вашу почту для подробностей.",
+          duration: 8000,
         });
         return true;
       } else {

@@ -89,87 +89,107 @@ serve(async (req) => {
           sessionId: session.id, 
           mode: session.mode,
           customerId: session.customer,
-          subscriptionId: session.subscription 
+          subscriptionId: session.subscription,
+          email: session.customer_details?.email
         });
 
         if (session.mode === 'subscription' && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
           
-          // Get userId from subscription metadata or find by customer email
-          let userId = subscription.metadata?.supabase_user_id;
+          // Find user by customer email - much more reliable
+          let userId: string | null = null;
           
-          if (!userId && session.customer_details?.email) {
-            // Find user by email in profiles
-            const { data: profile } = await supabaseClient
-              .from('profiles')
-              .select('id')
-              .eq('id', (await supabaseClient.auth.admin.listUsers()).data.users.find(u => u.email === session.customer_details?.email)?.id || '')
-              .single();
+          if (session.customer_details?.email) {
+            logStep("Finding user by email", { email: session.customer_details.email });
             
-            if (profile) {
-              userId = profile.id;
+            // Get all users and find by email
+            const { data: { users }, error: usersError } = await supabaseClient.auth.admin.listUsers();
+            
+            if (usersError) {
+              logStep("Error listing users", { error: usersError.message });
+            } else {
+              const user = users.find(u => u.email === session.customer_details?.email);
+              if (user) {
+                userId = user.id;
+                logStep("User found", { userId, email: user.email });
+              } else {
+                logStep("No user found with email", { email: session.customer_details.email });
+              }
             }
           }
 
           if (!userId) {
-            logStep("No user ID found for subscription");
+            logStep("No user ID found for subscription - cannot create record");
             break;
           }
 
-          // Store subscription in database
+          // Get plan_id (Premium plan)
+          const planId = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079'; // Premium plan UUID
+          
+          // Store subscription in database with UPSERT
           const { error: dbError } = await supabaseClient
             .from('subscriptions')
             .upsert({
               user_id: userId,
-              plan_id: subscription.items.data[0].price.product as string,
+              plan_id: planId,
               status: subscription.status,
               current_period_start: toISODate(subscription.current_period_start),
               current_period_end: toISODate(subscription.current_period_end),
               trial_ends_at: toISODate(subscription.trial_end),
               payment_provider: 'stripe',
+              updated_at: toISODate(Math.floor(Date.now() / 1000)),
             }, {
               onConflict: 'user_id',
             });
 
           if (dbError) {
-            logStep("Database error", { error: dbError.message });
+            logStep("Database error", { error: dbError.message, code: dbError.code });
           } else {
-            logStep("Subscription stored in database", { userId, subscriptionId: subscription.id });
+            logStep("✅ Subscription stored in database", { userId, subscriptionId: subscription.id, status: subscription.status });
           }
 
-          // Store payment record
-          const { error: paymentError } = await supabaseClient
-            .from('payments')
-            .insert({
-              user_id: userId,
-              amount: session.amount_total ? session.amount_total / 100 : 0,
-              currency: session.currency?.toUpperCase() || 'KRW',
-              status: 'completed',
-              payment_method: 'stripe',
-              transaction_id: session.payment_intent as string || session.id,
-              metadata: {
-                subscription_id: subscription.id,
-                session_id: session.id,
-              }
-            });
+          // Store payment record if payment was made
+          if (session.payment_status === 'paid' && session.payment_intent) {
+            const { error: paymentError } = await supabaseClient
+              .from('payments')
+              .insert({
+                user_id: userId,
+                amount: session.amount_total ? session.amount_total / 100 : 0,
+                currency: session.currency?.toUpperCase() || 'KRW',
+                status: 'completed',
+                payment_method: 'stripe',
+                transaction_id: session.payment_intent as string,
+                metadata: {
+                  subscription_id: subscription.id,
+                  session_id: session.id,
+                }
+              });
 
-          if (paymentError) {
-            logStep("Payment record error", { error: paymentError.message });
+            if (paymentError) {
+              logStep("Payment record error", { error: paymentError.message });
+            } else {
+              logStep("✅ Payment recorded", { amount: session.amount_total });
+            }
           }
 
           // Send welcome email
           if (session.customer_details?.email) {
             try {
-              await supabaseClient.functions.invoke('send-premium-email', {
+              const emailResult = await supabaseClient.functions.invoke('send-premium-email', {
                 body: {
                   email: session.customer_details.email,
                   subscriptionId: subscription.id,
                   trialEnd: toISODate(subscription.trial_end) || toISODate(subscription.current_period_end),
                 }
               });
-              logStep("Welcome email sent", { email: session.customer_details.email });
+              
+              if (emailResult.error) {
+                logStep("Email send failed", { error: emailResult.error });
+              } else {
+                logStep("✅ Welcome email sent", { email: session.customer_details.email });
+              }
             } catch (emailError) {
-              logStep("Email send error", { error: emailError instanceof Error ? emailError.message : String(emailError) });
+              logStep("Email send exception", { error: emailError instanceof Error ? emailError.message : String(emailError) });
             }
           }
         }

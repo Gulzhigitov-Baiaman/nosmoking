@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, Crown, Sparkles, Settings, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/usePremium";
@@ -21,6 +21,23 @@ const Premium = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Check if user returned from payment
+  useEffect(() => {
+    const paymentCompleted = searchParams.get('payment');
+    if (paymentCompleted === 'processing') {
+      toast({
+        title: "⏳ Обработка платежа",
+        description: "Ваш платеж обрабатывается. Premium активируется автоматически через несколько секунд.",
+        duration: 6000,
+      });
+      // Auto-sync after a delay
+      setTimeout(() => {
+        handleSyncSubscription();
+      }, 3000);
+    }
+  }, [searchParams]);
 
   const handleStripeCheckout = async () => {
     if (!user) {
@@ -50,11 +67,12 @@ const Premium = () => {
       }
       
       if (data?.url) {
-        window.open(data.url, '_blank');
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
         toast({
-          title: "Откройте новую вкладку",
-          description: "Завершите оплату в открывшейся вкладке. После успешной оплаты ваш Premium статус активируется автоматически.",
-          duration: 7000,
+          title: "Переход к оплате...",
+          description: "Вы будете перенаправлены на страницу оплаты Stripe.",
+          duration: 3000,
         });
       } else {
         throw new Error("No checkout URL received");
