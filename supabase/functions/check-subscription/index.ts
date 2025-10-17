@@ -60,11 +60,46 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // FIRST: Check local database for subscription (most reliable, reflects webhook data)
+    logStep("Checking local database for subscription");
+    const { data: dbSub, error: dbError } = await supabaseClient
+      .from('subscriptions')
+      .select('*, subscription_plans(*)')
+      .eq('user_id', user.id)
+      .in('status', ['trialing', 'active'])
+      .gt('current_period_end', new Date().toISOString())
+      .maybeSingle();
+
+    if (dbError) {
+      logStep("Database query error", { error: dbError.message });
+    }
+
+    if (dbSub) {
+      // Found active subscription in database
+      logStep("Active subscription found in database", {
+        subscriptionId: dbSub.id,
+        status: dbSub.status,
+        currentPeriodEnd: dbSub.current_period_end,
+        trialEndsAt: dbSub.trial_ends_at
+      });
+
+      return new Response(JSON.stringify({
+        subscribed: true,
+        plan_name: "Premium",
+        subscription_end: dbSub.current_period_end
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // SECOND: If not in DB, check Stripe (for cases where webhook hasn't fired yet)
+    logStep("No active subscription in DB, checking Stripe");
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, returning unsubscribed state");
+      logStep("No Stripe customer found, returning unsubscribed state");
       return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -80,12 +115,11 @@ serve(async (req) => {
       limit: 10,
     });
     
-    logStep("All subscriptions found", { 
+    logStep("Stripe subscriptions retrieved", { 
       count: subscriptions.data.length,
       subscriptions: subscriptions.data.map((sub: any) => ({
         id: sub.id,
         status: sub.status,
-        priceId: sub.items.data[0]?.price.id,
         created: new Date(sub.created * 1000).toISOString(),
       }))
     });
@@ -102,69 +136,40 @@ serve(async (req) => {
     if (hasActiveSub) {
       const subscription = activeSubscriptions[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active or trialing subscription found", { 
+      logStep("Active subscription found in Stripe", { 
         subscriptionId: subscription.id, 
         status: subscription.status,
-        priceId: subscription.items.data[0].price.id,
         endDate: subscriptionEnd,
         isTrialing: subscription.status === 'trialing'
       });
       
-      const priceId = subscription.items.data[0].price.id;
-      planName = "Premium"; // Always Premium for now
-      logStep("Determined subscription tier", { planName, priceId, status: subscription.status });
+      planName = "Premium";
 
-      // AUTO-SYNC: Check if subscription exists in database, create if not
-      const { data: dbSub } = await supabaseClient
+      // AUTO-SYNC: Create subscription in database
+      logStep("Auto-syncing Stripe subscription to database");
+      const planId = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079'; // Premium plan UUID
+      
+      const { error: syncError } = await supabaseClient
         .from('subscriptions')
-        .select('id, status')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!dbSub) {
-        logStep("Subscription found in Stripe but not in DB - auto-syncing");
-        
-        const { error: syncError } = await supabaseClient
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_id: subscription.items.data[0].price.product as string,
-            status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-            payment_provider: 'stripe',
-          });
-
-        if (syncError) {
-          logStep("Auto-sync failed", { error: syncError.message });
-        } else {
-          logStep("Auto-sync successful - subscription created in DB");
-        }
-      } else if (dbSub.status !== subscription.status) {
-        logStep("Subscription status mismatch - updating", { 
-          dbStatus: dbSub.status, 
-          stripeStatus: subscription.status 
+        .upsert({
+          user_id: user.id,
+          plan_id: planId,
+          status: subscription.status,
+          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+          payment_provider: 'stripe',
+        }, {
+          onConflict: 'user_id',
         });
-        
-        const { error: updateError } = await supabaseClient
-          .from('subscriptions')
-          .update({
-            status: subscription.status,
-            current_period_end: subscriptionEnd,
-            trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id);
 
-        if (updateError) {
-          logStep("Status update failed", { error: updateError.message });
-        } else {
-          logStep("Status updated successfully");
-        }
+      if (syncError) {
+        logStep("Auto-sync failed", { error: syncError.message });
+      } else {
+        logStep("✅ Subscription synced to database successfully");
       }
     } else {
-      logStep("No active or trialing subscription found");
+      logStep("No active or trialing subscription found in Stripe");
     }
 
     return new Response(JSON.stringify({
