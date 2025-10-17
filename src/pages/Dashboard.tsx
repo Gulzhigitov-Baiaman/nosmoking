@@ -193,25 +193,14 @@ export default function Dashboard() {
   };
 
   const getLifeExtension = () => {
-    if (!smokingPlan) return { cigarettesAvoided: 0, minutesGained: 0, hoursGained: 0 };
+    if (!smokingPlan) return { cigarettesAvoided: 0, minutesGained: 0, hoursGained: 0, remainingMinutes: 0 };
     
     const today = new Date().toISOString().split("T")[0];
     const todayLog = dailyLogs.find((l) => l.date === today);
     const todaySmoked = todayLog?.cigarettes_smoked || 0;
     
-    // Вычисляем дневной лимит из плана
-    const startDate = new Date(smokingPlan.start_date);
-    const quitDate = new Date(smokingPlan.quit_date);
-    const todayDate = new Date();
-    
-    const totalDays = Math.ceil((quitDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const daysPassed = Math.ceil((todayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    const dailyReduction = smokingPlan.start_cigarettes / totalDays;
-    const plannedToday = Math.max(0, Math.round(smokingPlan.start_cigarettes - (daysPassed * dailyReduction)));
-    
-    // Невыкуренные сигареты = план - факт
-    const cigarettesAvoided = Math.max(0, plannedToday - todaySmoked);
+    // Берём базовое количество из плана и вычитаем фактически выкуренные сегодня
+    const cigarettesAvoided = Math.max(0, smokingPlan.start_cigarettes - todaySmoked);
     
     // 1 сигарета = 11 минут жизни (общепринятая статистика)
     const minutesGained = cigarettesAvoided * 11;
@@ -308,7 +297,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <MotivationalBanner />
+        <MotivationalBanner daysWithoutSmoking={daysWithoutSmoking} />
 
         {/* Quick Log Input */}
         <Card className="mb-6">
@@ -373,30 +362,6 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Дней без курения - Large Card with Green Background */}
-        <Card className="mb-6 bg-gradient-to-br from-success/20 to-success/10 border-success/40">
-          <CardContent className="pt-8 pb-8">
-            <div className="text-center">
-              <h2 className="text-lg font-medium text-muted-foreground mb-3">
-                Дней без курения
-              </h2>
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <p className="text-6xl font-bold text-success">{daysWithoutSmoking}</p>
-                <Trophy className="h-16 w-16 text-success animate-pulse" />
-              </div>
-              {lifeExtension.cigarettesAvoided > 0 && (
-                <div className="bg-background/60 rounded-lg p-4 max-w-md mx-auto">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    🎉 Сегодня вы не выкурили <span className="font-bold text-success">{lifeExtension.cigarettesAvoided}</span> {lifeExtension.cigarettesAvoided === 1 ? 'сигарету' : lifeExtension.cigarettesAvoided < 5 ? 'сигареты' : 'сигарет'}
-                  </p>
-                  <p className="text-lg font-semibold text-success">
-                    ⏳ Вы продлили жизнь на {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ч ` : ''}{lifeExtension.remainingMinutes} мин
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Statistics Grid - 4 Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -415,17 +380,27 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Cigarettes Avoided */}
+          {/* Life Extension */}
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Не выкурено
+                Вы продлили жизнь
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-success">{cigarettesAvoided}</p>
-                <Cigarette className="h-8 w-8 text-success opacity-50" />
+              <div className="flex flex-col">
+                {lifeExtension.cigarettesAvoided > 0 ? (
+                  <>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Сегодня не выкурили <span className="font-bold text-success">{lifeExtension.cigarettesAvoided}</span> {lifeExtension.cigarettesAvoided === 1 ? 'сигарету' : lifeExtension.cigarettesAvoided < 5 ? 'сигареты' : 'сигарет'}
+                    </p>
+                    <p className="text-xl font-bold text-success">
+                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ч ` : ''}{lifeExtension.remainingMinutes} мин
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Данные появятся после записи</p>
+                )}
               </div>
             </CardContent>
           </Card>
