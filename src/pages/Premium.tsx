@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Check, Crown, Sparkles, Settings, RefreshCw } from "lucide-react";
+import { ArrowLeft, Check, Crown, Sparkles, Settings, RefreshCw, Key } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { usePremium } from "@/hooks/usePremium";
+import { usePremium, activateSecretCode } from "@/hooks/usePremium";
 import { useSubscription } from "@/hooks/useSubscription";
 
 const STRIPE_PRICE_ID = "price_1SIT3YLJqhOyuCVBc6bCV5Vo"; // Recurring monthly subscription
@@ -22,6 +23,8 @@ const Premium = () => {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [searchParams] = useSearchParams();
+  const [secretCode, setSecretCode] = useState("");
+  const [showSecretInput, setShowSecretInput] = useState(false);
 
   // Check if user returned from payment
   useEffect(() => {
@@ -151,6 +154,27 @@ const Premium = () => {
     }
   };
 
+  const handleSecretCodeSubmit = () => {
+    const success = activateSecretCode(secretCode);
+    if (success) {
+      toast({
+        title: "✅ Premium активирован!",
+        description: "Секретный код принят. У вас теперь есть доступ ко всем Premium функциям.",
+        duration: 5000,
+      });
+      setSecretCode("");
+      setShowSecretInput(false);
+      // Force refresh to update premium status
+      window.location.reload();
+    } else {
+      toast({
+        title: "Неверный код",
+        description: "Пожалуйста, проверьте код и попробуйте снова.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const features = [
     { icon: "📅", text: t('premium.features.calendar') },
     { icon: "💬", text: t('premium.features.chat') },
@@ -236,14 +260,55 @@ const Premium = () => {
             </div>
 
             {!isPremium ? (
-              <Button 
-                onClick={handleStripeCheckout}
-                disabled={loading}
-                className="w-full"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {loading ? "Loading..." : t('premium.subscribe')}
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleStripeCheckout}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {loading ? "Loading..." : t('premium.subscribe')}
+                </Button>
+                
+                {!showSecretInput ? (
+                  <Button
+                    onClick={() => setShowSecretInput(true)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    У меня есть секретный код
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <Input
+                      type="text"
+                      placeholder="Введите секретный код"
+                      value={secretCode}
+                      onChange={(e) => setSecretCode(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSecretCodeSubmit()}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleSecretCodeSubmit}
+                        className="flex-1"
+                      >
+                        Активировать
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowSecretInput(false);
+                          setSecretCode("");
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Отмена
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="flex gap-2">
                 <Button 
