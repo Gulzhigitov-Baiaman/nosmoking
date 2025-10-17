@@ -76,7 +76,16 @@ export const MotivationalBanner = ({
           <p className="text-5xl font-bold text-success">{daysWithoutSmoking}</p>
         </div>
 
-        {currentTip}
+        {currentTip && (
+          <div className="mt-4 p-4 bg-success-foreground/90 rounded-lg">
+            <h3 className="text-sm font-semibold text-success mb-2">
+              Лайфхак дня
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {currentTip.content}
+            </p>
+          </div>
+        )}
       </div>
     </Card>;
 };
