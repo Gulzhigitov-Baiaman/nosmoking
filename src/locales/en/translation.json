@@ -18,6 +18,7 @@
     "timeSaved": "Time Saved",
     "cigarettesAvoided": "Not smoked",
     "minutes": "min",
+    "hours": "h",
     "generalChat": "General Chat",
     "reductionPlan": "Reduction Plan",
     "healthRecovery": "Health Recovery",
@@ -32,7 +33,14 @@
     "noDataYet": "Start tracking your progress to see statistics",
     "spent": "Spent",
     "noSmoking": "No smoking",
-    "saved": "Saved"
+    "saved": "Saved",
+    "totalSmoked": "Total Smoked",
+    "lifeExtended": "Life Extended",
+    "moneySpent": "Money Spent",
+    "timeSpent": "Time Spent",
+    "dataAfterLog": "Data will appear after logging",
+    "calendar": "Calendar",
+    "aiPlan": "AI Plan"
   },
   "premium": {
     "title": "Premium Subscription",
@@ -141,9 +149,9 @@
   "lifehacks": {
     "title": "Life Hacks",
     "subtitle": "Practical tips to quit smoking",
-    "dailyTip": "Tip of the Day",
+    "dailyTip": "Lifehack of the Day",
     "submitYourOwn": "Submit Your Own",
-    "likes": "likes",
+    "likes": "helpful",
     "categories": {
       "all": "All",
       "stress": "Stress",
@@ -223,5 +231,11 @@
   },
   "common": {
     "loading": "Loading..."
+  },
+  "banner": {
+    "quote1": "Every day without smoking is a victory",
+    "quote2": "Your health is recovering right now",
+    "quote3": "Clean air is freedom",
+    "quote4": "You are stronger than you think"
   }
 }

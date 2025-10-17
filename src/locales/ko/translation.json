@@ -18,6 +18,7 @@
     "timeSaved": "절약한 시간",
     "cigarettesAvoided": "피우지 않은 담배",
     "minutes": "분",
+    "hours": "시간",
     "generalChat": "일반 채팅",
     "reductionPlan": "감소 계획",
     "healthRecovery": "건강 회복",
@@ -32,7 +33,14 @@
     "noDataYet": "통계를 보려면 진행 상황 추적을 시작하세요",
     "spent": "지출",
     "noSmoking": "금연",
-    "saved": "절약"
+    "saved": "절약",
+    "totalSmoked": "총 흡연량",
+    "lifeExtended": "수명 연장",
+    "moneySpent": "지출한 돈",
+    "timeSpent": "소비한 시간",
+    "dataAfterLog": "로그 후 데이터가 나타납니다",
+    "calendar": "달력",
+    "aiPlan": "AI 계획"
   },
   "premium": {
     "title": "프리미엄 구독",
@@ -141,9 +149,9 @@
   "lifehacks": {
     "title": "생활 팁",
     "subtitle": "금연을 위한 실용적인 팁",
-    "dailyTip": "오늘의 팁",
+    "dailyTip": "오늘의 라이프핵",
     "submitYourOwn": "나만의 팁 제출",
-    "likes": "좋아요",
+    "likes": "도움됨",
     "categories": {
       "all": "전체",
       "stress": "스트레스",
@@ -223,5 +231,11 @@
   },
   "common": {
     "loading": "로딩 중..."
+  },
+  "banner": {
+    "quote1": "담배 없는 매일은 승리입니다",
+    "quote2": "당신의 건강은 지금 회복되고 있습니다",
+    "quote3": "깨끗한 공기는 자유입니다",
+    "quote4": "당신은 생각보다 강합니다"
   }
 }

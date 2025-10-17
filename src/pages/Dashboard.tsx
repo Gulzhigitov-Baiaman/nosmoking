@@ -215,12 +215,40 @@ export default function Dashboard() {
     };
   };
 
+  const getDailyLimit = (): number => {
+    if (!smokingPlan) return 999;
+    
+    const startDate = new Date(smokingPlan.start_date);
+    const quitDate = new Date(smokingPlan.quit_date);
+    const today = new Date();
+    
+    const totalDays = Math.ceil((quitDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysPassed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysPassed >= totalDays) return 0;
+    
+    const dailyReduction = smokingPlan.start_cigarettes / totalDays;
+    return Math.max(0, Math.round(smokingPlan.start_cigarettes - (daysPassed * dailyReduction)));
+  };
+
   const handleQuickSave = async () => {
     if (!user || todayCigarettes === "") return;
     
+    const cigarettes = parseInt(todayCigarettes) || 0;
+    const dailyLimit = getDailyLimit();
+    
+    if (cigarettes > dailyLimit && smokingPlan) {
+      toast({
+        title: "⚠️ Лимит на сегодня превышен",
+        description: `Ваш лимит сегодня: ${dailyLimit} сигарет. Вы пытаетесь ввести ${cigarettes}.`,
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+    
     setIsSaving(true);
     const today = new Date().toISOString().split("T")[0];
-    const cigarettes = parseInt(todayCigarettes) || 0;
     
     const existingLog = dailyLogs.find((l) => l.date === today);
     
@@ -369,7 +397,7 @@ export default function Dashboard() {
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Всего выкурено
+                {t('dashboard.totalSmoked') || 'Всего выкурено'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -384,7 +412,7 @@ export default function Dashboard() {
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Вы продлили жизнь
+                {t('dashboard.lifeExtended') || 'Вы продлили жизнь'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -392,11 +420,11 @@ export default function Dashboard() {
                 {lifeExtension.cigarettesAvoided > 0 ? (
                   <>
                     <p className="text-2xl font-bold text-success">
-                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ч ` : ''}{lifeExtension.remainingMinutes} мин
+                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ${t('dashboard.hours') || 'ч'} ` : ''}{lifeExtension.remainingMinutes} {t('dashboard.minutes') || 'мин'}
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Данные появятся после записи</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.dataAfterLog') || 'Данные появятся после записи'}</p>
                 )}
               </div>
             </CardContent>
@@ -406,7 +434,7 @@ export default function Dashboard() {
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Потрачено денег
+                {t('dashboard.moneySpent') || 'Потрачено денег'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -426,15 +454,15 @@ export default function Dashboard() {
           <Card className="min-h-[120px]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Потрачено времени
+                {t('dashboard.timeSpent') || 'Потрачено времени'}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-2xl font-bold">{getTimeSpent()} мин</p>
+                  <p className="text-2xl font-bold">{getTimeSpent()} {t('dashboard.minutes') || 'мин'}</p>
                   <p className="text-xs text-success mt-1">
-                    {t("dashboard.saved")}: {timeSaved} мин
+                    {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes') || 'мин'}
                   </p>
                 </div>
                 <Clock className="h-8 w-8 text-destructive opacity-50" />
@@ -451,7 +479,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30"
           >
             <Calendar className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Календарь</span>
+            <span className="font-semibold">{t('dashboard.calendar') || 'Календарь'}</span>
           </Button>
           <Button
             onClick={() => navigate("/chat")}
@@ -483,7 +511,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <User className="h-6 w-6" />
-            <span>Друзья</span>
+            <span>{t('nav.friends')}</span>
           </Button>
           <Button
             onClick={() => navigate("/support")}
@@ -503,7 +531,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <Trophy className="h-6 w-6" />
-            <span>Достижения</span>
+            <span>{t('achievements.title') || 'Достижения'}</span>
           </Button>
           <Button
             onClick={() => navigate("/tips")}
@@ -511,7 +539,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <Lightbulb className="h-6 w-6" />
-            <span>Советы</span>
+            <span>{t('nav.tips')}</span>
           </Button>
           <Button
             onClick={() => navigate("/exercises")}
@@ -519,7 +547,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2"
           >
             <Dumbbell className="h-6 w-6" />
-            <span>Упражнения</span>
+            <span>{t('exercises.title') || 'Упражнения'}</span>
           </Button>
           <Button
             onClick={() => navigate("/ai-plan")}
@@ -527,7 +555,7 @@ export default function Dashboard() {
             className="h-20 flex flex-col gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30"
           >
             <span className="text-2xl">🤖</span>
-            <span className="text-sm">AI План</span>
+            <span className="text-sm">{t('dashboard.aiPlan') || 'AI План'}</span>
           </Button>
           <Button
             onClick={() => navigate("/premium")}
