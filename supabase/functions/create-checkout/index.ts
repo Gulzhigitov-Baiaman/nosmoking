@@ -82,25 +82,8 @@ serve(async (req) => {
         });
       }
 
-      // Check for recent unpaid checkout sessions
-      const recentSessions = await stripe.checkout.sessions.list({
-        customer: customerId,
-        limit: 3,
-      });
-
-      const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
-      const recentUnpaid = recentSessions.data.find((s: Stripe.Checkout.Session) => {
-        const createdAt = s.created * 1000;
-        return createdAt > tenMinutesAgo && s.payment_status === 'unpaid';
-      });
-
-      if (recentUnpaid) {
-        logStep("Returning existing unpaid session", { sessionId: recentUnpaid.id });
-        return new Response(JSON.stringify({ url: recentUnpaid.url }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
+      // Always create a new session to avoid issues with expired sessions
+      logStep("Creating fresh checkout session for existing customer");
     } else {
       const customer = await stripe.customers.create({ 
         email: user.email,
