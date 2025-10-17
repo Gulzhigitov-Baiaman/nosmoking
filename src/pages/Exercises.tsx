@@ -85,10 +85,6 @@ const Exercises = () => {
   };
 
   const startExercise = (exercise: Exercise) => {
-    if (exercise.is_premium && !isPremium) {
-      toast.error("Это упражнение доступно только в Premium");
-      return;
-    }
     setActiveExercise(exercise.id);
     setTimeLeft(exercise.duration);
     setIsRunning(true);
@@ -128,6 +124,28 @@ const Exercises = () => {
 
   return (
     <div className="min-h-screen bg-background p-4">
+      <style>{`
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50% { transform: scale(1.3); opacity: 1; }
+        }
+        .breathing-animation {
+          animation: breathe 3s ease-in-out infinite;
+        }
+        
+        @keyframes flex {
+          0%, 100% { transform: rotate(0deg) scale(1); }
+          25% { transform: rotate(-15deg) scale(1.1); }
+          50% { transform: rotate(0deg) scale(1.2); }
+          75% { transform: rotate(15deg) scale(1.1); }
+        }
+        .physical-animation {
+          animation: flex 2s ease-in-out infinite;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}</style>
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
@@ -166,7 +184,6 @@ const Exercises = () => {
 
         <div className="grid gap-4 md:grid-cols-2">
           {filteredExercises.map((exercise) => {
-            const isLocked = exercise.is_premium && !isPremium;
             const isActive = activeExercise === exercise.id;
             const progress = isActive && exercise.duration > 0
               ? ((exercise.duration - timeLeft) / exercise.duration) * 100
@@ -175,36 +192,34 @@ const Exercises = () => {
             return (
               <Card
                 key={exercise.id}
-                className={`p-5 ${isLocked ? "opacity-60" : ""} ${isActive ? "border-primary" : ""}`}
+                className={`p-5 ${isActive ? "border-primary" : ""}`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-bold text-lg">{exercise.name}</h3>
-                      {exercise.is_premium && (
-                        <Badge variant="secondary" className="text-xs">
-                          Premium
-                        </Badge>
-                      )}
-                    </div>
+                    <h3 className="font-bold text-lg mb-2">{exercise.name}</h3>
                     <Badge className="mb-2">
                       {getCategoryLabel(exercise.category)}
                     </Badge>
                   </div>
-                  {isLocked && <Lock className="h-5 w-5 text-muted-foreground" />}
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-4">
                   {exercise.description}
                 </p>
 
-                {exercise.animation_url && (
-                  <div className="mb-4 rounded-lg overflow-hidden bg-muted">
-                    <img 
-                      src={exercise.animation_url} 
-                      alt={exercise.name}
-                      className="w-full h-32 object-contain"
-                    />
+                {exercise.category === "breathing" && (
+                  <div className="mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100 p-4 flex justify-center">
+                    <div className="breathing-animation w-24 h-24 rounded-full bg-blue-400/60 flex items-center justify-center">
+                      <span className="text-3xl">🫁</span>
+                    </div>
+                  </div>
+                )}
+
+                {exercise.category === "physical" && (
+                  <div className="mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 p-4 flex justify-center">
+                    <div className="physical-animation w-24 h-24">
+                      <span className="text-5xl block">💪</span>
+                    </div>
                   </div>
                 )}
 
@@ -221,53 +236,45 @@ const Exercises = () => {
                   </div>
                 )}
 
-                {!isLocked && (
-                  <div className="flex gap-2">
-                    {!isActive ? (
-                      <Button
-                        onClick={() => startExercise(exercise)}
-                        className="flex-1"
-                      >
-                        <Play className="mr-2 h-4 w-4" />
-                        Начать
-                      </Button>
-                    ) : (
-                      <>
-                        {isRunning ? (
-                          <Button
-                            variant="outline"
-                            onClick={pauseExercise}
-                            className="flex-1"
-                          >
-                            <Pause className="mr-2 h-4 w-4" />
-                            Пауза
-                          </Button>
-                        ) : (
-                          <Button
-                            onClick={resumeExercise}
-                            className="flex-1"
-                          >
-                            <Play className="mr-2 h-4 w-4" />
-                            Продолжить
-                          </Button>
-                        )}
+                <div className="flex gap-2">
+                  {!isActive ? (
+                    <Button
+                      onClick={() => startExercise(exercise)}
+                      className="flex-1"
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Начать
+                    </Button>
+                  ) : (
+                    <>
+                      {isRunning ? (
                         <Button
-                          variant="ghost"
-                          onClick={resetExercise}
-                          size="icon"
+                          variant="outline"
+                          onClick={pauseExercise}
+                          className="flex-1"
                         >
-                          <RotateCcw className="h-4 w-4" />
+                          <Pause className="mr-2 h-4 w-4" />
+                          Пауза
                         </Button>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {isLocked && (
-                  <div className="text-sm text-center py-2 text-muted-foreground">
-                    Доступно в Premium
-                  </div>
-                )}
+                      ) : (
+                        <Button
+                          onClick={resumeExercise}
+                          className="flex-1"
+                        >
+                          <Play className="mr-2 h-4 w-4" />
+                          Продолжить
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        onClick={resetExercise}
+                        size="icon"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
               </Card>
             );
           })}

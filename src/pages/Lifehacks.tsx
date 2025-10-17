@@ -135,48 +135,30 @@ const Lifehacks = () => {
         </Tabs>
 
         <div className="space-y-4">
-          {filteredLifehacks.map((lifehack) => {
-            const isLocked = lifehack.is_premium && !isPremium;
-
-            return (
+          {filteredLifehacks.map((lifehack) => (
               <Card
                 key={lifehack.id}
-                className={`p-5 ${isLocked ? "opacity-60" : ""}`}
+                className="p-5"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-bold text-lg">{lifehack.title}</h3>
-                      {lifehack.is_premium && (
-                        <Badge variant="secondary" className="text-xs">
-                          Premium
-                        </Badge>
-                      )}
-                    </div>
+                    <h3 className="font-bold text-lg mb-2">{lifehack.title}</h3>
                     <Badge className={getCategoryColor(lifehack.category)}>
                       {getCategoryLabel(lifehack.category)}
                     </Badge>
                   </div>
-                  {isLocked && <Lock className="h-5 w-5 text-muted-foreground" />}
                 </div>
 
                 <p className="text-muted-foreground mb-4">
-                  {isLocked ? lifehack.description.substring(0, 100) + "..." : lifehack.description}
+                  {lifehack.description}
                 </p>
-
-                {isLocked && (
-                  <div className="text-sm text-center py-2 text-muted-foreground">
-                    Полный текст доступен в Premium
-                  </div>
-                )}
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Heart className="h-4 w-4" />
                   <span>{lifehack.likes} полезно</span>
                 </div>
               </Card>
-            );
-          })}
+          ))}
         </div>
 
         {filteredLifehacks.length === 0 && (

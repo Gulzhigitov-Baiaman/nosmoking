@@ -105,14 +105,6 @@ const Tips = () => {
   ];
 
   const handleTipClick = (tip: Tip) => {
-    if (tip.is_premium && !isPremium) {
-      toast({
-        title: "Premium функция",
-        description: "Этот совет доступен только для Premium подписчиков",
-        variant: "destructive",
-      });
-      return;
-    }
     navigate(`/tips/${tip.id}`);
   };
 
@@ -133,30 +125,6 @@ const Tips = () => {
           <h1 className="text-3xl font-bold">Советы и Лайфхаки</h1>
         </div>
 
-        {!isPremium && (
-          <Card className="p-4 mb-6 bg-gradient-primary border-primary">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Crown className="w-6 h-6 text-primary-foreground" />
-                <div>
-                  <p className="font-semibold text-primary-foreground">
-                    Получите доступ ко всем советам и лайфхакам
-                  </p>
-                  <p className="text-sm text-primary-foreground/80">
-                    Premium подписка откроет 50+ статей, лайфхаков и упражнений
-                  </p>
-                </div>
-              </div>
-              <Button
-                onClick={() => navigate("/premium")}
-                variant="secondary"
-                className="whitespace-nowrap"
-              >
-                Попробовать
-              </Button>
-            </div>
-          </Card>
-        )}
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mb-6">
           <TabsList className="grid grid-cols-2 w-full max-w-md">
@@ -198,33 +166,16 @@ const Tips = () => {
                 {filteredTips.map((tip) => (
                   <Card
                     key={tip.id}
-                    className={`p-6 cursor-pointer transition-all hover:shadow-card ${
-                      tip.is_premium && !isPremium ? "opacity-75" : ""
-                    }`}
+                    className="p-6 cursor-pointer transition-all hover:shadow-card"
                     onClick={() => handleTipClick(tip)}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-xl font-semibold">{tip.title}</h3>
-                          {tip.is_premium && (
-                            <Badge variant="secondary" className="gap-1">
-                              {isPremium ? (
-                                <Crown className="w-3 h-3" />
-                              ) : (
-                                <Lock className="w-3 h-3" />
-                              )}
-                              Premium
-                            </Badge>
-                          )}
-                        </div>
+                        <h3 className="text-xl font-semibold mb-2">{tip.title}</h3>
                         <p className="text-muted-foreground line-clamp-2">
                           {tip.content.substring(0, 150)}...
                         </p>
                       </div>
-                      {tip.is_premium && !isPremium && (
-                        <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                      )}
                     </div>
                   </Card>
                 ))}
@@ -253,43 +204,25 @@ const Tips = () => {
               </div>
             ) : (
               <div className="grid gap-4">
-                {filteredLifehacks.map((lifehack) => {
-                  const isLocked = lifehack.is_premium && !isPremium;
-                  return (
+                {filteredLifehacks.map((lifehack) => (
                     <Card
                       key={lifehack.id}
-                      className={`p-6 ${isLocked ? "opacity-75" : ""}`}
+                      className="p-6"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-semibold">{lifehack.title}</h3>
-                            {lifehack.is_premium && (
-                              <Badge variant="secondary" className="gap-1">
-                                {isPremium ? (
-                                  <Crown className="w-3 h-3" />
-                                ) : (
-                                  <Lock className="w-3 h-3" />
-                                )}
-                                Premium
-                              </Badge>
-                            )}
-                          </div>
+                          <h3 className="text-xl font-semibold mb-2">{lifehack.title}</h3>
                           <p className="text-muted-foreground mb-4">
-                            {isLocked ? lifehack.description.substring(0, 100) + "..." : lifehack.description}
+                            {lifehack.description}
                           </p>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Heart className="h-4 w-4" />
                             <span>{lifehack.likes} полезно</span>
                           </div>
                         </div>
-                        {isLocked && (
-                          <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                        )}
                       </div>
                     </Card>
-                  );
-                })}
+                ))}
               </div>
             )}
           </TabsContent>

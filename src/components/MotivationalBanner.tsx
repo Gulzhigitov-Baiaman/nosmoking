@@ -1,8 +1,16 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MotivationalBannerProps {
   daysWithoutSmoking: number;
+}
+
+interface Tip {
+  id: string;
+  title: string;
+  content: string;
 }
 
 export const MotivationalBanner = ({ daysWithoutSmoking }: MotivationalBannerProps) => {
@@ -13,25 +21,71 @@ export const MotivationalBanner = ({ daysWithoutSmoking }: MotivationalBannerPro
     { text: "Вы сильнее, чем думаете", icon: "💪" },
   ];
   
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(() => {
+    const saved = localStorage.getItem('lastQuoteIndex');
+    return saved ? parseInt(saved) : 0;
+  });
+  
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [tips, setTips] = useState<Tip[]>([]);
+
+  useEffect(() => {
+    const fetchTips = async () => {
+      const { data } = await supabase
+        .from("tips")
+        .select("id, title, content")
+        .limit(10);
+      if (data) setTips(data);
+    };
+    fetchTips();
+  }, []);
+
+  useEffect(() => {
+    const quoteInterval = setInterval(() => {
+      setCurrentQuoteIndex((prev) => {
+        const next = (prev + 1) % quotes.length;
+        localStorage.setItem('lastQuoteIndex', next.toString());
+        return next;
+      });
+    }, 30000);
+
+    const tipInterval = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % Math.max(tips.length, 1));
+    }, 30000);
+
+    return () => {
+      clearInterval(quoteInterval);
+      clearInterval(tipInterval);
+    };
+  }, [tips.length]);
+
+  const currentQuote = quotes[currentQuoteIndex];
+  const currentTip = tips[currentTipIndex];
   
   return (
-    <Card className="mb-6 bg-gradient-to-br from-success/20 to-success/10 border-success/40">
+    <Card className="mb-6 bg-gradient-to-br from-green-600/90 to-green-500/80 border-green-500/60">
       <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-3xl">{randomQuote.icon}</span>
+        <div className="flex items-center gap-3 mb-4 transition-all duration-500">
+          <span className="text-3xl">{currentQuote.icon}</span>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-success">{randomQuote.text}</p>
+            <p className="font-semibold text-lg text-white">{currentQuote.text}</p>
           </div>
-          <Sparkles className="w-5 h-5 text-success animate-pulse" />
+          <Sparkles className="w-5 h-5 text-white animate-pulse" />
         </div>
         
-        <div className="text-center bg-background/60 rounded-lg p-4">
-          <h2 className="text-lg font-medium text-muted-foreground mb-2">
+        <div className="text-center bg-white/90 rounded-lg p-4 mb-4">
+          <h2 className="text-lg font-medium text-gray-700 mb-2">
             Дней без курения
           </h2>
-          <p className="text-5xl font-bold text-success">{daysWithoutSmoking}</p>
+          <p className="text-5xl font-bold text-green-600">{daysWithoutSmoking}</p>
         </div>
+
+        {currentTip && (
+          <div className="bg-white/80 rounded-lg p-3 transition-all duration-500">
+            <p className="text-sm font-medium text-green-800 mb-1">💡 Совет дня</p>
+            <p className="text-sm text-gray-700 line-clamp-2">{currentTip.title}</p>
+          </div>
+        )}
       </div>
     </Card>
   );
