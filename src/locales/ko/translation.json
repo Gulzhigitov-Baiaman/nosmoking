@@ -22,7 +22,17 @@
     "reductionPlan": "감소 계획",
     "healthRecovery": "건강 회복",
     "recoveryMessage": "당신의 몸이 회복 중입니다! 계속 해주세요!",
-    "loading": "로딩 중..."
+    "loading": "로딩 중...",
+    "reminderTitle": "알림",
+    "reminderMessage": "오늘의 진행 상황을 기록하는 것을 잊지 마세요!",
+    "todaySmoked": "오늘 몇 개비를 피웠나요?",
+    "saveTodayLog": "저장",
+    "logSaved": "데이터 저장 완료!",
+    "smokeFreeDay": "🎉 금연 하루!",
+    "noDataYet": "통계를 보려면 진행 상황 추적을 시작하세요",
+    "spent": "지출",
+    "noSmoking": "금연",
+    "saved": "절약"
   },
   "premium": {
     "title": "프리미엄 구독",
@@ -158,5 +168,60 @@
     "markAllRead": "모두 읽음으로 표시",
     "noNotifications": "알림 없음",
     "new": "새로운"
+  },
+  "quitPlan": {
+    "title": "금연 계획",
+    "intro": {
+      "personalizedPlan": "습관에 맞춰 조정되는 개인화된 계획으로 더 빨리 금연할 수 있도록 돕습니다.",
+      "stepByStep": "단계별 계획은 마침내 니코틴을 끊고 갈망을 극복하며 더 건강한 생활 방식을 이끌 수 있도록 도와줍니다.",
+      "scientificMethod": "우리의 과학 기반 방법은 중독으로부터 진정으로 자유롭게 해줄 것입니다.",
+      "startButton": "금연 계획 시작하기"
+    },
+    "setQuitDate": "금연 날짜 설정",
+    "quitToday": "오늘 당신은 영원히 담배를 끊습니다!",
+    "dateIncreases": "구체적인 날짜를 선택하면 목표 달성 가능성이 높아집니다.",
+    "chooseRealistic": "현재 소비 수준에 따라 현실적이고 달성 가능한 날짜를 선택하세요.",
+    "selectDate": "금연 날짜를 선택하세요:",
+    "quickSelect": "빠른 선택",
+    "days30": "30일",
+    "days60": "60일",
+    "days90": "90일",
+    "continue": "계속",
+    "setBaseline": "기준선 설정",
+    "baselineIs": "기준선은 금연 계획에서 금연을 돕기 위해 사용되는 기준점입니다.",
+    "howManyPuffs": "현재 하루에 몇 개비를 피우나요?",
+    "puffsPlaceholder": "예: 20",
+    "recommendRegister": "정확한 시작점을 계산하기 위해 최소 하루를 기록하는 것이 좋습니다.",
+    "createPlan": "계획 만들기",
+    "preview": {
+      "limitTracker": {
+        "title": "한도 추적기",
+        "description": "한도 추적기 기능은 하루 최대 흡연 개비 수를 보여줌으로써 금연을 돕습니다."
+      },
+      "countdown": {
+        "title": "카운트다운 타이머",
+        "description": "완전한 금연 날짜까지 카운트다운합니다."
+      },
+      "chart": {
+        "title": "진행 상황 차트",
+        "description": "일일 진행 상황을 보여줍니다. 빨간 선 — 설정된 한도(매일 감소: 20 → 19 → 18 → ... → 0), 파란 선 — 하루 실제 담배 개비 수.",
+        "saveButton": "계획 저장"
+      }
+    },
+    "limitTracker": "한도 추적기",
+    "limitToday": "오늘의 한도",
+    "puffsToday": "오늘 흡연",
+    "puffs": "개비",
+    "countdownTimer": "카운트다운 타이머",
+    "day": "일",
+    "hour": "시간",
+    "min": "분",
+    "sec": "초",
+    "progressChart": "진행 상황 차트",
+    "puffLimit": "흡연 한도",
+    "actualPuffs": "실제 흡연"
+  },
+  "common": {
+    "loading": "로딩 중..."
   }
 }

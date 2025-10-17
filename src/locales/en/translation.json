@@ -22,7 +22,17 @@
     "reductionPlan": "Reduction Plan",
     "healthRecovery": "Health Recovery",
     "recoveryMessage": "Your body is recovering! Keep it up!",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "reminderTitle": "Reminder",
+    "reminderMessage": "Don't forget to log your progress for today!",
+    "todaySmoked": "How many cigarettes did you smoke today?",
+    "saveTodayLog": "Save",
+    "logSaved": "Data saved!",
+    "smokeFreeDay": "🎉 Smoke-free day!",
+    "noDataYet": "Start tracking your progress to see statistics",
+    "spent": "Spent",
+    "noSmoking": "No smoking",
+    "saved": "Saved"
   },
   "premium": {
     "title": "Premium Subscription",
@@ -158,5 +168,60 @@
     "markAllRead": "Mark all as read",
     "noNotifications": "No notifications",
     "new": "New"
+  },
+  "quitPlan": {
+    "title": "Quit Plan",
+    "intro": {
+      "personalizedPlan": "A personalized plan that adapts to your habits and helps you quit smoking faster.",
+      "stepByStep": "Your step-by-step plan will finally help you quit nicotine, overcome cravings and lead a healthier lifestyle.",
+      "scientificMethod": "Our science-based method will truly free you from addiction.",
+      "startButton": "Start Your Quit Smoking Plan"
+    },
+    "setQuitDate": "Set Quit Date",
+    "quitToday": "Today you quit smoking forever!",
+    "dateIncreases": "Choosing a specific date increases the likelihood of achieving your goal.",
+    "chooseRealistic": "Choose a realistic and achievable date based on your current consumption level.",
+    "selectDate": "Select your quit smoking date:",
+    "quickSelect": "Quick select",
+    "days30": "30 days",
+    "days60": "60 days",
+    "days90": "90 days",
+    "continue": "Continue",
+    "setBaseline": "Set Baseline",
+    "baselineIs": "Your baseline is the reference point that will be used in the Quit Plan to help you stop smoking.",
+    "howManyPuffs": "How many puffs do you currently take per day?",
+    "puffsPlaceholder": "For example: 20",
+    "recommendRegister": "We recommend logging at least one day to calculate an accurate starting point.",
+    "createPlan": "Create Plan",
+    "preview": {
+      "limitTracker": {
+        "title": "Limit Tracker",
+        "description": "The Limit Tracker feature helps you quit smoking by showing the maximum number of puffs per day."
+      },
+      "countdown": {
+        "title": "Countdown Timer",
+        "description": "Counts down to the complete quit date."
+      },
+      "chart": {
+        "title": "Progress Chart",
+        "description": "Shows daily progress. Red line — set limit (decreases daily: 20 → 19 → 18 → ... → 0), blue line — actual number of cigarettes per day.",
+        "saveButton": "Save Plan"
+      }
+    },
+    "limitTracker": "Limit Tracker",
+    "limitToday": "Today's Limit",
+    "puffsToday": "Puffs Today",
+    "puffs": "puffs",
+    "countdownTimer": "Countdown Timer",
+    "day": "day",
+    "hour": "hour",
+    "min": "min",
+    "sec": "sec",
+    "progressChart": "Progress Chart",
+    "puffLimit": "Puff Limit",
+    "actualPuffs": "Actual Puffs"
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

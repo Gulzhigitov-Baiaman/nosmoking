@@ -63,27 +63,27 @@ export const MotivationalBanner = ({ daysWithoutSmoking }: MotivationalBannerPro
   const currentTip = tips[currentTipIndex];
   
   return (
-    <Card className="mb-6 bg-gradient-to-br from-green-600/90 to-green-500/80 border-green-500/60">
+    <Card className="mb-6 bg-success border-success/60">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-4 transition-all duration-500">
           <span className="text-3xl">{currentQuote.icon}</span>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-white">{currentQuote.text}</p>
+            <p className="font-semibold text-lg text-success-foreground">{currentQuote.text}</p>
           </div>
-          <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <Sparkles className="w-5 h-5 text-success-foreground animate-pulse" />
         </div>
         
-        <div className="text-center bg-white/90 rounded-lg p-4 mb-4">
-          <h2 className="text-lg font-medium text-gray-700 mb-2">
+        <div className="text-center bg-success-foreground/90 rounded-lg p-4 mb-4">
+          <h2 className="text-lg font-medium text-muted-foreground mb-2">
             Дней без курения
           </h2>
-          <p className="text-5xl font-bold text-green-600">{daysWithoutSmoking}</p>
+          <p className="text-5xl font-bold text-success">{daysWithoutSmoking}</p>
         </div>
 
         {currentTip && (
-          <div className="bg-white/80 rounded-lg p-3 transition-all duration-500">
-            <p className="text-sm font-medium text-green-800 mb-1">💡 Совет дня</p>
-            <p className="text-sm text-gray-700 line-clamp-2">{currentTip.title}</p>
+          <div className="bg-success-foreground/80 rounded-lg p-3 transition-all duration-500">
+            <p className="text-sm font-medium text-success mb-1">💡 Лайфхак дня</p>
+            <p className="text-sm text-muted-foreground">{currentTip.content}</p>
           </div>
         )}
       </div>

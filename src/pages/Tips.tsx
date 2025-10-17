@@ -16,6 +16,7 @@ interface Tip {
   category: string;
   is_premium: boolean;
   order: number;
+  likes?: number;
 }
 
 interface Lifehack {
@@ -36,6 +37,8 @@ const Tips = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTab, setSelectedTab] = useState<string>("tips");
+  const [likedTips, setLikedTips] = useState<Set<string>>(new Set());
+  const [likedLifehacks, setLikedLifehacks] = useState<Set<string>>(new Set());
 
   const categories = [
     { value: "all", label: "Все", icon: "📚" },
@@ -108,6 +111,67 @@ const Tips = () => {
     navigate(`/tips/${tip.id}`);
   };
 
+  const handleLikeTip = async (tipId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (likedTips.has(tipId)) return;
+    
+    try {
+      const tip = tips.find(t => t.id === tipId);
+      if (!tip) return;
+
+      const newLikes = (tip.likes || 0) + 1;
+      
+      // Update locally without DB update since likes column doesn't exist in types yet
+      setTips(tips.map(t => 
+        t.id === tipId ? { ...t, likes: newLikes } : t
+      ));
+      setLikedTips(new Set([...likedTips, tipId]));
+      toast({
+        title: "Спасибо!",
+        description: "Ваша оценка учтена",
+      });
+    } catch (error) {
+      console.error("Error liking tip:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить лайк",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLikeLifehack = async (lifehackId: string) => {
+    if (likedLifehacks.has(lifehackId)) return;
+    
+    try {
+      const lifehack = lifehacks.find(l => l.id === lifehackId);
+      if (!lifehack) return;
+
+      const { error } = await supabase
+        .from("lifehacks")
+        .update({ likes: lifehack.likes + 1 })
+        .eq("id", lifehackId);
+
+      if (error) throw error;
+
+      setLifehacks(lifehacks.map(l => 
+        l.id === lifehackId ? { ...l, likes: l.likes + 1 } : l
+      ));
+      setLikedLifehacks(new Set([...likedLifehacks, lifehackId]));
+      toast({
+        title: "Спасибо!",
+        description: "Ваша оценка учтена",
+      });
+    } catch (error) {
+      console.error("Error liking lifehack:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить лайк",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
       <div className="max-w-5xl mx-auto pt-8">
@@ -172,9 +236,19 @@ const Tips = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-2">{tip.title}</h3>
-                        <p className="text-muted-foreground line-clamp-2">
+                        <p className="text-muted-foreground line-clamp-2 mb-4">
                           {tip.content.substring(0, 150)}...
                         </p>
+                        <button 
+                          onClick={(e) => handleLikeTip(tip.id, e)}
+                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+                          disabled={likedTips.has(tip.id)}
+                        >
+                          <Heart 
+                            className={`h-4 w-4 ${likedTips.has(tip.id) ? 'fill-destructive text-destructive' : ''}`} 
+                          />
+                          <span>{tip.likes || 0} полезно</span>
+                        </button>
                       </div>
                     </div>
                   </Card>
@@ -215,10 +289,16 @@ const Tips = () => {
                           <p className="text-muted-foreground mb-4">
                             {lifehack.description}
                           </p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Heart className="h-4 w-4" />
+                          <button 
+                            onClick={() => handleLikeLifehack(lifehack.id)}
+                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+                            disabled={likedLifehacks.has(lifehack.id)}
+                          >
+                            <Heart 
+                              className={`h-4 w-4 ${likedLifehacks.has(lifehack.id) ? 'fill-destructive text-destructive' : ''}`} 
+                            />
                             <span>{lifehack.likes} полезно</span>
-                          </div>
+                          </button>
                         </div>
                       </div>
                     </Card>

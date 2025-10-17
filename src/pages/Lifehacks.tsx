@@ -26,6 +26,7 @@ const Lifehacks = () => {
   const [lifehacks, setLifehacks] = useState<Lifehack[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [likedLifehacks, setLikedLifehacks] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user) {
@@ -74,6 +75,31 @@ const Lifehacks = () => {
       activity: "bg-purple-100 text-purple-700",
     };
     return colors[category] || "bg-gray-100 text-gray-700";
+  };
+
+  const handleLike = async (lifehackId: string) => {
+    if (likedLifehacks.has(lifehackId)) return;
+    
+    try {
+      const lifehack = lifehacks.find(l => l.id === lifehackId);
+      if (!lifehack) return;
+
+      const { error } = await supabase
+        .from("lifehacks")
+        .update({ likes: lifehack.likes + 1 })
+        .eq("id", lifehackId);
+
+      if (error) throw error;
+
+      setLifehacks(lifehacks.map(l => 
+        l.id === lifehackId ? { ...l, likes: l.likes + 1 } : l
+      ));
+      setLikedLifehacks(new Set([...likedLifehacks, lifehackId]));
+      toast.success("Спасибо за вашу оценку!");
+    } catch (error) {
+      console.error("Error liking lifehack:", error);
+      toast.error("Ошибка при добавлении лайка");
+    }
   };
 
   const filteredLifehacks = selectedCategory === "all"
@@ -153,10 +179,16 @@ const Lifehacks = () => {
                   {lifehack.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Heart className="h-4 w-4" />
+                <button 
+                  onClick={() => handleLike(lifehack.id)}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+                  disabled={likedLifehacks.has(lifehack.id)}
+                >
+                  <Heart 
+                    className={`h-4 w-4 ${likedLifehacks.has(lifehack.id) ? 'fill-destructive text-destructive' : ''}`} 
+                  />
                   <span>{lifehack.likes} полезно</span>
-                </div>
+                </button>
               </Card>
           ))}
         </div>

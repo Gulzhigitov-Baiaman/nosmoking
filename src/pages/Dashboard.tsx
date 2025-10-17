@@ -391,10 +391,7 @@ export default function Dashboard() {
               <div className="flex flex-col">
                 {lifeExtension.cigarettesAvoided > 0 ? (
                   <>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Сегодня не выкурили <span className="font-bold text-success">{lifeExtension.cigarettesAvoided}</span> {lifeExtension.cigarettesAvoided === 1 ? 'сигарету' : lifeExtension.cigarettesAvoided < 5 ? 'сигареты' : 'сигарет'}
-                    </p>
-                    <p className="text-xl font-bold text-success">
+                    <p className="text-2xl font-bold text-success">
                       {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ч ` : ''}{lifeExtension.remainingMinutes} мин
                     </p>
                   </>
