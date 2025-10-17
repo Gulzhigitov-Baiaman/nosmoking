@@ -237,14 +237,14 @@ export default function Dashboard() {
     const cigarettes = parseInt(todayCigarettes) || 0;
     const dailyLimit = getDailyLimit();
     
+    // Show warning if limit exceeded, but still save
     if (cigarettes > dailyLimit && smokingPlan) {
       toast({
-        title: "⚠️ Лимит на сегодня превышен",
-        description: `Ваш лимит сегодня: ${dailyLimit} сигарет. Вы пытаетесь ввести ${cigarettes}.`,
+        title: t('dashboard.limitExceeded') || "⚠️ Лимит на сегодня превышен",
+        description: t('dashboard.limitExceededDesc', { limit: dailyLimit, entered: cigarettes }) || `Ваш лимит сегодня: ${dailyLimit} сигарет. Вы вводите ${cigarettes}.`,
         variant: "destructive",
         duration: 5000,
       });
-      return;
     }
     
     setIsSaving(true);

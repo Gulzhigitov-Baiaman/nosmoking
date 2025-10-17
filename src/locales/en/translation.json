@@ -40,7 +40,9 @@
     "timeSpent": "Time Spent",
     "dataAfterLog": "Data will appear after logging",
     "calendar": "Calendar",
-    "aiPlan": "AI Plan"
+    "aiPlan": "AI Plan",
+    "limitExceeded": "⚠️ Daily limit exceeded",
+    "limitExceededDesc": "Your limit today: {{limit}} cigarettes. You're entering {{entered}}."
   },
   "premium": {
     "title": "Premium Subscription",

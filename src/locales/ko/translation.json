@@ -40,7 +40,9 @@
     "timeSpent": "소비한 시간",
     "dataAfterLog": "로그 후 데이터가 나타납니다",
     "calendar": "달력",
-    "aiPlan": "AI 계획"
+    "aiPlan": "AI 계획",
+    "limitExceeded": "⚠️ 오늘의 한도 초과",
+    "limitExceededDesc": "오늘의 한도: {{limit}}개비. 입력 중: {{entered}}개비."
   },
   "premium": {
     "title": "프리미엄 구독",
