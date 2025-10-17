@@ -67,12 +67,12 @@ const Premium = () => {
       }
       
       if (data?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
+        // Open Stripe checkout in new tab
+        window.open(data.url, '_blank');
         toast({
-          title: "Переход к оплате...",
-          description: "Вы будете перенаправлены на страницу оплаты Stripe.",
-          duration: 3000,
+          title: "Страница оплаты открыта",
+          description: "Завершите оплату в открывшейся вкладке. После оплаты вернитесь сюда.",
+          duration: 5000,
         });
       } else {
         throw new Error("No checkout URL received");
