@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 interface Message {
   id: string;
@@ -136,8 +137,22 @@ const PrivateChat = () => {
       .eq("read", false);
   };
 
+  const messageSchema = z.object({
+    message: z.string()
+      .trim()
+      .min(1, "Сообщение не может быть пустым")
+      .max(2000, "Сообщение не должно превышать 2000 символов")
+  });
+
   const sendMessage = async () => {
-    if (!user || !friendId || !newMessage.trim()) return;
+    if (!user || !friendId) return;
+
+    // Validate input
+    const validation = messageSchema.safeParse({ message: newMessage });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
 
     setSending(true);
 
@@ -145,7 +160,7 @@ const PrivateChat = () => {
       const { error } = await supabase.from("private_messages").insert({
         sender_id: user.id,
         receiver_id: friendId,
-        message: newMessage.trim(),
+        message: validation.data.message,
       });
 
       if (error) throw error;

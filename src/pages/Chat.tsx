@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ArrowLeft, Send, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { PremiumGuard } from "@/components/PremiumGuard";
+import { z } from "zod";
 
 interface ChatMessage {
   id: string;
@@ -112,13 +113,27 @@ function ChatContent() {
     }
   };
 
+  const messageSchema = z.object({
+    message: z.string()
+      .trim()
+      .min(1, "Сообщение не может быть пустым")
+      .max(1000, "Сообщение не должно превышать 1000 символов")
+  });
+
   const sendMessage = async () => {
-    if (!newMessage.trim() || !user) return;
+    if (!user) return;
+
+    // Validate input
+    const validation = messageSchema.safeParse({ message: newMessage });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
 
     setSending(true);
     const { error } = await supabase.from("chat_messages").insert({
       user_id: user.id,
-      message: newMessage.trim(),
+      message: validation.data.message,
     });
 
     if (error) {

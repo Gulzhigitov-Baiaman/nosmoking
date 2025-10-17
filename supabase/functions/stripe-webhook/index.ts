@@ -7,8 +7,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
+const maskEmail = (email: string): string => {
+  const [user, domain] = email.split('@');
+  return `${user.substring(0, 2)}***@${domain}`;
+};
+
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  // Mask sensitive data in logs
+  let sanitizedDetails = details;
+  if (details && typeof details === 'object') {
+    sanitizedDetails = JSON.parse(JSON.stringify(details));
+    if (sanitizedDetails.email) {
+      sanitizedDetails.email = maskEmail(sanitizedDetails.email);
+    }
+    // Remove payment amounts, only keep transaction IDs
+    if (sanitizedDetails.amount) delete sanitizedDetails.amount;
+    if (sanitizedDetails.customerId) {
+      sanitizedDetails.customerId = sanitizedDetails.customerId.substring(0, 8) + '***';
+    }
+  }
+  const detailsStr = sanitizedDetails ? ` - ${JSON.stringify(sanitizedDetails)}` : '';
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 

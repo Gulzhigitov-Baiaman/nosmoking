@@ -7,8 +7,25 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const maskEmail = (email: string): string => {
+  const [user, domain] = email.split('@');
+  return `${user.substring(0, 2)}***@${domain}`;
+};
+
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  // Mask sensitive data in logs
+  let sanitizedDetails = details;
+  if (details && typeof details === 'object') {
+    sanitizedDetails = JSON.parse(JSON.stringify(details));
+    if (sanitizedDetails.email) {
+      sanitizedDetails.email = maskEmail(sanitizedDetails.email);
+    }
+    // Remove payment amounts and customer IDs
+    if (sanitizedDetails.customerId) {
+      sanitizedDetails.customerId = sanitizedDetails.customerId.substring(0, 8) + '***';
+    }
+  }
+  const detailsStr = sanitizedDetails ? ` - ${JSON.stringify(sanitizedDetails)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
@@ -147,60 +164,7 @@ serve(async (req) => {
         }
       }
     } else {
-      logStep("No active or trialing subscription found - checking recent payments");
-      
-      // Check for recent successful payments (within last 48 hours)
-      const twoDaysAgo = Math.floor(Date.now() / 1000) - (48 * 60 * 60);
-      const paymentIntents = await stripe.paymentIntents.list({
-        customer: customerId,
-        limit: 10,
-      });
-      
-      const recentSuccessfulPayments = paymentIntents.data.filter((pi: any) => 
-        pi.status === 'succeeded' && pi.created >= twoDaysAgo
-      );
-      
-      logStep("Recent payments", { 
-        count: recentSuccessfulPayments.length,
-        payments: recentSuccessfulPayments.map((p: any) => ({
-          id: p.id,
-          status: p.status,
-          amount: p.amount,
-          created: new Date(p.created * 1000).toISOString()
-        }))
-      });
-      
-      // If there's a recent successful payment, grant premium temporarily
-      if (recentSuccessfulPayments.length > 0) {
-        logStep("Granting premium based on recent successful payment");
-        planName = "Premium";
-        subscriptionEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-        
-        return new Response(JSON.stringify({
-          subscribed: true,
-          plan_name: planName,
-          subscription_end: subscriptionEnd
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
-      
-      // Also check for recent successful payments
-      const allPaymentIntents = await stripe.paymentIntents.list({
-        customer: customerId,
-        limit: 5,
-      });
-      
-      logStep("All recent payments", {
-        count: allPaymentIntents.data.length,
-        payments: allPaymentIntents.data.map((pi: any) => ({
-          id: pi.id,
-          status: pi.status,
-          amount: pi.amount,
-          created: new Date(pi.created * 1000).toISOString(),
-        }))
-      });
+      logStep("No active or trialing subscription found");
     }
 
     return new Response(JSON.stringify({
