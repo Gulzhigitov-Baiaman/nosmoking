@@ -12,6 +12,17 @@ const logStep = (step: string, details?: any) => {
   console.log(`[ACTIVATE-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// Stripe Product ID to Subscription Plan UUID mapping
+// Add new products here when creating additional subscription tiers
+const STRIPE_PRODUCT_TO_PLAN_MAP: Record<string, string> = {
+  // Add your Stripe product IDs here - example format:
+  // 'prod_xxxxxxxxxxxxx': 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079',
+};
+
+// Default plan UUID for Premium (backward compatibility)
+// TODO: Remove this after configuring STRIPE_PRODUCT_TO_PLAN_MAP with actual product IDs
+const DEFAULT_PREMIUM_PLAN_ID = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079';
+
 const toISODate = (timestamp: number | null | undefined): string | null => {
   if (!timestamp || isNaN(timestamp)) return null;
   try {
@@ -124,8 +135,53 @@ serve(async (req) => {
     }
     
     // Determine what to store in database
-    // Use the Premium plan UUID from subscription_plans table
-    const planId = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079';
+    // Extract and validate the Stripe product ID
+    let planId: string;
+    let stripeProductId: string | null = null;
+    
+    if (subscription?.items?.data?.[0]?.price?.product) {
+      stripeProductId = typeof subscription.items.data[0].price.product === 'string'
+        ? subscription.items.data[0].price.product
+        : subscription.items.data[0].price.product.id;
+      
+      logStep("Stripe product ID extracted", { stripeProductId });
+      
+      // Map Stripe product to internal plan_id (only if product ID exists)
+      const mappedPlan = stripeProductId ? STRIPE_PRODUCT_TO_PLAN_MAP[stripeProductId] : null;
+      
+      if (!mappedPlan) {
+        logStep("WARNING: Stripe product not in mapping, using default Premium plan", { 
+          stripeProductId,
+          availableProducts: Object.keys(STRIPE_PRODUCT_TO_PLAN_MAP)
+        });
+        // Use default for backward compatibility
+        // In production, you should throw an error for unmapped products:
+        // throw new Error(`Invalid or unmapped Stripe product: ${stripeProductId}`);
+        planId = DEFAULT_PREMIUM_PLAN_ID;
+      } else {
+        planId = mappedPlan;
+        logStep("Product mapped to plan", { stripeProductId, planId });
+      }
+      
+      // Validate plan exists in subscription_plans table
+      const { data: planExists, error: planError } = await supabaseClient
+        .from('subscription_plans')
+        .select('id, name')
+        .eq('id', planId)
+        .single();
+      
+      if (planError || !planExists) {
+        logStep("ERROR: Plan ID not found in subscription_plans table", { planId, error: planError });
+        throw new Error(`Invalid subscription plan configuration for product ${stripeProductId}`);
+      }
+      
+      logStep("Plan validated", { planId, planName: planExists.name });
+    } else {
+      // No subscription data available - use default
+      logStep("No subscription product data available, using default plan");
+      planId = DEFAULT_PREMIUM_PLAN_ID;
+    }
+    
     let status = 'active';
     let trialEnd: number | null = null;
     let periodStart: number = Math.floor(Date.now() / 1000);
