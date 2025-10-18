@@ -86,7 +86,7 @@ const Achievements = () => {
       setFeaturedIds(profileData?.featured_achievements || []);
     } catch (error) {
       console.error("Error fetching achievements:", error);
-      toast.error("Ошибка загрузки достижений");
+      toast.error(t('achievements.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ const Achievements = () => {
       newFeatured = featuredIds.filter(id => id !== achievementId);
     } else {
       if (featuredIds.length >= 3) {
-        toast.error("Можно выбрать максимум 3 достижения");
+        toast.error(t('friends.maxFeatured'));
         return;
       }
       newFeatured = [...featuredIds, achievementId];
@@ -112,10 +112,10 @@ const Achievements = () => {
       .eq("id", user?.id);
 
     if (error) {
-      toast.error("Ошибка обновления");
+      toast.error(t('achievements.errorUpdate'));
     } else {
       setFeaturedIds(newFeatured);
-      toast.success(isCurrentlyFeatured ? "Убрано из топ-3" : "Добавлено в топ-3");
+      toast.success(isCurrentlyFeatured ? t('achievements.removedFromTop') : t('achievements.addedToTop'));
     }
   };
 
@@ -139,20 +139,20 @@ const Achievements = () => {
   const getRarityLabel = (rarity: string) => {
     switch (rarity) {
       case "legendary":
-        return "Легендарное";
+        return t('achievements.legendary');
       case "epic":
-        return "Эпическое";
+        return t('achievements.epic');
       case "rare":
-        return "Редкое";
+        return t('achievements.rare');
       default:
-        return "Обычное";
+        return t('achievements.common');
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Загрузка достижений...</div>
+        <div className="text-center">{t('achievements.loading')}</div>
       </div>
     );
   }
@@ -166,13 +166,13 @@ const Achievements = () => {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t('achievements.back')}
         </Button>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">🏆 Достижения</h1>
+          <h1 className="text-3xl font-bold mb-2">🏆 {t('achievements.title')}</h1>
           <p className="text-muted-foreground">
-            Собирайте достижения и отслеживайте свой прогресс
+            {t('achievements.subtitle')}
           </p>
         </div>
 
@@ -212,51 +212,51 @@ const Achievements = () => {
                     {achievement.description}
                   </p>
 
-                  {!isEarned && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Прогресс</span>
-                        <span>
-                          {progress} / {achievement.requirement}
-                        </span>
-                      </div>
-                      <Progress value={progressPercent} className="h-2" />
+                {!isEarned && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{t('achievements.progress')}</span>
+                      <span>
+                        {progress} / {achievement.requirement}
+                      </span>
                     </div>
-                  )}
+                    <Progress value={progressPercent} className="h-2" />
+                  </div>
+                )}
 
-                  {isEarned && (
-                    <div className="flex flex-col items-center gap-2 py-2">
-                      <Badge className="bg-green-500">✓ Получено</Badge>
-                      <Button
-                        size="sm"
-                        variant={featuredIds.includes(achievement.id) ? "default" : "outline"}
-                        onClick={() => toggleFeatured(achievement.id)}
-                        disabled={isLocked}
-                      >
-                        {featuredIds.includes(achievement.id) ? "★ В топ-3" : "Добавить в топ-3"}
-                      </Button>
-                    </div>
-                  )}
+                {isEarned && (
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    <Badge className="bg-green-500">✓ {t('achievements.earned')}</Badge>
+                    <Button
+                      size="sm"
+                      variant={featuredIds.includes(achievement.id) ? "default" : "outline"}
+                      onClick={() => toggleFeatured(achievement.id)}
+                      disabled={isLocked}
+                    >
+                      {featuredIds.includes(achievement.id) ? `★ ${t('achievements.inTop')}` : t('achievements.addToTop')}
+                    </Button>
+                  </div>
+                )}
 
-                  {isLocked && (
-                    <div className="text-xs text-center text-muted-foreground mt-2">
-                      Доступно в Premium
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {achievements.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            Достижения пока не добавлены
-          </div>
-        )}
+                {isLocked && (
+                  <div className="text-xs text-center text-muted-foreground mt-2">
+                    {t('achievements.premiumOnly')}
+                  </div>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
+
+      {achievements.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          {t('achievements.noAchievements')}
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 };
 
 export default Achievements;

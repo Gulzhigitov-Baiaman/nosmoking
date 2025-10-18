@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface BodyRecoveryProps {
   daysSmokeFree: number;
@@ -9,6 +10,7 @@ interface BodyRecoveryProps {
 
 export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
   const [animationProgress, setAnimationProgress] = useState(0);
+  const { t } = useTranslation();
 
   // Calculate recovery percentage (0-100%)
   const recoveryPercent = Math.min(100, daysSmokeFree / 90 * 100);
@@ -24,23 +26,23 @@ export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
   // Determine body state
   const getBodyState = () => {
     if (recoveryPercent < 20) return {
-      text: "Начало восстановления",
+      text: t('health.startRecovery'),
       healthColor: "#ef4444", // red
     };
     if (recoveryPercent < 40) return {
-      text: "Улучшение состояния",
+      text: t('health.improving'),
       healthColor: "#f97316", // orange
     };
     if (recoveryPercent < 60) return {
-      text: "Активное восстановление",
+      text: t('health.activeRecovery'),
       healthColor: "#eab308", // yellow
     };
     if (recoveryPercent < 80) return {
-      text: "Хорошее здоровье",
+      text: t('health.goodHealth'),
       healthColor: "#84cc16", // lime
     };
     return {
-      text: "Отличное здоровье!",
+      text: t('health.excellentHealth'),
       healthColor: "#22c55e", // green
     };
   };
@@ -52,7 +54,7 @@ export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
           <Heart className="w-4 h-4 text-destructive" />
-          Организм
+          {t('health.body')}
         </CardTitle>
       </CardHeader>
       <CardContent>

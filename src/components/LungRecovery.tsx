@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Wind } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 interface LungRecoveryProps {
   daysSmokeFree: number;
 }
@@ -9,6 +11,7 @@ export const LungRecovery = ({
   daysSmokeFree
 }: LungRecoveryProps) => {
   const [animationProgress, setAnimationProgress] = useState(0);
+  const { t } = useTranslation();
 
   // Calculate recovery percentage (0-100%)
   const recoveryPercent = Math.min(100, daysSmokeFree / 90 * 100);
@@ -24,27 +27,27 @@ export const LungRecovery = ({
   // Determine lung state
   const getLungState = () => {
     if (recoveryPercent < 20) return {
-      text: "Сильное загрязнение",
+      text: t('health.heavyPollution'),
       smokeOpacity: 0.8,
       brightness: 0.4
     };
     if (recoveryPercent < 40) return {
-      text: "Загрязнение уменьшается",
+      text: t('health.pollutionDecreasing'),
       smokeOpacity: 0.6,
       brightness: 0.55
     };
     if (recoveryPercent < 60) return {
-      text: "Идёт восстановление",
+      text: t('health.recovering'),
       smokeOpacity: 0.4,
       brightness: 0.7
     };
     if (recoveryPercent < 80) return {
-      text: "Хорошее восстановление",
+      text: t('health.goodRecovery'),
       smokeOpacity: 0.2,
       brightness: 0.85
     };
     return {
-      text: "Почти чистые!",
+      text: t('health.almostClean'),
       smokeOpacity: 0,
       brightness: 1
     };
@@ -59,7 +62,7 @@ export const LungRecovery = ({
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
           <Wind className="w-4 h-4 text-primary" />
-          Лёгкие
+          {t('health.lungs')}
         </CardTitle>
       </CardHeader>
       <CardContent>

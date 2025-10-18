@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Users, Search, Crown, Lock, UserPlus, Check, X, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PremiumGuard } from "@/components/PremiumGuard";
+import { useTranslation } from "react-i18next";
 
 interface Profile {
   id: string;
@@ -44,6 +45,7 @@ export default function Friends() {
 function FriendsContent() {
   const { user, isPremium } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
@@ -183,7 +185,7 @@ function FriendsContent() {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      toast.error("Введите имя пользователя или ID");
+      toast.error(t('friends.enterUsername'));
       return;
     }
 
@@ -199,13 +201,13 @@ function FriendsContent() {
       setSearchResults(data || []);
       
       if (data && data.length > 0) {
-        toast.success(`Найдено: ${data.length} пользователей`);
+        toast.success(t('friends.foundUsers', { count: data.length }));
       } else {
-        toast.error("Пользователи не найдены");
+        toast.error(t('friends.noUsers'));
       }
     } catch (error) {
       console.error("Error searching:", error);
-      toast.error("Ошибка поиска");
+      toast.error(t('friends.errorSearch'));
     }
   };
 
@@ -222,13 +224,13 @@ function FriendsContent() {
 
       if (error) throw error;
       
-      toast.success("Запрос отправлен!");
+      toast.success(t('friends.requestSent'));
       setSelectedUser(null);
       setRequestMessage("");
       fetchRequests();
     } catch (error) {
       console.error("Error sending request:", error);
-      toast.error("Ошибка отправки запроса");
+      toast.error(t('friends.errorSendRequest'));
     }
   };
 
@@ -241,12 +243,12 @@ function FriendsContent() {
 
       if (error) throw error;
       
-      toast.success("🎉 Вы теперь друзья!");
+      toast.success(`🎉 ${t('friends.requestAccepted')}`);
       fetchFriends();
       fetchRequests();
     } catch (error) {
       console.error("Error accepting request:", error);
-      toast.error("Ошибка");
+      toast.error(t('friends.errorGeneral'));
     }
   };
 
@@ -259,11 +261,11 @@ function FriendsContent() {
 
       if (error) throw error;
       
-      toast.success("Друг удалён");
+      toast.success(t('friends.friendRemoved'));
       fetchFriends();
     } catch (error) {
       console.error("Error removing friend:", error);
-      toast.error("Ошибка");
+      toast.error(t('friends.errorGeneral'));
     }
   };
 
@@ -276,11 +278,11 @@ function FriendsContent() {
 
       if (error) throw error;
       
-      toast.success("Запрос отклонён");
+      toast.success(t('friends.requestRejected'));
       fetchRequests();
     } catch (error) {
       console.error("Error rejecting request:", error);
-      toast.error("Ошибка");
+      toast.error(t('friends.errorGeneral'));
     }
   };
 
@@ -289,27 +291,27 @@ function FriendsContent() {
       <div className="max-w-5xl mx-auto pt-8">
         <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Назад
+          {t('friends.back')}
         </Button>
 
         <div className="flex items-center gap-3 mb-6">
           <Users className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Друзья</h1>
+          <h1 className="text-3xl font-bold">{t('friends.title')}</h1>
         </div>
 
         {/* Search */}
         <Card className="p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">🔍 Поиск друзей</h2>
+          <h2 className="text-xl font-semibold mb-4">🔍 {t('friends.searchTitle')}</h2>
           <div className="flex gap-2 mb-4">
             <Input
-              placeholder="Введите имя или уникальный ID"
+              placeholder={t('friends.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             />
             <Button onClick={handleSearch}>
               <Search className="w-4 h-4 mr-2" />
-              Найти
+              {t('friends.findButton')}
             </Button>
           </div>
 
@@ -331,12 +333,12 @@ function FriendsContent() {
                     <DialogTrigger asChild>
                       <Button onClick={() => setSelectedUser(profile)}>
                         <UserPlus className="w-4 h-4 mr-2" />
-                        Добавить
+                        {t('friends.addButton')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Отправить запрос в друзья</DialogTitle>
+                        <DialogTitle>{t('friends.sendRequest')}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
@@ -350,12 +352,12 @@ function FriendsContent() {
                           </div>
                         </div>
                         <Textarea
-                          placeholder="Добавьте сообщение (необязательно)"
+                          placeholder={t('friends.addMessage')}
                           value={requestMessage}
                           onChange={(e) => setRequestMessage(e.target.value)}
                           rows={3}
                         />
-                        <Button onClick={sendFriendRequest} className="w-full">Отправить запрос</Button>
+                        <Button onClick={sendFriendRequest} className="w-full">{t('friends.sendRequestButton')}</Button>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -368,19 +370,19 @@ function FriendsContent() {
         {/* Tabs */}
         <Tabs defaultValue="friends" className="mb-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="friends">Мои друзья ({friends.length})</TabsTrigger>
-            <TabsTrigger value="incoming">Входящие ({incomingRequests.length})</TabsTrigger>
-            <TabsTrigger value="outgoing">Исходящие ({outgoingRequests.length})</TabsTrigger>
+            <TabsTrigger value="friends">{t('friends.myFriendsTab')} ({friends.length})</TabsTrigger>
+            <TabsTrigger value="incoming">{t('friends.incomingTab')} ({incomingRequests.length})</TabsTrigger>
+            <TabsTrigger value="outgoing">{t('friends.outgoingTab')} ({outgoingRequests.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="friends">
             <Card className="p-6">
               {loading ? (
-                <div className="text-center py-8">Загрузка...</div>
+                <div className="text-center py-8">{t('common.loading')}</div>
               ) : friends.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">У вас пока нет друзей</p>
+                  <p className="text-muted-foreground">{t('friends.noFriends')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -400,16 +402,16 @@ function FriendsContent() {
                             <p className="font-semibold">{friendProfile?.display_name || friendProfile?.username}</p>
                             <p className="text-sm text-muted-foreground">ID: {friendProfile?.unique_id}</p>
                             {quitDate && (
-                              <p className="text-xs text-success font-medium">🌟 {daysWithoutSmoking} дней без курения</p>
+                              <p className="text-xs text-success font-medium">🌟 {daysWithoutSmoking} {t('friends.daysSmokeFree')}</p>
                             )}
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
-                            Профиль
+                            {t('friends.profileButton')}
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => navigate(`/private-chat/${friend.friend_id}`)} disabled={!isPremium}>
-                            {isPremium ? "Чат" : <Lock className="h-4 w-4" />}
+                            {isPremium ? t('friends.chatButton') : <Lock className="h-4 w-4" />}
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => removeFriend(friend.id)}>
                             <X className="w-4 h-4" />
@@ -426,7 +428,7 @@ function FriendsContent() {
           <TabsContent value="incoming">
             <Card className="p-6">
               {incomingRequests.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">Нет входящих запросов</div>
+                <div className="text-center py-8 text-muted-foreground">{t('friends.noIncoming')}</div>
               ) : (
                 <div className="space-y-3">
                   {incomingRequests.map((request) => (
@@ -445,11 +447,11 @@ function FriendsContent() {
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => acceptRequest(request.id)}>
                             <Check className="w-4 h-4 mr-1" />
-                            Принять
+                            {t('friends.acceptButton')}
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => rejectRequest(request.id)}>
                             <X className="w-4 h-4 mr-1" />
-                            Отклонить
+                            {t('friends.rejectButton')}
                           </Button>
                         </div>
                       </div>
@@ -466,7 +468,7 @@ function FriendsContent() {
           <TabsContent value="outgoing">
             <Card className="p-6">
               {outgoingRequests.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">Нет исходящих запросов</div>
+                <div className="text-center py-8 text-muted-foreground">{t('friends.noOutgoing')}</div>
               ) : (
                 <div className="space-y-3">
                   {outgoingRequests.map((request) => (

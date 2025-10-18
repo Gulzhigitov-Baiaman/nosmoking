@@ -47,42 +47,42 @@ const Exercises = () => {
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            setIsRunning(false);
-            toast.success("Упражнение завершено! 🎉");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
+        setIsRunning(false);
+        toast.success(t('exercises.completed'));
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+}
+return () => clearInterval(interval);
+}, [isRunning, timeLeft]);
 
-  const fetchExercises = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("exercises")
-        .select("*")
-        .order("category", { ascending: true });
+const fetchExercises = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("exercises")
+      .select("*")
+      .order("category", { ascending: true });
 
-      if (error) throw error;
-      setExercises(data || []);
-    } catch (error) {
-      console.error("Error fetching exercises:", error);
-      toast.error("Ошибка загрузки упражнений");
-    } finally {
-      setLoading(false);
-    }
+    if (error) throw error;
+    setExercises(data || []);
+  } catch (error) {
+    console.error("Error fetching exercises:", error);
+    toast.error(t('exercises.errorLoading'));
+  } finally {
+    setLoading(false);
+  }
+};
+
+const getCategoryLabel = (category: string) => {
+  const labels: Record<string, string> = {
+    breathing: `🫁 ${t('exercises.breathingLabel')}`,
+    physical: `💪 ${t('exercises.physicalLabel')}`,
+    meditation: `🧘 ${t('exercises.meditationLabel')}`,
   };
-
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      breathing: "🫁 Дыхательные",
-      physical: "💪 Физические",
-      meditation: "🧘 Медитация",
-    };
-    return labels[category] || category;
-  };
+  return labels[category] || category;
+};
 
   const startExercise = (exercise: Exercise) => {
     setActiveExercise(exercise.id);
@@ -117,7 +117,7 @@ const Exercises = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Загрузка упражнений...</div>
+        <div className="text-center">{t('exercises.loading')}</div>
       </div>
     );
   }
@@ -153,13 +153,13 @@ const Exercises = () => {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t('exercises.back')}
         </Button>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">💪 Упражнения</h1>
+          <h1 className="text-3xl font-bold mb-2">💪 {t('exercises.title')}</h1>
           <p className="text-muted-foreground">
-            Выполняйте упражнения, чтобы отвлечься от желания закурить
+            {t('exercises.subtitle')}
           </p>
         </div>
 
@@ -175,10 +175,10 @@ const Exercises = () => {
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
           <TabsList className="grid grid-cols-4">
-            <TabsTrigger value="all">Все</TabsTrigger>
-            <TabsTrigger value="breathing">Дыхание</TabsTrigger>
-            <TabsTrigger value="physical">Физ-ра</TabsTrigger>
-            <TabsTrigger value="meditation">Медитация</TabsTrigger>
+            <TabsTrigger value="all">{t('exercises.allCategory')}</TabsTrigger>
+            <TabsTrigger value="breathing">{t('exercises.breathingCategory')}</TabsTrigger>
+            <TabsTrigger value="physical">{t('exercises.physicalCategory')}</TabsTrigger>
+            <TabsTrigger value="meditation">{t('exercises.meditationCategory')}</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -224,7 +224,7 @@ const Exercises = () => {
                 )}
 
                 <div className="text-sm text-muted-foreground mb-4">
-                  Длительность: {formatTime(exercise.duration)}
+                  {t('exercises.durationLabel')}: {formatTime(exercise.duration)}
                 </div>
 
                 {isActive && (
@@ -243,7 +243,7 @@ const Exercises = () => {
                       className="flex-1"
                     >
                       <Play className="mr-2 h-4 w-4" />
-                      Начать
+                      {t('exercises.startButton')}
                     </Button>
                   ) : (
                     <>
@@ -254,7 +254,7 @@ const Exercises = () => {
                           className="flex-1"
                         >
                           <Pause className="mr-2 h-4 w-4" />
-                          Пауза
+                          {t('exercises.pauseButton')}
                         </Button>
                       ) : (
                         <Button
@@ -262,7 +262,7 @@ const Exercises = () => {
                           className="flex-1"
                         >
                           <Play className="mr-2 h-4 w-4" />
-                          Продолжить
+                          {t('exercises.resumeButton')}
                         </Button>
                       )}
                       <Button
@@ -282,7 +282,7 @@ const Exercises = () => {
 
         {filteredExercises.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            Упражнений в этой категории пока нет
+            {t('exercises.noExercises')}
           </div>
         )}
       </div>

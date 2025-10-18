@@ -32,6 +32,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // Check for secret code first
+    const secretActivated = localStorage.getItem("premium_secret_activated") === "true";
+    if (secretActivated) {
+      setIsPremium(true);
+      return;
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) throw error;

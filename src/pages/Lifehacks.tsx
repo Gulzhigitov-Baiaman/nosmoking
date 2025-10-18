@@ -47,7 +47,7 @@ const Lifehacks = () => {
       setLifehacks(data || []);
     } catch (error) {
       console.error("Error fetching lifehacks:", error);
-      toast.error("Ошибка загрузки лайфхаков");
+      toast.error(t('lifehacks.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -55,12 +55,12 @@ const Lifehacks = () => {
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
-      stress: "😰 Стресс",
-      habit: "🔄 Привычка",
-      money: "💰 Экономия",
-      trigger: "⚡ Триггеры",
-      breathing: "🫁 Дыхание",
-      activity: "🏃 Активность",
+      stress: `😰 ${t('lifehacks.stressLabel')}`,
+      habit: `🔄 ${t('lifehacks.habitLabel')}`,
+      money: `💰 ${t('lifehacks.moneyLabel')}`,
+      trigger: `⚡ ${t('lifehacks.triggerLabel')}`,
+      breathing: `🫁 ${t('lifehacks.breathingLabel')}`,
+      activity: `🏃 ${t('lifehacks.activityLabel')}`,
     };
     return labels[category] || category;
   };
@@ -95,10 +95,10 @@ const Lifehacks = () => {
         l.id === lifehackId ? { ...l, likes: l.likes + 1 } : l
       ));
       setLikedLifehacks(new Set([...likedLifehacks, lifehackId]));
-      toast.success("Спасибо за вашу оценку!");
+      toast.success(t('lifehacks.thanksForRating'));
     } catch (error) {
       console.error("Error liking lifehack:", error);
-      toast.error("Ошибка при добавлении лайка");
+      toast.error(t('lifehacks.errorLike'));
     }
   };
 
@@ -111,7 +111,7 @@ const Lifehacks = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">Загрузка лайфхаков...</div>
+        <div className="text-center">{t('lifehacks.loading')}</div>
       </div>
     );
   }
@@ -125,13 +125,13 @@ const Lifehacks = () => {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t('lifehacks.back')}
         </Button>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">💡 Лайфхаки для отказа от сигарет</h1>
+          <h1 className="text-3xl font-bold mb-2">💡 {t('lifehacks.title')}</h1>
           <p className="text-muted-foreground">
-            Практические советы, которые помогут вам справиться с желанием закурить
+            {t('lifehacks.subtitle')}
           </p>
         </div>
 
@@ -140,7 +140,7 @@ const Lifehacks = () => {
             <div className="flex items-start gap-4">
               <Lightbulb className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-2">🌟 Лайфхак дня</h3>
+                <h3 className="font-bold text-lg mb-2">🌟 {t('lifehacks.dailyTipTitle')}</h3>
                 <h4 className="font-semibold mb-2">{dailyLifehack.title}</h4>
                 <p className="text-muted-foreground">{dailyLifehack.description}</p>
               </div>
@@ -150,13 +150,13 @@ const Lifehacks = () => {
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
           <TabsList className="grid grid-cols-3 lg:grid-cols-7">
-            <TabsTrigger value="all">Все</TabsTrigger>
-            <TabsTrigger value="stress">Стресс</TabsTrigger>
-            <TabsTrigger value="habit">Привычка</TabsTrigger>
-            <TabsTrigger value="money">Деньги</TabsTrigger>
-            <TabsTrigger value="trigger">Триггеры</TabsTrigger>
-            <TabsTrigger value="breathing">Дыхание</TabsTrigger>
-            <TabsTrigger value="activity">Активность</TabsTrigger>
+            <TabsTrigger value="all">{t('lifehacks.allCategory')}</TabsTrigger>
+            <TabsTrigger value="stress">{t('lifehacks.stressCategory')}</TabsTrigger>
+            <TabsTrigger value="habit">{t('lifehacks.habitCategory')}</TabsTrigger>
+            <TabsTrigger value="money">{t('lifehacks.moneyCategory')}</TabsTrigger>
+            <TabsTrigger value="trigger">{t('lifehacks.triggerCategory')}</TabsTrigger>
+            <TabsTrigger value="breathing">{t('lifehacks.breathingCategory')}</TabsTrigger>
+            <TabsTrigger value="activity">{t('lifehacks.activityCategory')}</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -187,7 +187,7 @@ const Lifehacks = () => {
                   <Heart 
                     className={`h-4 w-4 ${likedLifehacks.has(lifehack.id) ? 'fill-destructive text-destructive' : ''}`} 
                   />
-                  <span>{lifehack.likes} полезно</span>
+                  <span>{lifehack.likes} {t('lifehacks.helpful')}</span>
                 </button>
               </Card>
           ))}
@@ -195,7 +195,7 @@ const Lifehacks = () => {
 
         {filteredLifehacks.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            Лайфхаков в этой категории пока нет
+            {t('lifehacks.noLifehacks')}
           </div>
         )}
       </div>
