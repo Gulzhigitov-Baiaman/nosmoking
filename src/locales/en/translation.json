@@ -353,5 +353,10 @@
     "activeRecovery": "Active recovery",
     "goodHealth": "Good health",
     "excellentHealth": "Excellent health!"
+  },
+  "auth": {
+    "error": "Error",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordsMismatch": "Passwords don't match"
   }
 }

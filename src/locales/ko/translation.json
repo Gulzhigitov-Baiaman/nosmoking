@@ -353,5 +353,10 @@
     "activeRecovery": "적극적인 회복",
     "goodHealth": "좋은 건강",
     "excellentHealth": "훌륭한 건강!"
+  },
+  "auth": {
+    "error": "오류",
+    "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다",
+    "passwordsMismatch": "비밀번호가 일치하지 않습니다"
   }
 }

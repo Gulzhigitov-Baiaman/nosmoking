@@ -70,10 +70,10 @@ const Auth = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       toast({
         title: "Ошибка",
-        description: "Пароль должен быть минимум 6 символов",
+        description: "Пароль должен быть минимум 8 символов",
         variant: "destructive",
       });
       return;

@@ -353,5 +353,10 @@
     "activeRecovery": "Активное восстановление",
     "goodHealth": "Хорошее здоровье",
     "excellentHealth": "Отличное здоровье!"
+  },
+  "auth": {
+    "error": "Ошибка",
+    "passwordTooShort": "Пароль должен быть минимум 8 символов",
+    "passwordsMismatch": "Пароли не совпадают"
   }
 }
