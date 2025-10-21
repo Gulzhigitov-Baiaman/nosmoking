@@ -65,26 +65,7 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Existing customer found", { customerId });
-
-      // Check for existing subscription to prevent duplicates
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        status: 'active',
-        limit: 1,
-      });
-
-      if (subscriptions.data.length > 0) {
-        logStep("Active subscription already exists", { subscriptionId: subscriptions.data[0].id });
-        return new Response(JSON.stringify({ 
-          error: "You already have an active subscription. Please manage it from your account." 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
-      }
-
-      // Always create a new session to avoid issues with expired sessions
-      logStep("Creating fresh checkout session for existing customer");
+      logStep("Creating checkout session for customer (allows renewal/extension)");
     } else {
       const customer = await stripe.customers.create({ 
         email: user.email,
