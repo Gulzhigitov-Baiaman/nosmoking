@@ -216,16 +216,16 @@ serve(async (req) => {
         newStatus: status 
       });
       
-      // Update existing subscription
+      // Update existing subscription with guaranteed valid dates
       const { error: updateError } = await supabaseClient
         .from('subscriptions')
         .update({
           status: status,
-          current_period_start: toISODate(periodStart),
-          current_period_end: toISODate(periodEnd),
-          trial_ends_at: toISODate(trialEnd),
+          current_period_start: new Date(periodStart * 1000).toISOString(),
+          current_period_end: new Date(periodEnd * 1000).toISOString(),
+          trial_ends_at: trialEnd ? new Date(trialEnd * 1000).toISOString() : null,
           payment_provider: 'stripe',
-          updated_at: toISODate(Math.floor(Date.now() / 1000)),
+          updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
 
@@ -236,16 +236,16 @@ serve(async (req) => {
       
       logStep("Subscription updated successfully");
     } else {
-      // Create new subscription record
+      // Create new subscription record with guaranteed valid dates
       const { error: insertError } = await supabaseClient
         .from('subscriptions')
         .insert({
           user_id: user.id,
           plan_id: planId,
           status: status,
-          current_period_start: toISODate(periodStart),
-          current_period_end: toISODate(periodEnd),
-          trial_ends_at: toISODate(trialEnd),
+          current_period_start: new Date(periodStart * 1000).toISOString(),
+          current_period_end: new Date(periodEnd * 1000).toISOString(),
+          trial_ends_at: trialEnd ? new Date(trialEnd * 1000).toISOString() : null,
           payment_provider: 'stripe',
         });
 

@@ -127,17 +127,25 @@ serve(async (req) => {
           const planId = 'c27dbaea-7a36-4f09-bb9d-2563cdcfc079'; // Premium plan UUID
           
           // Store subscription in database with UPSERT
+          // Ensure timestamps are valid before inserting
+          const periodStart = subscription.current_period_start 
+            ? new Date(subscription.current_period_start * 1000).toISOString()
+            : new Date().toISOString();
+          const periodEnd = subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // Default to 30 days if missing
+          
           const { error: dbError } = await supabaseClient
             .from('subscriptions')
             .upsert({
               user_id: userId,
               plan_id: planId,
               status: subscription.status,
-              current_period_start: toISODate(subscription.current_period_start),
-              current_period_end: toISODate(subscription.current_period_end),
-              trial_ends_at: toISODate(subscription.trial_end),
+              current_period_start: periodStart,
+              current_period_end: periodEnd,
+              trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
               payment_provider: 'stripe',
-              updated_at: toISODate(Math.floor(Date.now() / 1000)),
+              updated_at: new Date().toISOString(),
             }, {
               onConflict: 'user_id',
             });
@@ -211,10 +219,10 @@ serve(async (req) => {
             .from('subscriptions')
             .update({
               status: subscription.status,
-              current_period_start: toISODate(subscription.current_period_start),
-              current_period_end: toISODate(subscription.current_period_end),
-              trial_ends_at: toISODate(subscription.trial_end),
-              updated_at: toISODate(Math.floor(Date.now() / 1000)),
+              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              trial_ends_at: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+              updated_at: new Date().toISOString(),
             })
             .eq('user_id', userId);
 
@@ -289,13 +297,13 @@ serve(async (req) => {
             logStep("Trial canceled - no charge was made", { userId });
           }
 
-          // Update subscription status in database
+          // Update subscription status in database - only update status and timestamps
           const { error } = await supabaseClient
             .from('subscriptions')
             .update({
               status: 'canceled',
-              canceled_at: toISODate(Math.floor(Date.now() / 1000)),
-              updated_at: toISODate(Math.floor(Date.now() / 1000)),
+              canceled_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             })
             .eq('user_id', userId);
 
