@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { usePremium } from "@/hooks/usePremium";
 
 interface Achievement {
   id: string;
@@ -28,7 +29,8 @@ interface UserAchievement {
 }
 
 const Achievements = () => {
-  const { user, isPremium } = useAuth();
+  const { user } = useAuth();
+  const { isPremium } = usePremium();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [achievements, setAchievements] = useState<Achievement[]>([]);

@@ -121,7 +121,15 @@ const Tips = () => {
 
       const newLikes = (tip.likes || 0) + 1;
       
-      // Update locally without DB update since likes column doesn't exist in types yet
+      // Update in database
+      const { error } = await supabase
+        .from("tips")
+        .update({ likes: newLikes })
+        .eq("id", tipId);
+
+      if (error) throw error;
+
+      // Update locally
       setTips(tips.map(t => 
         t.id === tipId ? { ...t, likes: newLikes } : t
       ));

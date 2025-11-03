@@ -14,6 +14,7 @@ import { ArrowLeft, Users, Search, Crown, Lock, UserPlus, Check, X, MessageCircl
 import { toast } from "sonner";
 import { PremiumGuard } from "@/components/PremiumGuard";
 import { useTranslation } from "react-i18next";
+import { usePremium } from "@/hooks/usePremium";
 
 interface Profile {
   id: string;
@@ -43,7 +44,8 @@ export default function Friends() {
 }
 
 function FriendsContent() {
-  const { user, isPremium } = useAuth();
+  const { user } = useAuth();
+  const { isPremium } = usePremium();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [friends, setFriends] = useState<Friend[]>([]);
