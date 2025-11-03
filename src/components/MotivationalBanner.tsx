@@ -84,32 +84,32 @@ export const MotivationalBanner = ({
   const currentQuote = quotes[currentQuoteIndex];
   const currentTip = tips[currentTipIndex];
   
-  return <Card className="mb-6 border-success/60">
-      <div className="p-6 space-y-4">
+  return <Card className="mb-[clamp(0.75rem,1.5vw,1.5rem)] border-success/60">
+      <div className="p-[clamp(0.75rem,1.5vw,1.5rem)] space-y-[clamp(0.5rem,1vw,1rem)]">
         {/* Motivational Quote */}
-        <div className="bg-success/20 rounded-lg p-4 flex items-center gap-3 transition-all duration-500">
-          <span className="text-3xl">{currentQuote.icon}</span>
+        <div className="bg-success/20 rounded-lg p-[clamp(0.5rem,1vw,1rem)] flex items-center gap-[clamp(0.5rem,0.75vw,0.75rem)] transition-all duration-500">
+          <span className="text-[clamp(1.5rem,3vw,1.875rem)]">{currentQuote.icon}</span>
           <div className="flex-1">
-            <p className="font-semibold text-lg text-success-foreground leading-tight">{currentQuote.text}</p>
+            <p className="font-semibold text-[clamp(0.875rem,1.5vw,1.125rem)] text-success-foreground leading-tight">{currentQuote.text}</p>
           </div>
-          <Sparkles className="w-5 h-5 text-success-foreground animate-pulse" />
+          <Sparkles className="w-[clamp(1rem,2vw,1.25rem)] h-[clamp(1rem,2vw,1.25rem)] text-success-foreground animate-pulse" />
         </div>
         
         {/* Days Without Smoking */}
-        <div className="text-center bg-success/20 rounded-lg p-4">
-          <h2 className="text-lg font-medium text-muted-foreground mb-2">
+        <div className="text-center bg-success/20 rounded-lg p-[clamp(0.5rem,1vw,1rem)]">
+          <h2 className="text-[clamp(0.875rem,1.5vw,1.125rem)] font-medium text-muted-foreground mb-[clamp(0.25rem,0.5vw,0.5rem)]">
             {t('dashboard.daysWithoutSmoking')}
           </h2>
-          <p className="text-5xl font-bold text-success">{daysWithoutSmoking}</p>
+          <p className="text-[clamp(2rem,5vw,3rem)] font-bold text-success">{daysWithoutSmoking}</p>
         </div>
 
         {/* Lifehack of the Day */}
         {currentTip && currentTip.description && (
-          <div className="bg-success/20 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-success mb-2">
+          <div className="bg-success/20 rounded-lg p-[clamp(0.5rem,1vw,1rem)]">
+            <h3 className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-semibold text-success mb-[clamp(0.25rem,0.5vw,0.5rem)]">
               {t('lifehacks.dailyTipTitle')}
             </h3>
-            <p className="text-sm text-muted-foreground leading-tight">
+            <p className="text-[clamp(0.7rem,1.2vw,0.875rem)] text-muted-foreground leading-tight">
               {currentTip.description}
             </p>
           </div>

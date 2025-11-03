@@ -308,18 +308,18 @@ export default function Dashboard() {
   const lifeExtension = getLifeExtension();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <div className="container max-w-6xl mx-auto">
-        <header className="flex flex-row justify-between items-center gap-4 mb-8">
-          <h1 className="text-3xl font-bold">{t('nav.dashboard')}</h1>
-          <div className="flex items-center gap-2 flex-wrap">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-[clamp(0.5rem,2vw,1rem)]">
+      <div className="container max-w-6xl mx-auto scale-[clamp(0.45,1.5vw+0.5,1)] origin-top">
+        <header className="flex flex-row justify-between items-center gap-[clamp(0.5rem,1vw,1rem)] mb-[clamp(1rem,2vw,2rem)]">
+          <h1 className="text-[clamp(1.2rem,3vw,1.875rem)] font-bold whitespace-nowrap">{t('nav.dashboard')}</h1>
+          <div className="flex items-center gap-[clamp(0.25rem,0.5vw,0.5rem)] flex-wrap">
             <LanguageSwitcher />
             <NotificationBell />
-            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
-              <User className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} className="h-[clamp(2rem,4vw,2.5rem)] w-[clamp(2rem,4vw,2.5rem)]">
+              <User className="h-[clamp(1rem,2vw,1.25rem)] w-[clamp(1rem,2vw,1.25rem)]" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-[clamp(0.75rem,1.5vw,0.875rem)]">
+              <LogOut className="h-[clamp(0.75rem,1.5vw,1rem)] w-[clamp(0.75rem,1.5vw,1rem)] mr-[clamp(0.25rem,0.5vw,0.5rem)]" />
               <span>{t('nav.signOut')}</span>
             </Button>
           </div>
@@ -328,13 +328,13 @@ export default function Dashboard() {
         <MotivationalBanner daysWithoutSmoking={daysWithoutSmoking} />
 
         {/* Quick Log Input */}
-        <Card className="mb-6">
-          <CardContent className="pt-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="todayCigarettes" className="text-base font-medium">
+        <Card className="mb-[clamp(0.75rem,1.5vw,1.5rem)]">
+          <CardContent className="pt-[clamp(0.5rem,1vw,1rem)]">
+            <div className="flex flex-col gap-[clamp(0.5rem,0.75vw,0.75rem)]">
+              <Label htmlFor="todayCigarettes" className="text-[clamp(0.875rem,1.5vw,1rem)] font-medium">
                 {t('dashboard.todaySmoked')}
               </Label>
-              <div className="flex gap-2">
+              <div className="flex gap-[clamp(0.25rem,0.5vw,0.5rem)]">
                 <Input
                   id="todayCigarettes"
                   type="number"
@@ -342,23 +342,23 @@ export default function Dashboard() {
                   placeholder="0"
                   value={todayCigarettes}
                   onChange={(e) => setTodayCigarettes(e.target.value)}
-                  className="flex-1 text-base"
+                  className="flex-1 text-[clamp(0.875rem,1.5vw,1rem)]"
                 />
                 <Button 
                   onClick={handleQuickSave} 
                   disabled={isSaving || todayCigarettes === ""}
                   size="default"
-                  className="whitespace-nowrap text-base px-4"
+                  className="whitespace-nowrap text-[clamp(0.875rem,1.5vw,1rem)] px-[clamp(0.5rem,1vw,1rem)]"
                 >
                   {isSaving ? "..." : t('dashboard.saveTodayLog')}
                 </Button>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-[clamp(0.25rem,0.5vw,0.5rem)] flex-wrap">
                 <Button 
                   onClick={() => setTodayCigarettes("0")} 
                   variant="outline"
                   size="sm"
-                  className="flex-1 min-w-[80px] text-sm"
+                  className="flex-1 min-w-[clamp(3rem,10vw,5rem)] text-[clamp(0.75rem,1.2vw,0.875rem)]"
                 >
                   0️⃣ {t('dashboard.noSmoking')}
                 </Button>
@@ -366,7 +366,7 @@ export default function Dashboard() {
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 1).toString())} 
                   variant="outline"
                   size="sm"
-                  className="flex-1 min-w-[60px] text-sm"
+                  className="flex-1 min-w-[clamp(2.5rem,8vw,3.75rem)] text-[clamp(0.75rem,1.2vw,0.875rem)]"
                 >
                   +1
                 </Button>
@@ -374,7 +374,7 @@ export default function Dashboard() {
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 5).toString())} 
                   variant="outline"
                   size="sm"
-                  className="flex-1 min-w-[60px] text-sm"
+                  className="flex-1 min-w-[clamp(2.5rem,8vw,3.75rem)] text-[clamp(0.75rem,1.2vw,0.875rem)]"
                 >
                   +5
                 </Button>
@@ -385,9 +385,9 @@ export default function Dashboard() {
 
         {/* No Data Indicator */}
         {dailyLogs.length === 0 && (
-          <Card className="mb-6 border-amber-500/50 bg-amber-500/5">
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">
+          <Card className="mb-[clamp(0.75rem,1.5vw,1.5rem)] border-amber-500/50 bg-amber-500/5">
+            <CardContent className="pt-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <p className="text-center text-muted-foreground text-[clamp(0.875rem,1.5vw,1rem)]">
                 📝 {t('dashboard.noDataYet')}
               </p>
             </CardContent>
@@ -396,80 +396,80 @@ export default function Dashboard() {
 
 
         {/* Statistics Grid - 4 Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-4 gap-[clamp(0.5rem,1vw,1rem)] mb-[clamp(1rem,2vw,2rem)]">
           {/* Total Smoked */}
-          <Card className="min-h-[120px]">
-            <CardHeader className="pb-1 p-6">
-              <CardTitle className="text-sm font-medium text-muted-foreground leading-tight">
+          <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+            <CardHeader className="pb-[clamp(0.125rem,0.25vw,0.25rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground leading-tight">
                 {t('dashboard.totalSmoked')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{getTotalSmoked()}</p>
-                <TrendingDown className="h-8 w-8 text-destructive opacity-50" />
+                <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold">{getTotalSmoked()}</p>
+                <TrendingDown className="h-[clamp(1.5rem,3vw,2rem)] w-[clamp(1.5rem,3vw,2rem)] text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Life Extension */}
-          <Card className="min-h-[120px]">
-            <CardHeader className="pb-1 p-6">
-              <CardTitle className="text-sm font-medium text-muted-foreground leading-tight">
+          <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+            <CardHeader className="pb-[clamp(0.125rem,0.25vw,0.25rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground leading-tight">
                 {t('dashboard.lifeExtended')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
               <div className="flex flex-col">
                 {lifeExtension.cigarettesAvoided > 0 ? (
                   <>
-                    <p className="text-2xl font-bold text-success leading-tight">
+                    <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold text-success leading-tight">
                       {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained}${t('dashboard.hours')} ` : ''}{lifeExtension.remainingMinutes}{t('dashboard.minutes')}
                     </p>
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
+                  <p className="text-[clamp(0.7rem,1.2vw,0.875rem)] text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
           {/* Money Spent */}
-          <Card className="min-h-[120px]">
-            <CardHeader className="pb-1 p-6">
-              <CardTitle className="text-sm font-medium text-muted-foreground leading-tight">
+          <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+            <CardHeader className="pb-[clamp(0.125rem,0.25vw,0.25rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground leading-tight">
                 {t('dashboard.moneySpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-2xl font-bold leading-tight">${getMoneySpent().toLocaleString()}</p>
-                  <p className="text-xs text-success mt-1">
+                  <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold leading-tight">${getMoneySpent().toLocaleString()}</p>
+                  <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-success mt-[clamp(0.125rem,0.25vw,0.25rem)]">
                     {t("dashboard.saved")}: ${moneySaved.toLocaleString()}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-destructive opacity-50" />
+                <DollarSign className="h-[clamp(1.5rem,3vw,2rem)] w-[clamp(1.5rem,3vw,2rem)] text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Time Spent */}
-          <Card className="min-h-[120px]">
-            <CardHeader className="pb-1 p-6">
-              <CardTitle className="text-sm font-medium text-muted-foreground leading-tight">
+          <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+            <CardHeader className="pb-[clamp(0.125rem,0.25vw,0.25rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground leading-tight">
                 {t('dashboard.timeSpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-2xl font-bold leading-tight">{getTimeSpent()} {t('dashboard.minutes')}</p>
-                  <p className="text-xs text-success mt-1">
+                  <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold leading-tight">{getTimeSpent()} {t('dashboard.minutes')}</p>
+                  <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-success mt-[clamp(0.125rem,0.25vw,0.25rem)]">
                     {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes')}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-destructive opacity-50" />
+                <Clock className="h-[clamp(1.5rem,3vw,2rem)] w-[clamp(1.5rem,3vw,2rem)] text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
@@ -572,23 +572,23 @@ export default function Dashboard() {
         </div>
 
         {/* Health Recovery Section - All in one row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 gap-[clamp(0.5rem,1vw,1rem)] mb-[clamp(1rem,2vw,2rem)]">
           <LungRecovery daysSmokeFree={daysWithoutSmoking} />
           <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
-          <Card className="min-h-[120px]">
-            <CardHeader className="pb-2 p-6">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+          <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+            <CardHeader className="pb-[clamp(0.25rem,0.5vw,0.5rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+              <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground">
                 {t('dashboard.healthRecovery')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-2xl font-bold text-success mb-1">
+                  <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold text-success mb-[clamp(0.125rem,0.25vw,0.25rem)]">
                     {Math.min(100, daysWithoutSmoking * 2)}%
                   </p>
-                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-1.5 mb-1" />
-                  <p className="text-[10px] text-muted-foreground leading-tight">
+                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-[clamp(0.25rem,0.5vw,0.375rem)] mb-[clamp(0.125rem,0.25vw,0.25rem)]" />
+                  <p className="text-[clamp(0.5rem,1vw,0.625rem)] text-muted-foreground leading-tight">
                     {t('dashboard.recoveryMessage')}
                   </p>
                 </div>

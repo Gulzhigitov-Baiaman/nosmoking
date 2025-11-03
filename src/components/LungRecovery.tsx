@@ -58,25 +58,25 @@ export const LungRecovery = ({
   const cigaretteButtsCount = Math.max(0, Math.round(10 * (1 - recoveryPercent / 100)));
 
   return (
-    <Card className="min-h-[120px]">
-      <CardHeader className="pb-2 p-6">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-          <Wind className="w-4 h-4 text-primary" />
+    <Card className="min-h-[clamp(5rem,12vw,7.5rem)]">
+      <CardHeader className="pb-[clamp(0.25rem,0.5vw,0.5rem)] p-[clamp(0.75rem,1.5vw,1.5rem)]">
+        <CardTitle className="text-[clamp(0.7rem,1.2vw,0.875rem)] font-medium text-muted-foreground flex items-center gap-[clamp(0.25rem,0.5vw,0.375rem)]">
+          <Wind className="w-[clamp(0.75rem,1.5vw,1rem)] h-[clamp(0.75rem,1.5vw,1rem)] text-primary" />
           {t('health.lungs')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6 pt-0">
+      <CardContent className="p-[clamp(0.75rem,1.5vw,1.5rem)] pt-0">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-2xl font-bold text-success mb-1">
+            <p className="text-[clamp(1.2rem,2.5vw,1.5rem)] font-bold text-success mb-[clamp(0.125rem,0.25vw,0.25rem)]">
               {Math.round(animationProgress)}%
             </p>
-            <Progress value={animationProgress} className="h-1.5 mb-1" />
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <Progress value={animationProgress} className="h-[clamp(0.25rem,0.5vw,0.375rem)] mb-[clamp(0.125rem,0.25vw,0.25rem)]" />
+            <p className="text-[clamp(0.5rem,1vw,0.625rem)] text-muted-foreground leading-tight">
               {lungState.text}
             </p>
           </div>
-          <div className="ml-3 relative w-16 h-16 flex-shrink-0">
+          <div className="ml-[clamp(0.5rem,1vw,0.75rem)] relative w-[clamp(3rem,6vw,4rem)] h-[clamp(3rem,6vw,4rem)] flex-shrink-0">
             {/* Compact Clean Lungs SVG */}
             <svg 
               viewBox="0 0 300 350" 
