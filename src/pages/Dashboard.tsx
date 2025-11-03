@@ -396,178 +396,178 @@ export default function Dashboard() {
 
 
         {/* Statistics Grid - 4 Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
           {/* Total Smoked */}
-          <Card className="min-h-[100px] sm:min-h-[120px]">
-            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">
-                {t('dashboard.totalSmoked') || 'Всего выкурено'}
+          <Card className="min-h-[80px] sm:min-h-[120px]">
+            <CardHeader className="pb-1 p-2 sm:p-6">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground leading-tight">
+                {t('dashboard.totalSmoked')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6 pt-0">
+            <CardContent className="p-2 sm:p-6 pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-xl sm:text-2xl font-bold">{getTotalSmoked()}</p>
-                <TrendingDown className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <p className="text-base sm:text-2xl font-bold">{getTotalSmoked()}</p>
+                <TrendingDown className="h-4 w-4 sm:h-8 sm:w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Life Extension */}
-          <Card className="min-h-[100px] sm:min-h-[120px]">
-            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">
-                {t('dashboard.lifeExtended') || 'Вы продлили жизнь'}
+          <Card className="min-h-[80px] sm:min-h-[120px]">
+            <CardHeader className="pb-1 p-2 sm:p-6">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground leading-tight">
+                {t('dashboard.lifeExtended')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6 pt-0">
+            <CardContent className="p-2 sm:p-6 pt-0">
               <div className="flex flex-col">
                 {lifeExtension.cigarettesAvoided > 0 ? (
                   <>
-                    <p className="text-lg sm:text-2xl font-bold text-success leading-tight">
-                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained} ${t('dashboard.hours') || 'ч'} ` : ''}{lifeExtension.remainingMinutes} {t('dashboard.minutes') || 'мин'}
+                    <p className="text-sm sm:text-2xl font-bold text-success leading-tight">
+                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained}${t('dashboard.hours')} ` : ''}{lifeExtension.remainingMinutes}{t('dashboard.minutes')}
                     </p>
                   </>
                 ) : (
-                  <p className="text-xs sm:text-sm text-muted-foreground">{t('dashboard.dataAfterLog') || 'Данные появятся после записи'}</p>
+                  <p className="text-[9px] sm:text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
           {/* Money Spent */}
-          <Card className="min-h-[100px] sm:min-h-[120px]">
-            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">
-                {t('dashboard.moneySpent') || 'Потрачено денег'}
+          <Card className="min-h-[80px] sm:min-h-[120px]">
+            <CardHeader className="pb-1 p-2 sm:p-6">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground leading-tight">
+                {t('dashboard.moneySpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6 pt-0">
+            <CardContent className="p-2 sm:p-6 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-lg sm:text-2xl font-bold leading-tight">${getMoneySpent().toLocaleString()}</p>
-                  <p className="text-[10px] sm:text-xs text-success mt-1">
+                  <p className="text-base sm:text-2xl font-bold leading-tight">${getMoneySpent().toLocaleString()}</p>
+                  <p className="text-[8px] sm:text-xs text-success mt-1">
                     {t("dashboard.saved")}: ${moneySaved.toLocaleString()}
                   </p>
                 </div>
-                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <DollarSign className="h-4 w-4 sm:h-8 sm:w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Time Spent */}
-          <Card className="min-h-[100px] sm:min-h-[120px]">
-            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">
-                {t('dashboard.timeSpent') || 'Потрачено времени'}
+          <Card className="min-h-[80px] sm:min-h-[120px]">
+            <CardHeader className="pb-1 p-2 sm:p-6">
+              <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground leading-tight">
+                {t('dashboard.timeSpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-3 sm:p-6 pt-0">
+            <CardContent className="p-2 sm:p-6 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-lg sm:text-2xl font-bold leading-tight">{getTimeSpent()} {t('dashboard.minutes') || 'мин'}</p>
-                  <p className="text-[10px] sm:text-xs text-success mt-1">
-                    {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes') || 'мин'}
+                  <p className="text-base sm:text-2xl font-bold leading-tight">{getTimeSpent()} {t('dashboard.minutes')}</p>
+                  <p className="text-[8px] sm:text-xs text-success mt-1">
+                    {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes')}
                   </p>
                 </div>
-                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <Clock className="h-4 w-4 sm:h-8 sm:w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-6 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <Button
             onClick={() => navigate("/calendar")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30 p-1 sm:p-2"
           >
-            <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span className="font-semibold text-xs sm:text-sm leading-tight text-center">{t('dashboard.calendar') || 'Календарь'}</span>
+            <Calendar className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+            <span className="font-semibold text-[9px] sm:text-sm leading-tight text-center">{t('dashboard.calendar')}</span>
           </Button>
           <Button
             onClick={() => navigate("/chat")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('dashboard.generalChat')}</span>
+            <MessageSquare className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('dashboard.generalChat')}</span>
           </Button>
           <Button
             onClick={() => navigate("/progress")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('dashboard.reductionPlan')}</span>
+            <TrendingDown className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('dashboard.reductionPlan')}</span>
           </Button>
           <Button
             onClick={() => navigate("/challenges")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('nav.challenges')}</span>
+            <Trophy className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('nav.challenges')}</span>
           </Button>
           <Button
             onClick={() => navigate("/friends")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <User className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('nav.friends')}</span>
+            <User className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('nav.friends')}</span>
           </Button>
           <Button
             onClick={() => navigate("/support")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <HeadphonesIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('nav.support')}</span>
+            <HeadphonesIcon className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('nav.support')}</span>
           </Button>
         </div>
 
         {/* New Premium Features */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <Button
             onClick={() => navigate("/achievements")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('achievements.title') || 'Достижения'}</span>
+            <Trophy className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('achievements.title')}</span>
           </Button>
           <Button
             onClick={() => navigate("/tips")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('nav.tips')}</span>
+            <Lightbulb className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('nav.tips')}</span>
           </Button>
           <Button
             onClick={() => navigate("/exercises")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 p-1 sm:p-2"
           >
-            <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('exercises.title') || 'Упражнения'}</span>
+            <Dumbbell className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('exercises.title')}</span>
           </Button>
           <Button
             onClick={() => navigate("/ai-plan")}
             variant="outline"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30 p-1 sm:p-2"
           >
-            <span className="text-xl sm:text-2xl">🤖</span>
-            <span className="text-xs sm:text-sm leading-tight text-center">{t('dashboard.aiPlan') || 'AI План'}</span>
+            <span className="text-lg sm:text-2xl">🤖</span>
+            <span className="text-[9px] sm:text-sm leading-tight text-center">{t('dashboard.aiPlan')}</span>
           </Button>
           <Button
             onClick={() => navigate("/premium")}
             variant="default"
-            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-500 hover:via-amber-600 hover:to-yellow-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 p-2"
+            className="h-14 sm:h-20 flex flex-col gap-0.5 sm:gap-2 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-500 hover:via-amber-600 hover:to-yellow-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 p-1 sm:p-2"
           >
-            <Crown className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-md animate-pulse" />
-            <span className="text-white font-bold text-xs sm:text-sm drop-shadow-sm leading-tight text-center">{t('nav.premium')}</span>
+            <Crown className="h-5 w-5 sm:h-7 sm:w-7 text-white drop-shadow-md animate-pulse" />
+            <span className="text-white font-bold text-[9px] sm:text-sm drop-shadow-sm leading-tight text-center">{t('nav.premium')}</span>
           </Button>
         </div>
 
