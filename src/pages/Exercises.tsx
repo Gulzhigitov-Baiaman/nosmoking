@@ -182,7 +182,7 @@ const getCategoryLabel = (category: string) => {
           </TabsList>
         </Tabs>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-2">
           {filteredExercises.map((exercise) => {
             const isActive = activeExercise === exercise.id;
             const progress = isActive && exercise.duration > 0
