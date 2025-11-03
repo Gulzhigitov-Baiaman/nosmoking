@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/usePremium";
 import { useSubscription } from "@/hooks/useSubscription";
 
-const STRIPE_PRICE_ID = "price_1SIT3YLJqhOyuCVBc6bCV5Vo"; // Recurring monthly subscription
+const STRIPE_PRICE_ID = "price_1SPLfSLJqhOyuCVB1DlAEe2b"; // $1/month subscription for testing
 
 const Premium = () => {
   const { user } = useAuth();
@@ -214,7 +214,7 @@ const Premium = () => {
             
             <div className="mb-6">
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold">₩9,990</span>
+                <span className="text-4xl font-bold">$1</span>
                 <span className="text-muted-foreground">/ {t('premium.perMonth')}</span>
               </div>
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
