@@ -104,7 +104,7 @@ export const MotivationalBanner = ({
         </div>
 
         {/* Lifehack of the Day */}
-        {currentTip && (
+        {currentTip && currentTip.description && (
           <div className="bg-success/20 rounded-lg p-4">
             <h3 className="text-sm font-semibold text-success mb-2">
               {t('lifehacks.dailyTip')}

@@ -37,8 +37,14 @@ const Tips = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTab, setSelectedTab] = useState<string>("tips");
-  const [likedTips, setLikedTips] = useState<Set<string>>(new Set());
-  const [likedLifehacks, setLikedLifehacks] = useState<Set<string>>(new Set());
+  const [likedTips, setLikedTips] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('likedTips');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+  const [likedLifehacks, setLikedLifehacks] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('likedLifehacks');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   const categories = [
     { value: "all", label: "Все", icon: "📚" },
@@ -133,7 +139,9 @@ const Tips = () => {
       setTips(tips.map(t => 
         t.id === tipId ? { ...t, likes: newLikes } : t
       ));
-      setLikedTips(new Set([...likedTips, tipId]));
+      const newLikedTips = new Set([...likedTips, tipId]);
+      setLikedTips(newLikedTips);
+      localStorage.setItem('likedTips', JSON.stringify([...newLikedTips]));
       toast({
         title: "Спасибо!",
         description: "Ваша оценка учтена",
@@ -165,7 +173,9 @@ const Tips = () => {
       setLifehacks(lifehacks.map(l => 
         l.id === lifehackId ? { ...l, likes: l.likes + 1 } : l
       ));
-      setLikedLifehacks(new Set([...likedLifehacks, lifehackId]));
+      const newLikedLifehacks = new Set([...likedLifehacks, lifehackId]);
+      setLikedLifehacks(newLikedLifehacks);
+      localStorage.setItem('likedLifehacks', JSON.stringify([...newLikedLifehacks]));
       toast({
         title: "Спасибо!",
         description: "Ваша оценка учтена",

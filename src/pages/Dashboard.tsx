@@ -239,12 +239,12 @@ export default function Dashboard() {
     
     // Show warning if limit exceeded, but still save
     if (cigarettes > dailyLimit && smokingPlan) {
-      toast({
-        title: t('dashboard.limitExceeded') || "⚠️ Лимит на сегодня превышен",
-        description: t('dashboard.limitExceededDesc', { limit: dailyLimit, entered: cigarettes }) || `Ваш лимит сегодня: ${dailyLimit} сигарет. Вы вводите ${cigarettes}.`,
-        variant: "destructive",
-        duration: 5000,
-      });
+        toast({
+          title: t('dashboard.limitExceeded') || "⚠️ Лимит на сегодня превышен",
+          description: t('dashboard.limitExceededDesc', { limit: dailyLimit, entered: cigarettes }) || `Ваш лимит сегодня: ${dailyLimit} сигарет. Вы вводите ${cigarettes}.`,
+          variant: "destructive",
+          duration: 5000,
+        });
     }
     
     setIsSaving(true);
@@ -440,9 +440,9 @@ export default function Dashboard() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-2xl font-bold">₩{getMoneySpent().toLocaleString()}</p>
+                  <p className="text-2xl font-bold">${getMoneySpent().toLocaleString()}</p>
                   <p className="text-xs text-success mt-1">
-                    {t("dashboard.saved")}: ₩{moneySaved.toLocaleString()}
+                    {t("dashboard.saved")}: ${moneySaved.toLocaleString()}
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-destructive opacity-50" />

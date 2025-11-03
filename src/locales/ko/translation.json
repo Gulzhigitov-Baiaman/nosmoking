@@ -47,7 +47,7 @@
   "premium": {
     "title": "프리미엄 구독",
     "subtitle": "모든 기능에 대한 전체 액세스 권한 얻기",
-    "price": "₩9,990",
+    "price": "$1",
     "perMonth": "월",
     "trial": "3일 무료",
     "free": "무료",
@@ -358,5 +358,28 @@
     "error": "오류",
     "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다",
     "passwordsMismatch": "비밀번호가 일치하지 않습니다"
+  },
+  "common": {
+    "back": "뒤로",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "save": "저장",
+    "saving": "저장 중...",
+    "saved": "저장 완료!",
+    "cancel": "취소",
+    "confirm": "확인",
+    "delete": "삭제",
+    "edit": "편집",
+    "close": "닫기"
+  },
+  "toast": {
+    "errorLoading": "데이터 로딩 오류",
+    "errorSaving": "데이터 저장 오류. 다시 시도해주세요.",
+    "successSaving": "데이터 저장 완료!",
+    "planGenerated": "계획이 성공적으로 생성되었습니다!",
+    "authError": "인증 오류",
+    "subscriptionError": "구독 오류",
+    "validationError": "유효성 검사 오류"
   }
 }

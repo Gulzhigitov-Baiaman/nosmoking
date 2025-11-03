@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PremiumGuard } from "@/components/PremiumGuard";
+import { useTranslation } from "react-i18next";
 
 interface Profile {
   cigarettes_per_day: number;
@@ -25,6 +26,7 @@ export default function AIPlan() {
 function AIPlanContent() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [plan, setPlan] = useState<string>("");
@@ -72,7 +74,7 @@ function AIPlanContent() {
       if (error) throw error;
 
       setPlan(data.plan);
-      toast.success("План успешно сгенерирован!");
+      toast.success(t('toast.planGenerated'));
     } catch (error: any) {
       console.error("Error generating plan:", error);
       toast.error(error.message || "Не удалось сгенерировать план");
@@ -90,7 +92,7 @@ function AIPlanContent() {
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t('common.back')}
         </Button>
 
         <div className="flex items-center gap-3 mb-6">

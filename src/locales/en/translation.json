@@ -47,7 +47,7 @@
   "premium": {
     "title": "Premium Subscription",
     "subtitle": "Get full access to all features",
-    "price": "₩9,990",
+    "price": "$1",
     "perMonth": "per month",
     "trial": "3 days free",
     "free": "Free",
@@ -358,5 +358,28 @@
     "error": "Error",
     "passwordTooShort": "Password must be at least 8 characters",
     "passwordsMismatch": "Passwords don't match"
+  },
+  "common": {
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "toast": {
+    "errorLoading": "Error loading data",
+    "errorSaving": "Error saving data. Please try again.",
+    "successSaving": "Data saved!",
+    "planGenerated": "Plan successfully generated!",
+    "authError": "Authentication error",
+    "subscriptionError": "Subscription error",
+    "validationError": "Validation error"
   }
 }

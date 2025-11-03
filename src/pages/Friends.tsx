@@ -412,7 +412,7 @@ function FriendsContent() {
                           <Button size="sm" variant="outline" onClick={() => navigate(`/profile/${friend.friend_id}`)}>
                             {t('friends.profileButton')}
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => navigate(`/private-chat/${friend.friend_id}`)} disabled={!isPremium}>
+                          <Button size="sm" variant="outline" onClick={() => navigate(`/chat/${friend.friend_id}`)} disabled={!isPremium}>
                             {isPremium ? t('friends.chatButton') : <Lock className="h-4 w-4" />}
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => removeFriend(friend.id)}>
