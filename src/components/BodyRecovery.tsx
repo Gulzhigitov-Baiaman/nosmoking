@@ -50,28 +50,28 @@ export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
   const bodyState = getBodyState();
 
   return (
-    <Card className="min-h-[120px]">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-          <Heart className="w-4 h-4 text-destructive" />
+    <Card className="min-h-[100px] sm:min-h-[120px]">
+      <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+          <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-destructive" />
           {t('health.body')}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6 pt-0">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p 
-              className="text-2xl font-bold mb-1"
+              className="text-xl sm:text-2xl font-bold mb-1"
               style={{ color: bodyState.healthColor, transition: 'color 0.8s ease-in-out' }}
             >
               {Math.round(animationProgress)}%
             </p>
             <Progress value={animationProgress} className="h-1.5 mb-1" />
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight">
               {bodyState.text}
             </p>
           </div>
-          <div className="ml-3 relative w-12 h-16 flex-shrink-0">
+          <div className="ml-2 sm:ml-3 relative w-9 h-12 sm:w-12 sm:h-16 flex-shrink-0">
             {/* Compact Human silhouette */}
             <svg 
               viewBox="0 0 200 400" 

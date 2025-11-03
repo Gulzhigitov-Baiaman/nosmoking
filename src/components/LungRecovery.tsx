@@ -58,25 +58,25 @@ export const LungRecovery = ({
   const cigaretteButtsCount = Math.max(0, Math.round(10 * (1 - recoveryPercent / 100)));
 
   return (
-    <Card className="min-h-[120px]">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-          <Wind className="w-4 h-4 text-primary" />
+    <Card className="min-h-[100px] sm:min-h-[120px]">
+      <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+          <Wind className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
           {t('health.lungs')}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6 pt-0">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-2xl font-bold text-success mb-1">
+            <p className="text-xl sm:text-2xl font-bold text-success mb-1">
               {Math.round(animationProgress)}%
             </p>
             <Progress value={animationProgress} className="h-1.5 mb-1" />
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight">
               {lungState.text}
             </p>
           </div>
-          <div className="ml-3 relative w-16 h-16 flex-shrink-0">
+          <div className="ml-2 sm:ml-3 relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
             {/* Compact Clean Lungs SVG */}
             <svg 
               viewBox="0 0 300 350" 
