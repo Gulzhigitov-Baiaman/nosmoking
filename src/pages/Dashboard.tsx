@@ -308,11 +308,12 @@ export default function Dashboard() {
   const lifeExtension = getLifeExtension();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4">
-      <div className="container max-w-6xl mx-auto">
-        <header className="flex flex-row justify-between items-center gap-2 mb-4">
-          <h1 className="text-xl sm:text-2xl font-bold whitespace-nowrap">{t('nav.dashboard')}</h1>
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overflow-x-hidden">
+      <div className="dashboard-scale-wrapper">
+        <div className="container max-w-6xl mx-auto p-6">
+        <header className="flex flex-row justify-between items-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold whitespace-nowrap">{t('nav.dashboard')}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
             <LanguageSwitcher />
             <NotificationBell />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
@@ -328,9 +329,9 @@ export default function Dashboard() {
         <MotivationalBanner daysWithoutSmoking={daysWithoutSmoking} />
 
         {/* Quick Log Input */}
-        <Card className="mb-4">
-          <CardContent className="pt-4">
-            <div className="flex flex-col gap-3">
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4">
               <Label htmlFor="todayCigarettes" className="text-base font-medium">
                 {t('dashboard.todaySmoked')}
               </Label>
@@ -353,28 +354,28 @@ export default function Dashboard() {
                   {isSaving ? "..." : t('dashboard.saveTodayLog')}
                 </Button>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2">
                 <Button 
                   onClick={() => setTodayCigarettes("0")} 
                   variant="outline"
-                  size="sm"
-                  className="flex-1 min-w-[80px]"
+                  size="default"
+                  className="flex-1"
                 >
                   0️⃣ {t('dashboard.noSmoking')}
                 </Button>
                 <Button 
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 1).toString())} 
                   variant="outline"
-                  size="sm"
-                  className="flex-1 min-w-[60px]"
+                  size="default"
+                  className="flex-1"
                 >
                   +1
                 </Button>
                 <Button 
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 5).toString())} 
                   variant="outline"
-                  size="sm"
-                  className="flex-1 min-w-[60px]"
+                  size="default"
+                  className="flex-1"
                 >
                   +5
                 </Button>
@@ -385,9 +386,9 @@ export default function Dashboard() {
 
         {/* No Data Indicator */}
         {dailyLogs.length === 0 && (
-          <Card className="mb-4 border-amber-500/50 bg-amber-500/5">
-            <CardContent className="pt-4">
-              <p className="text-center text-muted-foreground text-sm sm:text-base">
+          <Card className="mb-6 border-amber-500/50 bg-amber-500/5">
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground text-base">
                 📝 {t('dashboard.noDataYet')}
               </p>
             </CardContent>
@@ -396,39 +397,39 @@ export default function Dashboard() {
 
 
         {/* Statistics Grid - 4 Cards */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-8">
           {/* Total Smoked */}
           <Card>
-            <CardHeader className="pb-1 p-4">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('dashboard.totalSmoked')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-5 pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-xl sm:text-2xl font-bold">{getTotalSmoked()}</p>
-                <TrendingDown className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <p className="text-3xl font-bold">{getTotalSmoked()}</p>
+                <TrendingDown className="h-8 w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Life Extension */}
           <Card>
-            <CardHeader className="pb-1 p-4">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('dashboard.lifeExtended')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-5 pt-0">
               <div className="flex flex-col">
                 {lifeExtension.cigarettesAvoided > 0 ? (
                   <>
-                    <p className="text-xl sm:text-2xl font-bold text-success">
+                    <p className="text-3xl font-bold text-success">
                       {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained}${t('dashboard.hours')} ` : ''}{lifeExtension.remainingMinutes}{t('dashboard.minutes')}
                     </p>
                   </>
                 ) : (
-                  <p className="text-xs sm:text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
                 )}
               </div>
             </CardContent>
@@ -436,40 +437,40 @@ export default function Dashboard() {
 
           {/* Money Spent */}
           <Card>
-            <CardHeader className="pb-1 p-4">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('dashboard.moneySpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-5 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-xl sm:text-2xl font-bold">${getMoneySpent().toLocaleString()}</p>
-                  <p className="text-[10px] sm:text-xs text-success mt-0.5">
+                  <p className="text-3xl font-bold">${getMoneySpent().toLocaleString()}</p>
+                  <p className="text-xs text-success mt-1">
                     {t("dashboard.saved")}: ${moneySaved.toLocaleString()}
                   </p>
                 </div>
-                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <DollarSign className="h-8 w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Time Spent */}
           <Card>
-            <CardHeader className="pb-1 p-4">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('dashboard.timeSpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-5 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-xl sm:text-2xl font-bold">{getTimeSpent()} {t('dashboard.minutes')}</p>
-                  <p className="text-[10px] sm:text-xs text-success mt-0.5">
+                  <p className="text-3xl font-bold">{getTimeSpent()} {t('dashboard.minutes')}</p>
+                  <p className="text-xs text-success mt-1">
                     {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes')}
                   </p>
                 </div>
-                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
+                <Clock className="h-8 w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
@@ -572,23 +573,23 @@ export default function Dashboard() {
         </div>
 
         {/* Health Recovery Section - All in one row */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-8">
           <LungRecovery daysSmokeFree={daysWithoutSmoking} />
           <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
           <Card>
-            <CardHeader className="pb-2 p-4">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-5">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {t('dashboard.healthRecovery')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-5 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-xl sm:text-2xl font-bold text-success mb-1">
+                  <p className="text-3xl font-bold text-success mb-2">
                     {Math.min(100, daysWithoutSmoking * 2)}%
                   </p>
-                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-1.5 mb-1" />
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-2 mb-2" />
+                  <p className="text-xs text-muted-foreground">
                     {t('dashboard.recoveryMessage')}
                   </p>
                 </div>
@@ -596,6 +597,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );

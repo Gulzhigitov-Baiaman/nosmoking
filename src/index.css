@@ -256,3 +256,23 @@ All colors MUST be HSL.
     animation: fadeIn 0.8s ease-in;
   }
 }
+
+/* Dashboard mobile scaling - proportional scaling for all devices */
+.dashboard-scale-wrapper {
+  width: 100%;
+  transform-origin: top center;
+}
+
+@media (max-width: 767px) {
+  .dashboard-scale-wrapper {
+    width: 1200px;
+    transform: scale(calc(100vw / 1200));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .dashboard-scale-wrapper {
+    width: 1200px;
+    transform: scale(calc(100vw / 1200));
+  }
+}

@@ -51,27 +51,27 @@ export const BodyRecovery = ({ daysSmokeFree }: BodyRecoveryProps) => {
 
   return (
     <Card>
-      <CardHeader className="pb-2 p-4">
-        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-          <Heart className="w-4 h-4 text-destructive" />
+      <CardHeader className="pb-2 p-5">
+        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          <Heart className="w-5 h-5 text-destructive" />
           {t('health.body')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pt-0">
+      <CardContent className="p-5 pt-0">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p 
-              className="text-xl sm:text-2xl font-bold mb-1"
+              className="text-3xl font-bold mb-2"
               style={{ color: bodyState.healthColor, transition: 'color 0.8s ease-in-out' }}
             >
               {Math.round(animationProgress)}%
             </p>
-            <Progress value={animationProgress} className="h-1.5 mb-1" />
-            <p className="text-[10px] sm:text-xs text-muted-foreground">
+            <Progress value={animationProgress} className="h-2 mb-2" />
+            <p className="text-xs text-muted-foreground">
               {bodyState.text}
             </p>
           </div>
-          <div className="ml-3 relative w-10 h-12 sm:w-12 sm:h-16 flex-shrink-0">
+          <div className="ml-4 relative w-12 h-16 flex-shrink-0">
             {/* Compact Human silhouette */}
             <svg 
               viewBox="0 0 200 400" 
