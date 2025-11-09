@@ -93,7 +93,7 @@ export default function Dashboard() {
       .from("daily_logs")
       .select("*")
       .eq("user_id", user.id)
-      .gte("date", quitDate) // Загружаем только с quit_date
+      .gte("date", quitDate)
       .order("date", { ascending: false });
 
     if (data) {
@@ -149,7 +149,6 @@ export default function Dashboard() {
 
   const getDaysWithoutSmoking = () => {
     if (!dailyLogs || dailyLogs.length === 0) return 0;
-    // Считаем только дни с cigarettes_smoked = 0
     return dailyLogs.filter(log => log.cigarettes_smoked === 0).length;
   };
 
@@ -160,10 +159,7 @@ export default function Dashboard() {
     const today = new Date();
     const daysSinceQuit = Math.floor((today.getTime() - quitDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    // Целевое количество = среднее до начала плана × дни
     const targetCigarettes = (profile.cigarettes_per_day || 0) * daysSinceQuit;
-    
-    // Фактически выкурено = сумма из daily_logs
     const actualSmoked = dailyLogs.reduce((sum, log) => sum + (log.cigarettes_smoked || 0), 0);
     
     return Math.max(0, targetCigarettes - actualSmoked);
@@ -199,10 +195,8 @@ export default function Dashboard() {
     const todayLog = dailyLogs.find((l) => l.date === today);
     const todaySmoked = todayLog?.cigarettes_smoked || 0;
     
-    // Берём базовое количество из плана и вычитаем фактически выкуренные сегодня
     const cigarettesAvoided = Math.max(0, smokingPlan.start_cigarettes - todaySmoked);
     
-    // 1 сигарета = 11 минут жизни (общепринятая статистика)
     const minutesGained = cigarettesAvoided * 11;
     const hoursGained = Math.floor(minutesGained / 60);
     const remainingMinutes = minutesGained % 60;
@@ -237,7 +231,6 @@ export default function Dashboard() {
     const cigarettes = parseInt(todayCigarettes) || 0;
     const dailyLimit = getDailyLimit();
     
-    // Show warning if limit exceeded, but still save
     if (cigarettes > dailyLimit && smokingPlan) {
         toast({
           title: t('dashboard.limitExceeded') || "⚠️ Лимит на сегодня превышен",
@@ -308,11 +301,10 @@ export default function Dashboard() {
   const lifeExtension = getLifeExtension();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overflow-x-hidden">
-      <div className="dashboard-scale-wrapper">
-        <div className="container max-w-6xl mx-auto p-6">
-        <header className="flex flex-row justify-between items-center gap-4 mb-6">
-          <h1 className="text-2xl font-bold whitespace-nowrap">{t('nav.dashboard')}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-7xl">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold">{t('nav.dashboard')}</h1>
           <div className="flex items-center gap-2 flex-wrap">
             <LanguageSwitcher />
             <NotificationBell />
@@ -321,7 +313,7 @@ export default function Dashboard() {
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
-              <span>{t('nav.signOut')}</span>
+              <span className="hidden sm:inline">{t('nav.signOut')}</span>
             </Button>
           </div>
         </header>
@@ -329,10 +321,10 @@ export default function Dashboard() {
         <MotivationalBanner daysWithoutSmoking={daysWithoutSmoking} />
 
         {/* Quick Log Input */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex flex-col gap-4">
-              <Label htmlFor="todayCigarettes" className="text-base font-medium">
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <Label htmlFor="todayCigarettes" className="text-sm sm:text-base font-medium">
                 {t('dashboard.todaySmoked')}
               </Label>
               <div className="flex gap-2">
@@ -343,23 +335,23 @@ export default function Dashboard() {
                   placeholder="0"
                   value={todayCigarettes}
                   onChange={(e) => setTodayCigarettes(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 h-10 sm:h-11"
                 />
                 <Button 
                   onClick={handleQuickSave} 
                   disabled={isSaving || todayCigarettes === ""}
                   size="default"
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap h-10 sm:h-11 text-sm"
                 >
                   {isSaving ? "..." : t('dashboard.saveTodayLog')}
                 </Button>
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button 
                   onClick={() => setTodayCigarettes("0")} 
                   variant="outline"
                   size="default"
-                  className="flex-1"
+                  className="text-xs sm:text-sm h-10"
                 >
                   0️⃣ {t('dashboard.noSmoking')}
                 </Button>
@@ -367,7 +359,7 @@ export default function Dashboard() {
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 1).toString())} 
                   variant="outline"
                   size="default"
-                  className="flex-1"
+                  className="text-xs sm:text-sm h-10"
                 >
                   +1
                 </Button>
@@ -375,7 +367,7 @@ export default function Dashboard() {
                   onClick={() => setTodayCigarettes((parseInt(todayCigarettes || "0") + 5).toString())} 
                   variant="outline"
                   size="default"
-                  className="flex-1"
+                  className="text-xs sm:text-sm h-10"
                 >
                   +5
                 </Button>
@@ -386,50 +378,47 @@ export default function Dashboard() {
 
         {/* No Data Indicator */}
         {dailyLogs.length === 0 && (
-          <Card className="mb-6 border-amber-500/50 bg-amber-500/5">
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground text-base">
+          <Card className="mb-4 sm:mb-6 border-amber-500/50 bg-amber-500/5">
+            <CardContent className="p-4 sm:p-6">
+              <p className="text-center text-muted-foreground text-sm sm:text-base">
                 📝 {t('dashboard.noDataYet')}
               </p>
             </CardContent>
           </Card>
         )}
 
-
-        {/* Statistics Grid - 4 Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           {/* Total Smoked */}
           <Card>
-            <CardHeader className="pb-2 p-5">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-3 sm:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t('dashboard.totalSmoked')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0">
+            <CardContent className="p-3 sm:p-4 pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold">{getTotalSmoked()}</p>
-                <TrendingDown className="h-8 w-8 text-destructive opacity-50" />
+                <p className="text-2xl sm:text-3xl font-bold">{getTotalSmoked()}</p>
+                <TrendingDown className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           {/* Life Extension */}
           <Card>
-            <CardHeader className="pb-2 p-5">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-3 sm:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t('dashboard.lifeExtended')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0">
+            <CardContent className="p-3 sm:p-4 pt-0">
               <div className="flex flex-col">
                 {lifeExtension.cigarettesAvoided > 0 ? (
-                  <>
-                    <p className="text-3xl font-bold text-success">
-                      {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained}${t('dashboard.hours')} ` : ''}{lifeExtension.remainingMinutes}{t('dashboard.minutes')}
-                    </p>
-                  </>
+                  <p className="text-2xl sm:text-3xl font-bold text-success">
+                    {lifeExtension.hoursGained > 0 ? `${lifeExtension.hoursGained}${t('dashboard.hours')} ` : ''}{lifeExtension.remainingMinutes}{t('dashboard.minutes')}
+                  </p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t('dashboard.dataAfterLog')}</p>
                 )}
               </div>
             </CardContent>
@@ -437,159 +426,159 @@ export default function Dashboard() {
 
           {/* Money Spent */}
           <Card>
-            <CardHeader className="pb-2 p-5">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-3 sm:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t('dashboard.moneySpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0">
+            <CardContent className="p-3 sm:p-4 pt-0">
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-3xl font-bold">${getMoneySpent().toLocaleString()}</p>
-                  <p className="text-xs text-success mt-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl sm:text-3xl font-bold truncate">${getMoneySpent().toLocaleString()}</p>
+                  <p className="text-[10px] sm:text-xs text-success mt-1">
                     {t("dashboard.saved")}: ${moneySaved.toLocaleString()}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-destructive opacity-50" />
+                <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50 flex-shrink-0 ml-1" />
               </div>
             </CardContent>
           </Card>
 
           {/* Time Spent */}
           <Card>
-            <CardHeader className="pb-2 p-5">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-3 sm:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t('dashboard.timeSpent')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0">
+            <CardContent className="p-3 sm:p-4 pt-0">
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-3xl font-bold">{getTimeSpent()} {t('dashboard.minutes')}</p>
-                  <p className="text-xs text-success mt-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-2xl sm:text-3xl font-bold">{getTimeSpent()} {t('dashboard.minutes')}</p>
+                  <p className="text-[10px] sm:text-xs text-success mt-1">
                     {t("dashboard.saved")}: {timeSaved} {t('dashboard.minutes')}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-destructive opacity-50" />
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-destructive opacity-50 flex-shrink-0 ml-1" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Button
             onClick={() => navigate("/calendar")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-primary/10 to-success/10 border-primary/30 p-2 text-xs sm:text-sm"
           >
-            <Calendar className="h-6 w-6 text-primary" />
-            <span className="font-semibold text-sm leading-tight text-center">{t('dashboard.calendar')}</span>
+            <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <span className="font-semibold leading-tight text-center">{t('dashboard.calendar')}</span>
           </Button>
           <Button
             onClick={() => navigate("/chat")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <MessageSquare className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('dashboard.generalChat')}</span>
+            <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('dashboard.generalChat')}</span>
           </Button>
           <Button
             onClick={() => navigate("/progress")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <TrendingDown className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('dashboard.reductionPlan')}</span>
+            <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('dashboard.reductionPlan')}</span>
           </Button>
           <Button
             onClick={() => navigate("/challenges")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <Trophy className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('nav.challenges')}</span>
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('nav.challenges')}</span>
           </Button>
           <Button
             onClick={() => navigate("/friends")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <User className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('nav.friends')}</span>
+            <User className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('nav.friends')}</span>
           </Button>
           <Button
             onClick={() => navigate("/support")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <HeadphonesIcon className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('nav.support')}</span>
+            <HeadphonesIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('nav.support')}</span>
           </Button>
         </div>
 
-        {/* New Premium Features */}
-        <div className="grid grid-cols-5 gap-4 mb-8">
+        {/* Premium Features */}
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Button
             onClick={() => navigate("/achievements")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <Trophy className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('achievements.title')}</span>
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('achievements.title')}</span>
           </Button>
           <Button
             onClick={() => navigate("/tips")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <Lightbulb className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('nav.tips')}</span>
+            <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('nav.tips')}</span>
           </Button>
           <Button
             onClick={() => navigate("/exercises")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 p-2 text-xs sm:text-sm"
           >
-            <Dumbbell className="h-6 w-6" />
-            <span className="text-sm leading-tight text-center">{t('exercises.title')}</span>
+            <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="leading-tight text-center">{t('exercises.title')}</span>
           </Button>
           <Button
             onClick={() => navigate("/ai-plan")}
             variant="outline"
-            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30 p-2 text-xs sm:text-sm"
           >
-            <span className="text-2xl">🤖</span>
-            <span className="text-sm leading-tight text-center">{t('dashboard.aiPlan')}</span>
+            <span className="text-xl sm:text-2xl">🤖</span>
+            <span className="leading-tight text-center">{t('dashboard.aiPlan')}</span>
           </Button>
           <Button
             onClick={() => navigate("/premium")}
             variant="default"
-            className="h-20 flex flex-col gap-2 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-500 hover:via-amber-600 hover:to-yellow-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 p-2"
+            className="h-16 sm:h-20 flex flex-col gap-1 sm:gap-2 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 hover:from-yellow-500 hover:via-amber-600 hover:to-yellow-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 p-2 text-xs sm:text-sm"
           >
-            <Crown className="h-7 w-7 text-white drop-shadow-md animate-pulse" />
-            <span className="text-white font-bold text-sm drop-shadow-sm leading-tight text-center">{t('nav.premium')}</span>
+            <Crown className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-md animate-pulse" />
+            <span className="text-white font-bold drop-shadow-sm leading-tight text-center">{t('nav.premium')}</span>
           </Button>
         </div>
 
-        {/* Health Recovery Section - All in one row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Health Recovery Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <LungRecovery daysSmokeFree={daysWithoutSmoking} />
           <BodyRecovery daysSmokeFree={daysWithoutSmoking} />
           <Card>
-            <CardHeader className="pb-2 p-5">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardHeader className="pb-2 p-3 sm:p-4">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 {t('dashboard.healthRecovery')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-0">
+            <CardContent className="p-3 sm:p-4 pt-0">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-3xl font-bold text-success mb-2">
+                  <p className="text-2xl sm:text-3xl font-bold text-success mb-1.5 sm:mb-2">
                     {Math.min(100, daysWithoutSmoking * 2)}%
                   </p>
-                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground">
+                  <Progress value={Math.min(100, daysWithoutSmoking * 2)} className="h-1.5 sm:h-2 mb-1.5 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
                     {t('dashboard.recoveryMessage')}
                   </p>
                 </div>
@@ -597,7 +586,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
       </div>
     </div>
   );

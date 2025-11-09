@@ -84,32 +84,32 @@ export const MotivationalBanner = ({
   const currentQuote = quotes[currentQuoteIndex];
   const currentTip = tips[currentTipIndex];
   
-  return <Card className="mb-6 border-success/60">
-      <div className="p-6 space-y-4">
+  return <Card className="mb-4 sm:mb-6 border-success/60">
+      <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
         {/* Motivational Quote */}
-        <div className="bg-success/20 rounded-lg p-4 flex items-center gap-4 transition-all duration-500">
-          <span className="text-3xl">{currentQuote.icon}</span>
-          <div className="flex-1">
-            <p className="font-semibold text-lg text-success-foreground">{currentQuote.text}</p>
+        <div className="bg-success/20 rounded-lg p-3 sm:p-4 flex items-center gap-3 sm:gap-4 transition-all duration-500">
+          <span className="text-2xl sm:text-3xl flex-shrink-0">{currentQuote.icon}</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-base sm:text-lg text-success-foreground">{currentQuote.text}</p>
           </div>
-          <Sparkles className="w-6 h-6 text-success-foreground animate-pulse" />
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-success-foreground animate-pulse flex-shrink-0" />
         </div>
         
         {/* Days Without Smoking */}
-        <div className="text-center bg-success/20 rounded-lg p-4">
-          <h2 className="text-lg font-medium text-muted-foreground mb-2">
+        <div className="text-center bg-success/20 rounded-lg p-3 sm:p-4">
+          <h2 className="text-base sm:text-lg font-medium text-muted-foreground mb-1.5 sm:mb-2">
             {t('dashboard.daysWithoutSmoking')}
           </h2>
-          <p className="text-5xl font-bold text-success">{daysWithoutSmoking}</p>
+          <p className="text-4xl sm:text-5xl font-bold text-success">{daysWithoutSmoking}</p>
         </div>
 
         {/* Lifehack of the Day */}
         {currentTip && currentTip.description && (
-          <div className="bg-success/20 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-success mb-2">
+          <div className="bg-success/20 rounded-lg p-3 sm:p-4">
+            <h3 className="text-xs sm:text-sm font-semibold text-success mb-1.5 sm:mb-2">
               {t('lifehacks.dailyTipTitle')}
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {currentTip.description}
             </p>
           </div>

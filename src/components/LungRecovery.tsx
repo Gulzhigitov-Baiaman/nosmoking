@@ -59,24 +59,24 @@ export const LungRecovery = ({
 
   return (
     <Card>
-      <CardHeader className="pb-2 p-5">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          <Wind className="w-5 h-5 text-primary" />
+      <CardHeader className="pb-2 p-3 sm:p-4">
+        <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+          <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           {t('health.lungs')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-5 pt-0">
+      <CardContent className="p-3 sm:p-4 pt-0">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-3xl font-bold text-success mb-2">
+            <p className="text-2xl sm:text-3xl font-bold text-success mb-1.5 sm:mb-2">
               {Math.round(animationProgress)}%
             </p>
-            <Progress value={animationProgress} className="h-2 mb-2" />
-            <p className="text-xs text-muted-foreground">
+            <Progress value={animationProgress} className="h-1.5 sm:h-2 mb-1.5 sm:mb-2" />
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {lungState.text}
             </p>
           </div>
-          <div className="ml-4 relative w-16 h-16 flex-shrink-0">
+          <div className="ml-3 sm:ml-4 relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
             {/* Compact Clean Lungs SVG */}
             <svg 
               viewBox="0 0 300 350" 
