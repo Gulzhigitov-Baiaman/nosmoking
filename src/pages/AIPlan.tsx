@@ -84,37 +84,36 @@ function AIPlanContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-purple-500/5 to-blue-500/5 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-purple-500/5 to-blue-500/5 p-2 sm:p-4">
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard")}
-          className="mb-6"
+          className="mb-4 sm:mb-6 text-sm sm:text-base"
+          size="sm"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('common.back')}
         </Button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="text-4xl">🤖</div>
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="text-2xl sm:text-4xl">🤖</div>
           <div>
-            <h1 className="text-3xl font-bold">Персональный AI-план</h1>
-            <p className="text-muted-foreground">
-              Индивидуальный план отказа от курения на основе ваших данных
+            <h1 className="text-xl sm:text-3xl font-bold">Персональный AI-план</h1>
+            <p className="text-xs sm:text-base text-muted-foreground">
+              Индивидуальный план отказа от курения
             </p>
           </div>
         </div>
 
-        <Card className="mb-6 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <Sparkles className="h-6 w-6 text-purple-500 flex-shrink-0 mt-1" />
+        <Card className="mb-4 sm:mb-6 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20">
+          <CardContent className="p-3 sm:p-6 pt-3 sm:pt-6">
+            <div className="flex items-start gap-2 sm:gap-4">
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-bold text-lg mb-2">Как это работает?</h3>
-                <p className="text-muted-foreground text-sm">
-                  Искусственный интеллект проанализирует ваши данные (количество сигарет в день, 
-                  дату отказа, бюджет) и создаст персональный 30-дневный план с конкретными советами, 
-                  упражнениями и мотивационными сообщениями для каждого этапа отказа от курения.
+                <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">Как это работает?</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Искусственный интеллект проанализирует ваши данные и создаст персональный 30-дневный план с советами и мотивацией.
                 </p>
               </div>
             </div>
@@ -122,42 +121,44 @@ function AIPlanContent() {
         </Card>
 
         {!plan ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 sm:py-12">
             <Button
               onClick={generatePlan}
               disabled={loading || !profile}
-              size="lg"
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+              size="default"
+              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-sm sm:text-base"
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Генерация плана...
+                  <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  Генерация...
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Сгенерировать персональный план
+                  <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  Сгенерировать план
                 </>
               )}
             </Button>
             {!profile && (
-              <p className="text-sm text-muted-foreground mt-4">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
                 Сначала заполните свой профиль
               </p>
             )}
           </div>
         ) : (
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="p-3 sm:p-6 pt-3 sm:pt-6">
               <div className="prose prose-sm max-w-none">
-                <div className="whitespace-pre-wrap">{plan}</div>
+                <div className="whitespace-pre-wrap text-xs sm:text-sm">{plan}</div>
               </div>
-              <div className="mt-6 flex justify-center">
+              <div className="mt-4 sm:mt-6 flex justify-center">
                 <Button
                   onClick={generatePlan}
                   disabled={loading}
                   variant="outline"
+                  size="sm"
+                  className="text-sm"
                 >
                   {loading ? (
                     <>
@@ -167,7 +168,7 @@ function AIPlanContent() {
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-4 w-4" />
-                      Сгенерировать новый план
+                      Новый план
                     </>
                   )}
                 </Button>

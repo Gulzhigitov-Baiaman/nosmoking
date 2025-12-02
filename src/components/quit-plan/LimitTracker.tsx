@@ -33,25 +33,25 @@ export const LimitTracker = ({ plan, todayPuffs }: LimitTrackerProps) => {
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-around gap-4">
-          <Target className="h-16 w-16 text-primary opacity-50" />
+      <CardContent className="p-3 sm:p-6 pt-3 sm:pt-6">
+        <div className="flex items-center justify-around gap-2 sm:gap-4">
+          <Target className="h-10 w-10 sm:h-16 sm:w-16 text-primary opacity-50" />
           
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1">
               {t('quitPlan.limitToday')}
             </p>
-            <p className="text-3xl font-bold text-destructive">
-              {dailyLimit} <span className="text-base">{t('quitPlan.puffs')}</span>
+            <p className="text-xl sm:text-3xl font-bold text-destructive">
+              {dailyLimit} <span className="text-xs sm:text-base">{t('quitPlan.puffs')}</span>
             </p>
           </div>
           
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1">
               {t('quitPlan.puffsToday')}
             </p>
-            <p className="text-3xl font-bold text-primary">
-              {todayPuffs} <span className="text-base">{t('quitPlan.puffs')}</span>
+            <p className="text-xl sm:text-3xl font-bold text-primary">
+              {todayPuffs} <span className="text-xs sm:text-base">{t('quitPlan.puffs')}</span>
             </p>
           </div>
         </div>

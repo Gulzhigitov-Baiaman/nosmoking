@@ -26,18 +26,18 @@ export const BaselineSetup = ({ initialValue, onCreatePlan }: BaselineSetupProps
 
   return (
     <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
+      <CardHeader className="text-center p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardTitle className="text-lg sm:text-2xl">
           {t('quitPlan.setBaseline')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <p className="text-sm text-muted-foreground text-center">
+      <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-2 sm:pt-4">
+        <p className="text-xs sm:text-sm text-muted-foreground text-center">
           {t('quitPlan.baselineIs')}
         </p>
 
-        <div className="space-y-3">
-          <Label htmlFor="baseline" className="text-base">
+        <div className="space-y-2 sm:space-y-3">
+          <Label htmlFor="baseline" className="text-sm sm:text-base">
             {t('quitPlan.howManyPuffs')}
           </Label>
           <Input
@@ -47,17 +47,18 @@ export const BaselineSetup = ({ initialValue, onCreatePlan }: BaselineSetupProps
             placeholder={t('quitPlan.puffsPlaceholder')}
             value={baselinePuffs}
             onChange={(e) => setBaselinePuffs(e.target.value)}
-            className="text-lg"
+            className="text-base sm:text-lg h-10 sm:h-11"
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">
             {t('quitPlan.recommendRegister')}
           </p>
         </div>
 
         <Button
-          className="w-full"
+          className="w-full text-sm sm:text-base"
           onClick={handleSubmit}
           disabled={!baselinePuffs || parseInt(baselinePuffs) <= 0}
+          size="sm"
         >
           {t('quitPlan.createPlan')}
         </Button>

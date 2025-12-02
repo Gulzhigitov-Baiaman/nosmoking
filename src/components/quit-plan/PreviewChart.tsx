@@ -26,18 +26,18 @@ export const PreviewChart = ({ baselinePuffs, quitDate, onSavePlan }: PreviewCha
 
   return (
     <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
+      <CardHeader className="text-center p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardTitle className="text-lg sm:text-2xl">
           {t('quitPlan.preview.chart.title')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <p className="text-sm text-muted-foreground text-center">
+      <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-2 sm:pt-4">
+        <p className="text-xs sm:text-sm text-muted-foreground text-center">
           {t('quitPlan.preview.chart.description')}
         </p>
 
         {/* Preview of the progress chart */}
-        <div className="bg-muted/30 rounded-lg p-4">
+        <div className="bg-muted/30 rounded-lg p-2 sm:p-4">
           <ProgressChart 
             plan={dummyPlan} 
             logs={dummyLogs} 
@@ -46,8 +46,8 @@ export const PreviewChart = ({ baselinePuffs, quitDate, onSavePlan }: PreviewCha
 
         <Button 
           onClick={onSavePlan} 
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-          size="lg"
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm sm:text-base"
+          size="sm"
         >
           {t('quitPlan.preview.chart.saveButton')}
         </Button>

@@ -21,25 +21,25 @@ export const PreviewLimitTracker = ({ baselinePuffs, quitDate, onContinue }: Pre
 
   return (
     <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">
+      <CardHeader className="text-center p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardTitle className="text-lg sm:text-2xl">
           {t('quitPlan.preview.limitTracker.title')}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <p className="text-sm text-muted-foreground text-center">
+      <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6 pt-2 sm:pt-4">
+        <p className="text-xs sm:text-sm text-muted-foreground text-center">
           {t('quitPlan.preview.limitTracker.description')}
         </p>
 
         {/* Preview of the tracker */}
-        <div className="bg-muted/30 rounded-lg p-4">
+        <div className="bg-muted/30 rounded-lg p-2 sm:p-4">
           <LimitTracker 
             plan={dummyPlan} 
             todayPuffs={0} 
           />
         </div>
 
-        <Button onClick={onContinue} className="w-full" size="lg">
+        <Button onClick={onContinue} className="w-full text-sm sm:text-base" size="sm">
           {t('quitPlan.continue')}
         </Button>
       </CardContent>

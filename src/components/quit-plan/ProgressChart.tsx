@@ -53,41 +53,43 @@ export const ProgressChart = ({ plan, logs }: ProgressChartProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-destructive rounded-full" />
-              <span className="text-sm">{t('quitPlan.puffLimit')}</span>
+      <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-destructive rounded-full" />
+              <span className="text-xs sm:text-sm">{t('quitPlan.puffLimit')}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-primary rounded-full" />
-              <span className="text-sm">{t('quitPlan.actualPuffs')}</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full" />
+              <span className="text-xs sm:text-sm">{t('quitPlan.actualPuffs')}</span>
             </div>
           </div>
-          <Button variant="ghost" size="icon">
-            <Maximize2 className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+            <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+      <CardContent className="p-2 sm:p-6 pt-0">
+        <ResponsiveContainer width="100%" height={200} className="sm:!h-[300px]">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis 
               dataKey="day" 
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              className="text-[10px] sm:text-xs"
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             />
             <YAxis 
-              className="text-xs"
-              tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              className="text-[10px] sm:text-xs"
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              width={30}
             />
             <Tooltip 
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                fontSize: '12px'
               }}
             />
             <Line

@@ -77,30 +77,31 @@ const Support = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
-      <div className="max-w-2xl mx-auto pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-2 sm:p-4">
+      <div className="max-w-2xl mx-auto pt-4 sm:pt-8">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard")}
-          className="mb-6"
+          className="mb-4 sm:mb-6 text-sm sm:text-base"
+          size="sm"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Назад
         </Button>
 
-        <div className="bg-card rounded-lg shadow-lg p-6 md:p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <MessageSquare className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Поддержка</h1>
+        <div className="bg-card rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            <h1 className="text-xl sm:text-3xl font-bold">Поддержка</h1>
           </div>
 
-          <p className="text-muted-foreground mb-6">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
             Есть вопросы или предложения? Напишите нам, и мы обязательно ответим!
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <Label htmlFor="name">Ваше имя</Label>
+              <Label htmlFor="name" className="text-sm sm:text-base">Ваше имя</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -110,11 +111,12 @@ const Support = () => {
                 placeholder="Иван Иванов"
                 maxLength={100}
                 required
+                className="text-sm sm:text-base h-9 sm:h-10"
               />
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -125,11 +127,12 @@ const Support = () => {
                 placeholder="ivan@example.com"
                 maxLength={255}
                 required
+                className="text-sm sm:text-base h-9 sm:h-10"
               />
             </div>
 
             <div>
-              <Label htmlFor="message">Сообщение</Label>
+              <Label htmlFor="message" className="text-sm sm:text-base">Сообщение</Label>
               <Textarea
                 id="message"
                 value={formData.message}
@@ -137,13 +140,14 @@ const Support = () => {
                   setFormData({ ...formData, message: e.target.value })
                 }
                 placeholder="Опишите вашу проблему или вопрос..."
-                rows={6}
+                rows={5}
                 maxLength={2000}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full text-sm sm:text-base" disabled={loading} size="sm">
               {loading ? "Отправка..." : "Отправить сообщение"}
             </Button>
           </form>

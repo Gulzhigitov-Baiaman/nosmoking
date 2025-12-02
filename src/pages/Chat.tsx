@@ -203,17 +203,17 @@ function ChatContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-4xl mx-auto p-4">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="h-5 w-5" />
+      <div className="container max-w-4xl mx-auto p-2 sm:p-4">
+        <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-          <h1 className="text-3xl font-bold">💬 Общий чат</h1>
+          <h1 className="text-xl sm:text-3xl font-bold">💬 Общий чат</h1>
         </div>
 
-        <Card className="h-[calc(100vh-200px)] flex flex-col">
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
+        <Card className="h-[calc(100vh-140px)] sm:h-[calc(100vh-200px)] flex flex-col">
+          <ScrollArea className="flex-1 p-2 sm:p-4">
+            <div className="space-y-3 sm:space-y-4">
               {messages.map((msg) => {
                 const reactionCounts = getReactionCounts(msg.id);
                 const userReaction = reactions[msg.id]?.find((r) => r.user_id === user?.id);
@@ -225,25 +225,25 @@ function ChatContent() {
                       msg.user_id === user?.id ? "items-end" : "items-start"
                     }`}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <span className="text-xs sm:text-sm font-medium">
                         {msg.profiles.display_name || msg.profiles.username}
                       </span>
-                      <span className="text-xs bg-primary/20 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] sm:text-xs bg-primary/20 px-1.5 sm:px-2 py-0.5 rounded-full">
                         {getDaysWithoutSmoking(msg.profiles.quit_date)} дней
                       </span>
                     </div>
                     <div
-                      className={`max-w-[70%] rounded-lg p-3 ${
+                      className={`max-w-[85%] sm:max-w-[70%] rounded-lg p-2 sm:p-3 ${
                         msg.user_id === user?.id
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
-                      <p className="text-sm">{msg.message}</p>
+                      <p className="text-xs sm:text-sm">{msg.message}</p>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 sm:gap-2 mt-1">
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">
                         {new Date(msg.created_at).toLocaleTimeString("ru-RU", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -251,18 +251,18 @@ function ChatContent() {
                       </span>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-6 px-2">
+                          <Button variant="ghost" size="sm" className="h-5 sm:h-6 px-1.5 sm:px-2">
                             <Smile className="h-3 w-3" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-2">
-                          <div className="flex gap-1">
+                        <PopoverContent className="w-auto p-1 sm:p-2">
+                          <div className="flex gap-0.5 sm:gap-1 flex-wrap">
                             {QUICK_EMOJIS.map((emoji) => (
                               <Button
                                 key={emoji}
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 w-8 p-0 text-lg"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-base sm:text-lg"
                                 onClick={() => addReaction(msg.id, emoji)}
                               >
                                 {emoji}
@@ -273,13 +273,13 @@ function ChatContent() {
                       </Popover>
                     </div>
                     {Object.keys(reactionCounts).length > 0 && (
-                      <div className="flex gap-1 mt-1">
+                      <div className="flex gap-0.5 sm:gap-1 mt-1 flex-wrap">
                         {Object.entries(reactionCounts).map(([emoji, count]) => (
                           <Button
                             key={emoji}
                             variant="outline"
                             size="sm"
-                            className={`h-6 px-2 text-xs ${
+                            className={`h-5 sm:h-6 px-1.5 sm:px-2 text-[10px] sm:text-xs ${
                               userReaction?.emoji === emoji ? "bg-primary/20" : ""
                             }`}
                             onClick={() => addReaction(msg.id, emoji)}
@@ -295,7 +295,7 @@ function ChatContent() {
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t">
+          <div className="p-2 sm:p-4 border-t">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -308,8 +308,9 @@ function ChatContent() {
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Напишите сообщение..."
                 disabled={sending}
+                className="text-sm sm:text-base h-9 sm:h-10"
               />
-              <Button type="submit" disabled={sending || !newMessage.trim()}>
+              <Button type="submit" disabled={sending || !newMessage.trim()} size="sm" className="h-9 sm:h-10 px-3 sm:px-4">
                 <Send className="h-4 w-4" />
               </Button>
             </form>

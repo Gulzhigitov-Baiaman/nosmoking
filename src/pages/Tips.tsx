@@ -191,79 +191,81 @@ const Tips = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
-      <div className="max-w-5xl mx-auto pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-2 sm:p-4">
+      <div className="max-w-5xl mx-auto pt-4 sm:pt-8">
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard")}
-          className="mb-6"
+          className="mb-4 sm:mb-6 text-sm sm:text-base"
+          size="sm"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Назад
         </Button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <Book className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Советы и Лайфхаки</h1>
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <Book className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+          <h1 className="text-xl sm:text-3xl font-bold">Советы и Лайфхаки</h1>
         </div>
 
 
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mb-6">
-          <TabsList className="grid grid-cols-2 w-full max-w-md">
-            <TabsTrigger value="tips">
-              <Book className="w-4 h-4 mr-2" />
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mb-4 sm:mb-6">
+          <TabsList className="grid grid-cols-2 w-full max-w-md h-9 sm:h-10">
+            <TabsTrigger value="tips" className="text-xs sm:text-sm">
+              <Book className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Советы
             </TabsTrigger>
-            <TabsTrigger value="lifehacks">
-              <Lightbulb className="w-4 h-4 mr-2" />
+            <TabsTrigger value="lifehacks" className="text-xs sm:text-sm">
+              <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Лайфхаки
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tips">
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
               {categories.map((category) => (
                 <Button
                   key={category.value}
                   variant={selectedCategory === category.value ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category.value)}
-                  className="text-sm"
+                  className="text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                  size="sm"
                 >
-                  <span className="mr-1">{category.icon}</span>
+                  <span className="mr-0.5 sm:mr-1">{category.icon}</span>
                   {category.label}
                 </Button>
               ))}
             </div>
 
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Загрузка...</p>
+              <div className="text-center py-8 sm:py-12">
+                <p className="text-sm sm:text-base text-muted-foreground">Загрузка...</p>
               </div>
             ) : filteredTips.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Советы не найдены</p>
+              <div className="text-center py-8 sm:py-12">
+                <p className="text-sm sm:text-base text-muted-foreground">Советы не найдены</p>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-3 sm:gap-4">
                 {filteredTips.map((tip) => (
                   <Card
                     key={tip.id}
-                    className="p-6 cursor-pointer transition-all hover:shadow-card"
+                    className="p-3 sm:p-6 cursor-pointer transition-all hover:shadow-card"
                     onClick={() => handleTipClick(tip)}
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2 sm:gap-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold mb-2">{tip.title}</h3>
-                        <p className="text-muted-foreground line-clamp-2 mb-4">
+                        <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">{tip.title}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-4">
                           {tip.content.substring(0, 150)}...
                         </p>
                         <button 
                           onClick={(e) => handleLikeTip(tip.id, e)}
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+                          className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground hover:text-destructive transition-colors"
                           disabled={likedTips.has(tip.id)}
                         >
                           <Heart 
-                            className={`h-4 w-4 ${likedTips.has(tip.id) ? 'fill-destructive text-destructive' : ''}`} 
+                            className={`h-3 w-3 sm:h-4 sm:w-4 ${likedTips.has(tip.id) ? 'fill-destructive text-destructive' : ''}`} 
                           />
                           <span>{tip.likes || 0} полезно</span>
                         </button>
@@ -276,44 +278,45 @@ const Tips = () => {
           </TabsContent>
 
           <TabsContent value="lifehacks">
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
               {lifehackCategories.map((category) => (
                 <Button
                   key={category.value}
                   variant={selectedCategory === category.value ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category.value)}
-                  className="text-sm"
+                  className="text-xs sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+                  size="sm"
                 >
-                  <span className="mr-1">{category.icon}</span>
+                  <span className="mr-0.5 sm:mr-1">{category.icon}</span>
                   {category.label}
                 </Button>
               ))}
             </div>
 
             {filteredLifehacks.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Лайфхаки не найдены</p>
+              <div className="text-center py-8 sm:py-12">
+                <p className="text-sm sm:text-base text-muted-foreground">Лайфхаки не найдены</p>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-3 sm:gap-4">
                 {filteredLifehacks.map((lifehack) => (
                     <Card
                       key={lifehack.id}
-                      className="p-6"
+                      className="p-3 sm:p-6"
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start justify-between gap-2 sm:gap-4">
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold mb-2">{lifehack.title}</h3>
-                          <p className="text-muted-foreground mb-4">
+                          <h3 className="text-base sm:text-xl font-semibold mb-1 sm:mb-2">{lifehack.title}</h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-4">
                             {lifehack.description}
                           </p>
                           <button 
                             onClick={() => handleLikeLifehack(lifehack.id)}
-                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors"
+                            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground hover:text-destructive transition-colors"
                             disabled={likedLifehacks.has(lifehack.id)}
                           >
                             <Heart 
-                              className={`h-4 w-4 ${likedLifehacks.has(lifehack.id) ? 'fill-destructive text-destructive' : ''}`} 
+                              className={`h-3 w-3 sm:h-4 sm:w-4 ${likedLifehacks.has(lifehack.id) ? 'fill-destructive text-destructive' : ''}`} 
                             />
                             <span>{lifehack.likes} полезно</span>
                           </button>
