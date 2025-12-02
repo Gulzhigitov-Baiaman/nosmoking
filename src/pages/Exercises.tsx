@@ -123,7 +123,7 @@ const getCategoryLabel = (category: string) => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background p-2 sm:p-4">
       <style>{`
         @keyframes breathe {
           0%, 100% { transform: scale(1); opacity: 0.6; }
@@ -150,21 +150,21 @@ const getCategoryLabel = (category: string) => {
         <Button
           variant="ghost"
           onClick={() => navigate("/dashboard")}
-          className="mb-4"
+          className="mb-3 sm:mb-4 text-sm"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
           {t('exercises.back')}
         </Button>
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">💪 {t('exercises.title')}</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">💪 {t('exercises.title')}</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             {t('exercises.subtitle')}
           </p>
         </div>
 
         {activeExercise && (
-          <Card className="mb-6 bg-gradient-to-br from-primary/10 to-primary/5">
+          <Card className="mb-4 sm:mb-6 bg-gradient-to-br from-primary/10 to-primary/5">
             <ExerciseCharacter 
               isActive={!!activeExercise}
               isRunning={isRunning}
@@ -173,16 +173,16 @@ const getCategoryLabel = (category: string) => {
           </Card>
         )}
 
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
-          <TabsList className="grid grid-cols-4">
-            <TabsTrigger value="all">{t('exercises.allCategory')}</TabsTrigger>
-            <TabsTrigger value="breathing">{t('exercises.breathingCategory')}</TabsTrigger>
-            <TabsTrigger value="physical">{t('exercises.physicalCategory')}</TabsTrigger>
-            <TabsTrigger value="meditation">{t('exercises.meditationCategory')}</TabsTrigger>
+        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-4 sm:mb-6">
+          <TabsList className="grid grid-cols-4 h-auto">
+            <TabsTrigger value="all" className="text-[10px] sm:text-sm py-2 px-1 sm:px-3">{t('exercises.allCategory')}</TabsTrigger>
+            <TabsTrigger value="breathing" className="text-[10px] sm:text-sm py-2 px-1 sm:px-3">{t('exercises.breathingCategory')}</TabsTrigger>
+            <TabsTrigger value="physical" className="text-[10px] sm:text-sm py-2 px-1 sm:px-3">{t('exercises.physicalCategory')}</TabsTrigger>
+            <TabsTrigger value="meditation" className="text-[10px] sm:text-sm py-2 px-1 sm:px-3">{t('exercises.meditationCategory')}</TabsTrigger>
           </TabsList>
         </Tabs>
 
-        <div className="grid gap-4 grid-cols-2">
+        <div className="grid gap-2 sm:gap-4 grid-cols-2">
           {filteredExercises.map((exercise) => {
             const isActive = activeExercise === exercise.id;
             const progress = isActive && exercise.duration > 0
@@ -192,57 +192,57 @@ const getCategoryLabel = (category: string) => {
             return (
               <Card
                 key={exercise.id}
-                className={`p-5 ${isActive ? "border-primary" : ""}`}
+                className={`p-2 sm:p-5 ${isActive ? "border-primary" : ""}`}
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-2 sm:mb-3">
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-2">{exercise.name}</h3>
-                    <Badge className="mb-2">
+                    <h3 className="font-bold text-xs sm:text-lg mb-1 sm:mb-2 line-clamp-2">{exercise.name}</h3>
+                    <Badge className="mb-1 sm:mb-2 text-[8px] sm:text-xs">
                       {getCategoryLabel(exercise.category)}
                     </Badge>
                   </div>
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-[10px] sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2">
                   {exercise.description}
                 </p>
 
                 {exercise.category === "breathing" && (
-                  <div className="mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100 p-4 flex justify-center">
-                    <div className="breathing-animation w-24 h-24 rounded-full bg-blue-400/60 flex items-center justify-center">
-                      <span className="text-3xl">🫁</span>
+                  <div className="mb-2 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100 p-2 sm:p-4 flex justify-center">
+                    <div className="breathing-animation w-12 h-12 sm:w-24 sm:h-24 rounded-full bg-blue-400/60 flex items-center justify-center">
+                      <span className="text-xl sm:text-3xl">🫁</span>
                     </div>
                   </div>
                 )}
 
                 {exercise.category === "physical" && (
-                  <div className="mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 p-4 flex justify-center">
-                    <div className="physical-animation w-24 h-24">
-                      <span className="text-5xl block">💪</span>
+                  <div className="mb-2 sm:mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 p-2 sm:p-4 flex justify-center">
+                    <div className="physical-animation w-12 h-12 sm:w-24 sm:h-24">
+                      <span className="text-2xl sm:text-5xl block">💪</span>
                     </div>
                   </div>
                 )}
 
-                <div className="text-sm text-muted-foreground mb-4">
+                <div className="text-[10px] sm:text-sm text-muted-foreground mb-2 sm:mb-4">
                   {t('exercises.durationLabel')}: {formatTime(exercise.duration)}
                 </div>
 
                 {isActive && (
-                  <div className="mb-4">
-                    <div className="text-center text-2xl font-bold mb-2">
+                  <div className="mb-2 sm:mb-4">
+                    <div className="text-center text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
                       {formatTime(timeLeft)}
                     </div>
-                    <Progress value={progress} className="h-2" />
+                    <Progress value={progress} className="h-1 sm:h-2" />
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   {!isActive ? (
                     <Button
                       onClick={() => startExercise(exercise)}
-                      className="flex-1"
+                      className="flex-1 text-[10px] sm:text-sm h-8 sm:h-10"
                     >
-                      <Play className="mr-2 h-4 w-4" />
+                      <Play className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       {t('exercises.startButton')}
                     </Button>
                   ) : (
@@ -251,17 +251,17 @@ const getCategoryLabel = (category: string) => {
                         <Button
                           variant="outline"
                           onClick={pauseExercise}
-                          className="flex-1"
+                          className="flex-1 text-[10px] sm:text-sm h-8 sm:h-10"
                         >
-                          <Pause className="mr-2 h-4 w-4" />
+                          <Pause className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           {t('exercises.pauseButton')}
                         </Button>
                       ) : (
                         <Button
                           onClick={resumeExercise}
-                          className="flex-1"
+                          className="flex-1 text-[10px] sm:text-sm h-8 sm:h-10"
                         >
-                          <Play className="mr-2 h-4 w-4" />
+                          <Play className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           {t('exercises.resumeButton')}
                         </Button>
                       )}
@@ -269,8 +269,9 @@ const getCategoryLabel = (category: string) => {
                         variant="ghost"
                         onClick={resetExercise}
                         size="icon"
+                        className="h-8 w-8 sm:h-10 sm:w-10"
                       >
-                        <RotateCcw className="h-4 w-4" />
+                        <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
                     </>
                   )}
@@ -281,7 +282,7 @@ const getCategoryLabel = (category: string) => {
         </div>
 
         {filteredExercises.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-8 sm:py-12 text-muted-foreground text-sm">
             {t('exercises.noExercises')}
           </div>
         )}

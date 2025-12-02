@@ -156,101 +156,101 @@ function CalendarContent() {
   const stats = getMonthStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <div className="container max-w-6xl mx-auto pt-8">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4">
+      <div className="container max-w-6xl mx-auto pt-4 sm:pt-8">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4 sm:mb-6 text-sm">
+          <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
           Назад
         </Button>
 
-        <div className="flex items-center gap-3 mb-8">
-          <CalendarIcon className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold">Ежедневный календарь</h1>
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
+          <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+          <h1 className="text-xl sm:text-3xl font-bold">Ежедневный календарь</h1>
         </div>
 
-        <Card className="mb-6">
-          <CardContent className="pt-6">
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
             <CalendarComponent
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
-              className="mx-auto"
+              className="mx-auto [&_.rdp-cell]:w-8 [&_.rdp-cell]:h-8 sm:[&_.rdp-cell]:w-9 sm:[&_.rdp-cell]:h-9 [&_.rdp-head_cell]:w-8 sm:[&_.rdp-head_cell]:w-9 [&_.rdp-button]:w-8 [&_.rdp-button]:h-8 sm:[&_.rdp-button]:w-9 sm:[&_.rdp-button]:h-9"
             />
             
-            <div className="mt-6 flex gap-4 justify-center text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-success" />
+            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-4 justify-center text-xs sm:text-sm">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-success" />
                 <span>Без сигарет</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-accent" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-accent" />
                 <span>Меньше среднего</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-destructive" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded bg-destructive" />
                 <span>Больше среднего</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Всего выкурено</CardTitle>
+            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Всего выкурено</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{stats.totalCigarettes}</p>
-                <TrendingDown className="w-8 h-8 text-destructive opacity-50" />
+                <p className="text-lg sm:text-2xl font-bold">{stats.totalCigarettes}</p>
+                <TrendingDown className="w-5 h-5 sm:w-8 sm:h-8 text-destructive opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Дней без курения</CardTitle>
+            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Дней без курения</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-success">{stats.daysSmokeFree}</p>
-                <Award className="w-8 h-8 text-success opacity-50" />
+                <p className="text-lg sm:text-2xl font-bold text-success">{stats.daysSmokeFree}</p>
+                <Award className="w-5 h-5 sm:w-8 sm:h-8 text-success opacity-50" />
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Потрачено денег</CardTitle>
+            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Потрачено денег</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">₩{stats.moneySpent.toLocaleString()}</p>
-                <DollarSign className="w-8 h-8 text-destructive opacity-50" />
+                <p className="text-base sm:text-2xl font-bold">₩{stats.moneySpent.toLocaleString()}</p>
+                <DollarSign className="w-5 h-5 sm:w-8 sm:h-8 text-destructive opacity-50 hidden sm:block" />
               </div>
-              <p className="text-xs text-success mt-1">Сэкономлено: ₩{stats.moneySaved.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-success mt-1">Сэкономлено: ₩{stats.moneySaved.toLocaleString()}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Потрачено времени</CardTitle>
+            <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Потрачено времени</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{stats.timeSpent} мин</p>
-                <Clock className="w-8 h-8 text-destructive opacity-50" />
+                <p className="text-base sm:text-2xl font-bold">{stats.timeSpent} мин</p>
+                <Clock className="w-5 h-5 sm:w-8 sm:h-8 text-destructive opacity-50 hidden sm:block" />
               </div>
-              <p className="text-xs text-success mt-1">Сэкономлено: {stats.timeSaved} мин</p>
+              <p className="text-[10px] sm:text-xs text-success mt-1">Сэкономлено: {stats.timeSaved} мин</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex gap-4">
-          <Button onClick={() => navigate("/statistics")} variant="outline" className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          <Button onClick={() => navigate("/statistics")} variant="outline" className="flex-1 text-sm">
             📊 Подробная статистика
           </Button>
-          <Button onClick={() => navigate("/leaderboard")} variant="outline" className="flex-1">
+          <Button onClick={() => navigate("/leaderboard")} variant="outline" className="flex-1 text-sm">
             🏆 Соревнования
           </Button>
         </div>
