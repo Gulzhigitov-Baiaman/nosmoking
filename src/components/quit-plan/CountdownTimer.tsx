@@ -43,37 +43,37 @@ export const CountdownTimer = ({ quitDate }: CountdownTimerProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-center text-xl">
+      <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardTitle className="text-center text-base sm:text-xl">
           {t('quitPlan.countdownTimer')}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-2 md:gap-4">
-          <div className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-primary bg-primary/5">
-            <p className="text-3xl md:text-4xl font-bold text-primary">{days}</p>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+      <CardContent className="p-3 sm:p-6 pt-2 sm:pt-4">
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-4">
+          <div className="flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg border-2 border-primary bg-primary/5">
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold text-primary">{days}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {t('quitPlan.day')}
             </p>
           </div>
           
-          <div className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-primary bg-primary/5">
-            <p className="text-3xl md:text-4xl font-bold text-primary">{hours}</p>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+          <div className="flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg border-2 border-primary bg-primary/5">
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold text-primary">{hours}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {t('quitPlan.hour')}
             </p>
           </div>
           
-          <div className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-primary bg-primary/5">
-            <p className="text-3xl md:text-4xl font-bold text-primary">{minutes}</p>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+          <div className="flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg border-2 border-primary bg-primary/5">
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold text-primary">{minutes}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {t('quitPlan.min')}
             </p>
           </div>
           
-          <div className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-primary bg-primary/5">
-            <p className="text-3xl md:text-4xl font-bold text-primary">{seconds}</p>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+          <div className="flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg border-2 border-primary bg-primary/5">
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold text-primary">{seconds}</p>
+            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1">
               {t('quitPlan.sec')}
             </p>
           </div>

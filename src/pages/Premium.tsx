@@ -164,74 +164,74 @@ const Premium = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
-      <div className="max-w-5xl mx-auto pt-8">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-2 sm:p-4">
+      <div className="max-w-5xl mx-auto pt-4 sm:pt-8">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-4 sm:mb-6 text-sm sm:text-base" size="sm">
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('nav.back')}
         </Button>
 
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Crown className="w-12 h-12 text-primary" />
-            <h1 className="text-4xl font-bold">{t('premium.title')}</h1>
+        <div className="text-center mb-6 sm:mb-12">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-4">
+            <Crown className="w-8 h-8 sm:w-12 sm:h-12 text-primary" />
+            <h1 className="text-2xl sm:text-4xl font-bold">{t('premium.title')}</h1>
           </div>
-          <p className="text-xl text-muted-foreground">{t('premium.subtitle')}</p>
+          <p className="text-sm sm:text-xl text-muted-foreground">{t('premium.subtitle')}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <Card className="p-6">
-            <h3 className="text-2xl font-bold mb-4">{t('premium.free')}</h3>
-            <div className="space-y-3 mb-6">
+        <div className="grid md:grid-cols-2 gap-3 sm:gap-6 mb-6 sm:mb-12">
+          <Card className="p-4 sm:p-6">
+            <h3 className="text-lg sm:text-2xl font-bold mb-3 sm:mb-4">{t('premium.free')}</h3>
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-green-500" />
-                <span>Basic statistics</span>
+                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                <span className="text-sm sm:text-base">Basic statistics</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-green-500" />
-                <span>Limited exercises</span>
+                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                <span className="text-sm sm:text-base">Limited exercises</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5 text-green-500" />
-                <span>Basic tips</span>
+                <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                <span className="text-sm sm:text-base">Basic tips</span>
               </div>
             </div>
-            <Button variant="outline" disabled className="w-full">Current Plan</Button>
+            <Button variant="outline" disabled className="w-full text-sm sm:text-base" size="sm">Current Plan</Button>
           </Card>
 
-          <Card className={`p-6 ${isPremium ? 'border-2 border-primary' : ''}`}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold flex items-center gap-2">
-                <Crown className="w-6 h-6 text-primary" />
+          <Card className={`p-4 sm:p-6 ${isPremium ? 'border-2 border-primary' : ''}`}>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-lg sm:text-2xl font-bold flex items-center gap-1 sm:gap-2">
+                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 Premium
               </h3>
               {isPremium && (
-                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm">
+                <span className="bg-primary text-primary-foreground px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm">
                   {t('premium.active')}
                 </span>
               )}
             </div>
             
-            <div className="mb-6">
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold">$1</span>
-                <span className="text-muted-foreground">/ {t('premium.perMonth')}</span>
+            <div className="mb-4 sm:mb-6">
+              <div className="flex items-baseline gap-1 sm:gap-2 mb-2">
+                <span className="text-2xl sm:text-4xl font-bold">$1</span>
+                <span className="text-xs sm:text-base text-muted-foreground">/ {t('premium.perMonth')}</span>
               </div>
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
-                <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 sm:p-3 mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm font-semibold text-green-600 dark:text-green-400">
                   🎁 3 дня бесплатного использования
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Отменить можно в любой момент. Деньги вернутся автоматически.
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                  Отменить можно в любой момент.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2 mb-6">
+            <div className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
               {features.map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <span className="text-lg">{feature.icon}</span>
-                  <span className="text-sm">{feature.text}</span>
+                <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-sm sm:text-lg">{feature.icon}</span>
+                  <span className="text-xs sm:text-sm">{feature.text}</span>
                 </div>
               ))}
             </div>
@@ -240,44 +240,47 @@ const Premium = () => {
               <Button 
                 onClick={handleStripeCheckout}
                 disabled={loading}
-                className="w-full"
+                className="w-full text-sm sm:text-base"
+                size="sm"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 {loading ? "Loading..." : t('premium.subscribe')}
               </Button>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   onClick={handleManageSubscription}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   disabled={loading}
+                  size="sm"
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  {loading ? "Loading..." : t('premium.manageSubscription')}
+                  <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  {loading ? "..." : t('premium.manageSubscription')}
                 </Button>
                 <Button 
                   onClick={handleSyncSubscription}
                   variant="outline"
                   disabled={syncing}
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
+                  size="sm"
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                  Проверить статус
+                  <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                  Проверить
                 </Button>
               </div>
             )}
           </Card>
         </div>
 
-        <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5">
-          <h2 className="text-2xl font-bold mb-6 text-center">{t('premium.benefits.title')}</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+        <Card className="p-4 sm:p-8 bg-gradient-to-br from-primary/10 to-primary/5">
+          <h2 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 text-center">{t('premium.benefits.title')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
             {features.map((feature, idx) => (
-              <div key={idx} className="flex items-start gap-3">
-                <span className="text-2xl">{feature.icon}</span>
+              <div key={idx} className="flex items-start gap-2 sm:gap-3">
+                <span className="text-lg sm:text-2xl">{feature.icon}</span>
                 <div>
-                  <p className="font-semibold">{feature.text}</p>
+                  <p className="text-sm sm:text-base font-semibold">{feature.text}</p>
                 </div>
               </div>
             ))}

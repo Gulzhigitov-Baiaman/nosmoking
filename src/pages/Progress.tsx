@@ -187,19 +187,20 @@ function ProgressContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-4">
+      <div className="min-h-screen bg-background p-2 sm:p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 sm:h-10 sm:w-10"
               onClick={() => navigate("/dashboard")}
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+            <h1 className="text-lg sm:text-2xl font-bold">{t('quitPlan.title')}</h1>
           </div>
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-sm sm:text-base text-muted-foreground">
             {t('common.loading')}
           </p>
         </div>
@@ -210,17 +211,18 @@ function ProgressContent() {
   // Onboarding flow
   if (!plan) {
     return (
-      <div className="min-h-screen bg-background p-4">
+      <div className="min-h-screen bg-background p-2 sm:p-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 sm:h-10 sm:w-10"
               onClick={() => navigate("/dashboard")}
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-          <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+          <h1 className="text-lg sm:text-2xl font-bold">{t('quitPlan.title')}</h1>
         </div>
 
         {setupStep === 'intro' && (
@@ -279,20 +281,21 @@ function ProgressContent() {
 
   // Main Quit Plan screen
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background p-2 sm:p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8 sm:h-10 sm:w-10"
             onClick={() => navigate("/dashboard")}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">{t('quitPlan.title')}</h1>
+          <h1 className="text-lg sm:text-2xl font-bold">{t('quitPlan.title')}</h1>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <LimitTracker plan={plan} todayPuffs={getTodayPuffs()} />
           <CountdownTimer quitDate={plan.quit_date} />
           <ProgressChart plan={plan} logs={dailyLogs} />
